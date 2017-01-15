@@ -9,7 +9,7 @@ As a relational database you can define aggregation/view with different join car
 
 You can aggregate many data in one single tuple and the framework allows you choosing the kind of join for each aggregation. Because it's an event driven approach the framework need producers to inject data and supports cascading between repository, that means a repository source can be another repository instead of producer. See below an example of repository structure:
 
-![Introduction.png](.\docs\Images\Introduction.png)
+![Introduction.png](https://raw.githubusercontent.com/fdieulle/Observable.Repository/master/docs/Images/Introduction.png)
 
 ## Repository
 The main repository interface is `IRepository<TKey, TValue>`
