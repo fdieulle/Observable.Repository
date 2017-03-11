@@ -35,36 +35,37 @@ A main interface allows you to build and register all repositories and producers
 ## Fluent repository builder
 It can be hard to configure a repository and all behaviors you want to define. To help you doing that, a smart and fluent builder is available. This builder is compilator complient so you can't do a type mistake in your configuration, otherwise you can't compile your code. Let's see an example of configuration:
 
+
 ```cs
-container.Register<int, Client>(client => client.PKClientId);
-container.Build<int, ExecutedOrder, Order>(order => order.PKOrderId)
-    .JoinMany<Trade>()
-        .DefineList(execOrder => execOrder.Trades)
-        .RightPrimaryKey(trade => trade.PKTradeId)
-        .RightLinkKey(trade => trade.FKOrderId)
-        .LeftLinkKey(order => order.PKOrderId)
-    .DefineCtor(order => new ExecutedOrder { Order = order })
-    .Register();
-container.Build<int, ClientOrder, ExecutedOrder>(execOrder => execOrder.Order.PKOrderId)
-    .Join<Client>()
-        .RightLinkKey(client => client.PKClientId)
-        .LeftLinkKey(execOrder => execOrder.Order.FKClientId)
-    .JoinUpdate<Company>()
-        .DefineUpdate(clientOrder => company => clientOrder.Company = company)
-        .RightLinkKey(company => company.PKCompanyId)
-        .LeftLinkKey(execOrder => execOrder.Order.FKCompanyId)
-    .Register();
+	container.Register<int, Client>(client => client.PKClientId);
+	container.Build<int, ExecutedOrder, Order>(order => order.PKOrderId)
+    	.JoinMany<Trade>()
+        	.DefineList(execOrder => execOrder.Trades)
+            .RightPrimaryKey(trade => trade.PKTradeId)
+            .RightLinkKey(trade => trade.FKOrderId)
+            .LeftLinkKey(order => order.PKOrderId)
+        .DefineCtor(order => new ExecutedOrder { Order = order })
+        .Register();
+    container.Build<int, ClientOrder, ExecutedOrder>(execOrder => execOrder.Order.PKOrderId)
+        .Join<Client>()
+            .RightLinkKey(client => client.PKClientId)
+            .LeftLinkKey(execOrder => execOrder.Order.FKClientId)
+        .JoinUpdate<Company>()
+            .DefineUpdate(clientOrder => company => clientOrder.Company = company)
+            .RightLinkKey(company => company.PKCompanyId)
+            .LeftLinkKey(execOrder => execOrder.Order.FKCompanyId)
+        .Register();
 ```
 ## View
 If you want a view on a repository with different criteria like a filter or a data selector, you can do it easily.
 For example in a client application context you want to display a list of running orders and you don't want to manage each element operations like Add, Remove, Clear, ... You can subscribe on the repository by given the list/view instance, the repository will manage its state for you.
 
 ```cs
-var list = new List<ClientOrder>();
-var suscription = container.GetRepository<int, ClientOrder>()
-                           .Subscribe(list);
-// The list will be managed until the suscription result will be disposed
-suscription.Dispose();
+    var list = new List<ClientOrder>();
+    var suscription = container.GetRepository<int, ClientOrder>()
+        					   .Subscribe(list);
+    // The list will be managed until the suscription result will be disposed
+    suscription.Dispose();
 ```
 Be carefull, if you decide to give a list management to a repository, you can't modify it yourself because the repository will fail on the next events. But once the subscription is disposed the list is cleared and free to be reused by user code.
 
