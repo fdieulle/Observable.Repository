@@ -1,104 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4975541F-043E-4713-988C-3C6B9938C2F6}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Observable.Repository</RootNamespace>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+	<PackageId>Observable.Repository</PackageId>
+    <Authors>fdieulle</Authors>
+    <Product>Observable.Repository</Product>
+    <Copyright>Copyright ©  2017</Copyright>
+    <Description>Event driven approach to store, aggregate and manage data</Description>
+    <PackageProjectUrl>https://github.com/fdieulle/Observable.Repository</PackageProjectUrl>
     <AssemblyName>Observable.Repository</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Observable.Repository</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ActionType.cs" />
-    <Compile Include="AtomicNotification.cs" />
-    <Compile Include="Builders\IRepositoryBehaviorBuilder.cs" />
-    <Compile Include="Builders\IRepositoryBuilderFinalizer.cs" />
-    <Compile Include="Builders\JoinManyBuilder.cs" />
-    <Compile Include="Builders\JoinOneToBuildBuilder.cs" />
-    <Compile Include="Builders\JoinOneToUpdateBuilder.cs" />
-    <Compile Include="Builders\RepositoryBuilderFinalizer.cs" />
-    <Compile Include="Builders\RepositoryJoinBuilder.cs" />
-    <Compile Include="Collections\IResetableList.cs" />
-    <Compile Include="Collections\Pool.cs" />
-    <Compile Include="Configuration\IJoinConfiguration.cs" />
-    <Compile Include="Configuration\IRepositoryConfiguration.cs" />
-    <Compile Include="Configuration\JoinConfiguration.cs" />
-    <Compile Include="Configuration\JoinManyConfiguration.cs" />
-    <Compile Include="Configuration\JoinMode.cs" />
-    <Compile Include="Configuration\JoinOneToBuildConfiguration.cs" />
-    <Compile Include="Configuration\JoinOneToUpdateConfiguration.cs" />
-    <Compile Include="Configuration\KeyConfiguration.cs" />
-    <Compile Include="Configuration\RepositoryConfiguration.cs" />
-    <Compile Include="Configuration\StorageBehavior.cs" />
-    <Compile Include="Core\HashLinkedList.cs" />
-    <Compile Include="Core\KeyValue.cs" />
-    <Compile Include="Core\LinkedNode.cs" />
-    <Compile Include="Core\Mutex.cs" />
-    <Compile Include="IListView.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="IRepositoryContainer.cs" />
-    <Compile Include="Join\IJoin.cs" />
-    <Compile Include="Join\IStore.cs" />
-    <Compile Include="Join\StoreMany.cs" />
-    <Compile Include="Join\StoreOneToBuild.cs" />
-    <Compile Include="Join\StoreOneToUpdate.cs" />
-    <Compile Include="ListView.cs" />
-    <Compile Include="Producers\AbstractDataProducer.cs" />
-    <Compile Include="Producers\BufferedDataItemProducer.cs" />
-    <Compile Include="Producers\BufferedDataProducer.cs" />
-    <Compile Include="Producers\DefaultDataProducer.cs" />
-    <Compile Include="Producers\IBufferedDataProducer.cs" />
-    <Compile Include="Producers\IDataProducer.cs" />
-    <Compile Include="Producers\Producer.cs" />
-    <Compile Include="Producers\ProducerKey.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository.cs" />
-    <Compile Include="RepositoryContainer.cs" />
-    <Compile Include="RepositoryExtensions.cs" />
-    <Compile Include="RepositoryNotification.cs" />
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
-      <Project>{2fc99599-8c2b-497f-bb64-bc9d29afc290}</Project>
-      <Name>Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

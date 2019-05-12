@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{4975541F-043E-4713-988C-3C6B9938C2F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{2FC99599-8C2B-497F-BB64-BC9D29AFC290}"
@@ -40,5 +42,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0446B5BA-2B53-42CA-BE9B-6A4F81467FC9} = {D36CDB5E-2E0D-4416-B26F-1914DEAAAC40}
 		{81670FEE-6B2A-4968-B326-80292C1BFAA0} = {D36CDB5E-2E0D-4416-B26F-1914DEAAAC40}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {241BAEA8-63CA-4F00-97E5-C0665A18B5BE}
 	EndGlobalSection
 EndGlobal
