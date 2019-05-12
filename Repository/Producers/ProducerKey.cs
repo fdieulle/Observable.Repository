@@ -15,7 +15,7 @@ namespace Observable.Repository.Producers
 
             unchecked
             {
-                _hashCode = (this._name.GetHashCode() * 397) ^ this._type.GetHashCode();
+                _hashCode = (_name.GetHashCode() * 397) ^ _type.GetHashCode();
             }
         }
 

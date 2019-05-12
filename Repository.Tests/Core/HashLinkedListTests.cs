@@ -27,8 +27,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair.key);
-                Assert.AreEqual("Test"+idx, pair.value);
+                Assert.AreEqual(idx, pair._key);
+                Assert.AreEqual("Test"+idx, pair._value);
             }
 
             Assert.AreEqual(5, idx);
@@ -40,8 +40,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx + 1, pair.key);
-                Assert.AreEqual("Test" + (idx + 1), pair.value);
+                Assert.AreEqual(idx + 1, pair._key);
+                Assert.AreEqual("Test" + (idx + 1), pair._value);
             }
             Assert.AreEqual(4, idx);
 
@@ -52,8 +52,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx + 1, pair.key);
-                Assert.AreEqual("Test" + (idx + 1), pair.value);
+                Assert.AreEqual(idx + 1, pair._key);
+                Assert.AreEqual("Test" + (idx + 1), pair._value);
             }
             Assert.AreEqual(3, idx);
 
@@ -91,8 +91,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair.key);
-                Assert.AreEqual(values[idx - 1], pair.value);
+                Assert.AreEqual(idx, pair._key);
+                Assert.AreEqual(values[idx - 1], pair._value);
             }
 
             Assert.AreEqual(5, idx);
@@ -104,8 +104,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair.key);
-                Assert.AreEqual(values[idx - 1], pair.value);
+                Assert.AreEqual(idx, pair._key);
+                Assert.AreEqual(values[idx - 1], pair._value);
             }
 
             Assert.AreEqual(5, idx);
@@ -117,8 +117,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair.key);
-                Assert.AreEqual(values[idx - 1], pair.value);
+                Assert.AreEqual(idx, pair._key);
+                Assert.AreEqual(values[idx - 1], pair._value);
             }
 
             Assert.AreEqual(5, idx);
@@ -130,8 +130,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair.key);
-                Assert.AreEqual(values[idx - 1], pair.value);
+                Assert.AreEqual(idx, pair._key);
+                Assert.AreEqual(values[idx - 1], pair._value);
             }
 
             Assert.AreEqual(5, idx);
@@ -202,8 +202,8 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair.key);
-                Assert.AreEqual("Test" + idx, pair.value);
+                Assert.AreEqual(idx, pair._key);
+                Assert.AreEqual("Test" + idx, pair._value);
                 Assert.AreEqual(idx, copy[idx - 1].Key);
                 Assert.AreEqual("Test"+idx, copy[idx - 1].Value);
             }
@@ -223,8 +223,7 @@ namespace Observable.Repository.Tests.Core
                 {5, "Test5"}
             };
 
-            string value;
-            Assert.IsFalse(list.TryGetValue(0, out value));
+            Assert.IsFalse(list.TryGetValue(0, out var value));
             Assert.AreEqual(null, value);
 
             Assert.IsTrue(list.TryGetValue(1, out value));
