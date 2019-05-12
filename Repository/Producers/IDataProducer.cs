@@ -6,7 +6,7 @@ namespace Observable.Repository.Producers
     public interface IDataProducer : IDisposable
     {
         /// <summary>
-        /// Gets a producer multicast subject instance specified by its type and its name.
+        /// Gets a producer multi cast subject instance specified by its type and its name.
         /// There is only one producer instance by couple of data type and name in a container.
         /// All producers which are added or removed with double key will be done inside this same instance.
         /// </summary>

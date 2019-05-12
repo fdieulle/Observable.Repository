@@ -35,10 +35,8 @@ namespace Observable.Repository.Configuration
         /// <param name="forward">Forward notifications to repository owner</param>
         /// <returns>Returns the created store.</returns>
         protected override IStore<TKey, TValue, TLeft> CreateStore(IObservable<RepositoryNotification<TRight>> source, IEnumerable<TRight> snapshot, Mutex mutex,
-            Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward)
-        {
-            return new StoreOneToBuild<TKey, TValue, TLeft, TRight, TLinkKey>(this, source, snapshot, mutex);
-        }
+            Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward) 
+            => new StoreOneToBuild<TKey, TValue, TLeft, TRight, TLinkKey>(this, source, snapshot, mutex);
 
         #endregion
     }

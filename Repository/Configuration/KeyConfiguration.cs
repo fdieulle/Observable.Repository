@@ -10,15 +10,15 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the type to get the property value.
         /// </summary>
-        public Type FromType { get; private set; }
+        public Type FromType { get; }
         /// <summary>
         /// Gets the type of the key value.
         /// </summary>
-        public Type KeyType { get; private set; }
+        public Type KeyType { get; }
         /// <summary>
         /// Gets the key getter delegate.
         /// </summary>
-        public Delegate GetKey { get; private set; }
+        public Delegate GetKey { get; }
 
         /// <summary>
         /// Ctor.

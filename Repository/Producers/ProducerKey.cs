@@ -10,8 +10,8 @@ namespace Observable.Repository.Producers
 
         public ProducerKey(string name, Type type)
         {
-            this._name = name ?? string.Empty;
-            this._type = type ?? typeof(object);
+            _name = name ?? string.Empty;
+            _type = type ?? typeof(object);
 
             unchecked
             {
@@ -21,11 +21,9 @@ namespace Observable.Repository.Producers
 
         #region Equality members
 
-        private bool Equals(ProducerKey other)
-        {
-            return string.Equals(_name, other._name)
-                && _type == other._type;
-        }
+        private bool Equals(ProducerKey other) 
+            => string.Equals(_name, other._name)
+              && _type == other._type;
 
         public override bool Equals(object obj)
         {
@@ -35,20 +33,13 @@ namespace Observable.Repository.Producers
                 && Equals((ProducerKey)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
+        public override int GetHashCode() => _hashCode;
 
-        public static bool operator ==(ProducerKey left, ProducerKey right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(ProducerKey left, ProducerKey right) 
+            => Equals(left, right);
 
-        public static bool operator !=(ProducerKey left, ProducerKey right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(ProducerKey left, ProducerKey right) 
+            => !Equals(left, right);
 
         #endregion
     }

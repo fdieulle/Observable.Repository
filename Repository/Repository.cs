@@ -42,7 +42,7 @@ namespace Observable.Repository
         private readonly IStore<TKey, TValue, TLeft>[] _stores;
         private readonly int _nbStoresToBuild;
         private readonly IStore<TKey, TValue, TLeft>[] _storesToBuild;
-        private readonly IDisposable[] _storesSuscriptions;
+        private readonly IDisposable[] _storesSubscriptions;
 
         // Behavior
         private readonly bool _hasBehavior;
@@ -82,8 +82,8 @@ namespace Observable.Repository
             IObservable<RepositoryNotification<TLeft>> source,
             IEnumerable<TLeft> snapshot)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
 
             _getLeftKey = configuration.GetKey ?? (p => default(TKey));
             _updateValue = configuration.OnUpdate;
@@ -140,13 +140,13 @@ namespace Observable.Repository
 
             _nbStoresToBuild = filteredStores.Count;
             _storesToBuild = new IStore<TKey, TValue, TLeft>[_nbStoresToBuild];
-            _storesSuscriptions = new IDisposable[_nbStoresToBuild];
+            _storesSubscriptions = new IDisposable[_nbStoresToBuild];
 
             for (var i = 0; i < _nbStoresToBuild; i++)
             {
                 var store = filteredStores[i];
                 _storesToBuild[i] = store;
-                _storesSuscriptions[i] = store.Subscribe(OnItemsReceived);
+                _storesSubscriptions[i] = store.Subscribe(OnItemsReceived);
             }
 
             #endregion // Initialize Stores
@@ -205,24 +205,19 @@ namespace Observable.Repository
             return lazy.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
         #region Implementation of IObservable<out RepositoryNotification<KeyValue<TKey,TValue>>>
 
         /// <summary>
-        /// Subscrive on <see cref="IRepository{TKey, TValue}"/> notifications.
+        /// Subscribes on <see cref="IRepository{TKey, TValue}"/> notifications.
         /// </summary>
         /// <param name="observer">Observer of notifications.</param>
-        /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
-        public IDisposable Subscribe(IObserver<RepositoryNotification<KeyValue<TKey, TValue>>> observer)
-        {
-            return _subject.Subscribe(observer);
-        }
+        /// <returns>Returns result of the subscription. Dispose to release the subscription.</returns>
+        public IDisposable Subscribe(IObserver<RepositoryNotification<KeyValue<TKey, TValue>>> observer) 
+            => _subject.Subscribe(observer);
 
         #endregion
 
@@ -233,8 +228,7 @@ namespace Observable.Repository
         /// </summary>
         public void Dispose()
         {
-            if (_subscribeOnSource != null)
-                _subscribeOnSource.Dispose();
+            _subscribeOnSource?.Dispose();
 
             lock (_mutex._input)
             {
@@ -242,7 +236,7 @@ namespace Observable.Repository
                 {
                     _stores[i].Dispose();
                     if (i < _nbStoresToBuild)
-                        _storesSuscriptions[i].Dispose();
+                        _storesSubscriptions[i].Dispose();
                 }
 
                 _items.Clear((k, v) => Dispose(v));
@@ -271,12 +265,12 @@ namespace Observable.Repository
         /// <summary>
         /// Gets the <see cref="IRepository{TKey, TValue}"/> name.
         /// </summary>
-        public string Name { get { return _configuration.Name; } }
+        public string Name => _configuration.Name;
 
         /// <summary>
-        /// Gets the <see cref="IRepository{TKey, TValue}"/> confguration.
+        /// Gets the <see cref="IRepository{TKey, TValue}"/> configuration.
         /// </summary>
-        public IRepositoryConfiguration Configuration { get { return _configuration; } }
+        public IRepositoryConfiguration Configuration => _configuration;
 
         /// <summary>
         /// Gets the number of items in the <see cref="IRepository{TKey, TValue}"/>.
@@ -323,7 +317,7 @@ namespace Observable.Repository
         /// Gets a a value from a key in the <see cref="IRepository{TKey, TValue}"/>.
         /// </summary>
         /// <param name="key">Key of the value.</param>
-        /// <returns>Retuens the value.</returns>
+        /// <returns>Returns the value.</returns>
         public TValue this[TKey key]
         {
             get
@@ -341,26 +335,26 @@ namespace Observable.Repository
 
             lock (_mutex._input)
             {
-                return new Suscription(this, action, filter, withSnapshot, dispatch);
+                return new Subscription(this, action, filter, withSnapshot, dispatch);
             }
         }
         
-        private class Suscription : IDisposable
+        private class Subscription : IDisposable
         {
             private Action<RepositoryNotification<KeyValue<TKey, TValue>>> _action;
             private Func<KeyValue<TKey, TValue>, bool> _filter;
             private Action<Action> _dispatch;
-            private IDisposable _suscription;
+            private IDisposable _subscription;
 
-            public Suscription(Repository<TKey, TValue, TLeft> repository, 
+            public Subscription(Repository<TKey, TValue, TLeft> repository, 
                 Action<RepositoryNotification<KeyValue<TKey, TValue>>> action,
                 Func<KeyValue<TKey, TValue>, bool> filter = null, 
                 bool withSnapshot = false,
                 Action<Action> dispatch = null)
             {
-                this._action = action;
-                this._filter = filter;
-                this._dispatch = dispatch;
+                _action = action;
+                _filter = filter;
+                _dispatch = dispatch;
 
                 if (withSnapshot)
                 {
@@ -369,7 +363,7 @@ namespace Observable.Repository
                     else DispatchOnNext(e);
                 }
 
-                _suscription = dispatch == null 
+                _subscription = dispatch == null 
                     ? repository._subject.Subscribe(OnNext)
                     : repository._subject.Subscribe(DispatchOnNext);
             }
@@ -381,18 +375,16 @@ namespace Observable.Repository
                 _action(e);
             }
 
-            private void DispatchOnNext(RepositoryNotification<KeyValue<TKey, TValue>> e)
-            {
-                _dispatch(() => OnNext(e));
-            }
+            private void DispatchOnNext(RepositoryNotification<KeyValue<TKey, TValue>> e) 
+                => _dispatch(() => OnNext(e));
 
             #region Implementation of IDisposable
 
             public void Dispose()
             {
-                if (_suscription == null) return;
-                _suscription.Dispose();
-                _suscription = null;
+                if (_subscription == null) return;
+                _subscription.Dispose();
+                _subscription = null;
                 _action = null;
                 _filter = null;
                 _dispatch = null;
@@ -407,29 +399,29 @@ namespace Observable.Repository
 
             lock (_mutex._input)
             {
-                return new Suscription<TSelect>(this, action, selector, filter, withSnapshot, dispatch);
+                return new Subscription<TSelect>(this, action, selector, filter, withSnapshot, dispatch);
             }
         }
 
-        private class Suscription<TSelect> : IDisposable
+        private class Subscription<TSelect> : IDisposable
         {
             private Action<RepositoryNotification<TSelect>> _action;
             private Func<KeyValue<TKey, TValue>, TSelect> _selector;
             private Func<KeyValue<TKey, TValue>, bool> _filter;
             private Action<Action> _dispatch;
-            private IDisposable _suscription;
+            private IDisposable _subscription;
 
-            public Suscription(Repository<TKey, TValue, TLeft> repository,
+            public Subscription(Repository<TKey, TValue, TLeft> repository,
                 Action<RepositoryNotification<TSelect>> action,
                 Func<KeyValue<TKey, TValue>, TSelect> selector,
                 Func<KeyValue<TKey, TValue>, bool> filter = null,
                 bool withSnapshot = false,
                 Action<Action> dispatch = null)
             {
-                this._action = action;
-                this._selector = selector;
-                this._filter = filter;
-                this._dispatch = dispatch;
+                _action = action;
+                _selector = selector;
+                _filter = filter;
+                _dispatch = dispatch;
 
                 if (withSnapshot)
                 {
@@ -438,7 +430,7 @@ namespace Observable.Repository
                     else DispatchOnNext(e);
                 }
 
-                _suscription = dispatch == null
+                _subscription = dispatch == null
                     ? repository._subject.Subscribe(OnNext)
                     : repository._subject.Subscribe(DispatchOnNext);
             }
@@ -451,18 +443,16 @@ namespace Observable.Repository
                 _action(new RepositoryNotification<TSelect>(e.Action, e.OldItems.Select(_selector), e.NewItems.Select(_selector)));
             }
 
-            private void DispatchOnNext(RepositoryNotification<KeyValue<TKey, TValue>> e)
-            {
-                _dispatch(() => OnNext(e));
-            }
+            private void DispatchOnNext(RepositoryNotification<KeyValue<TKey, TValue>> e) 
+                => _dispatch(() => OnNext(e));
 
             #region Implementation of IDisposable
 
             public void Dispose()
             {
-                if (_suscription == null) return;
-                _suscription.Dispose();
-                _suscription = null;
+                if (_subscription == null) return;
+                _subscription.Dispose();
+                _subscription = null;
                 _selector = null;
                 _action = null;
                 _filter = null;
@@ -518,10 +508,8 @@ namespace Observable.Repository
             Action<TOValue, TValue> onUpdate = null,
             Func<TValue, bool> filter = null, 
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchObservers = null)
-        {
-            return _container.Build(name, getKey, onUpdate, Name, filter, disposeWhenValueIsRemoved, dispatchObservers);
-        }
+            Action<Action> dispatchObservers = null) 
+            => _container.Build(name, getKey, onUpdate, Name, filter, disposeWhenValueIsRemoved, dispatchObservers);
 
         #endregion
 
@@ -630,8 +618,7 @@ namespace Observable.Repository
             {
                 var key = _getLeftKey(item);
 
-                TValue replace;
-                if (!_items.TryGetValue(key, out replace)) // Add
+                if (!_items.TryGetValue(key, out var replace)) // Add
                 {
                     if (!_leftFilter(item)) continue;
 
@@ -730,8 +717,7 @@ namespace Observable.Repository
             {
                 var key = _getLeftKey(item);
 
-                TValue value;
-                if (!_items.TryGetValue(key, out value))
+                if (!_items.TryGetValue(key, out var value))
                     continue;
 
                 _itemsRemoved[key] = value;
@@ -777,8 +763,7 @@ namespace Observable.Repository
             if (!_isDisposable) return;
 
             var disposable = value as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            disposable?.Dispose();
         }
 
         #endregion
@@ -840,10 +825,8 @@ namespace Observable.Repository
 
         #endregion
 
-        private void Notify(ActionType action, IEnumerable<KeyValue<TKey, TValue>> oldItems, IEnumerable<KeyValue<TKey, TValue>> newItems)
-        {
-            _subject.OnNext(new RepositoryNotification<KeyValue<TKey, TValue>>(action, oldItems, newItems));
-        }
+        private void Notify(ActionType action, IEnumerable<KeyValue<TKey, TValue>> oldItems, IEnumerable<KeyValue<TKey, TValue>> newItems) 
+            => _subject.OnNext(new RepositoryNotification<KeyValue<TKey, TValue>>(action, oldItems, newItems));
 
         private void Forward(RepositoryNotification<KeyValue<TKey, TValue>> e)
         {
@@ -852,9 +835,7 @@ namespace Observable.Repository
             else _dispatcher(() => _subject.OnNext(e));
         }
 
-        private static TValue GetItSelf(TLeft left, object[] array)
-        {
-            return (TValue)(object)left;
-        }
+        private static TValue GetItSelf(TLeft left, object[] array) 
+            => (TValue)(object)left;
     }
 }

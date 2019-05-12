@@ -19,7 +19,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the left key getter delegate.
         /// </summary>
-        public Func<TLeft, TKey> GetKey { get; private set; }
+        public Func<TLeft, TKey> GetKey { get; }
 
         /// <summary>
         /// Gets the constructor value delegate.
@@ -34,7 +34,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the filter on the main source.
         /// </summary>
-        public Func<TLeft, bool> LeftFilter { get; private set; }
+        public Func<TLeft, bool> LeftFilter { get; }
 
         /// <summary>
         /// Gets the timestamp used by the TimeInterval behavior.
@@ -44,7 +44,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets all join configurations.
         /// </summary>
-        public IReadOnlyList<IJoin<TKey, TValue, TLeft>> Joins { get { return _joins; } }
+        public IReadOnlyList<IJoin<TKey, TValue, TLeft>> Joins => _joins;
 
         /// <summary>
         /// Ctor
@@ -84,52 +84,52 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the repository name.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         /// Gets the keys type.
         /// </summary>
-        public Type KeyType { get; private set; }
+        public Type KeyType { get; }
 
         /// <summary>
         /// Gets the values type.
         /// </summary>
-        public Type ValueType { get; private set; }
+        public Type ValueType { get; }
 
         /// <summary>
         /// Gets the main source type.
         /// </summary>
-        public Type LeftType { get; private set; }
+        public Type LeftType { get; }
 
         /// <summary>
         /// Gets the main source name.
         /// </summary>
-        public string LeftSourceName { get; private set; }
+        public string LeftSourceName { get; }
 
         /// <summary>
         /// Gets the key getter configuration.
         /// </summary>
-        public KeyConfiguration Key { get { return _keyConfiguration; } }
+        public KeyConfiguration Key => _keyConfiguration;
 
         /// <summary>
         /// Gets the filter on main source.
         /// </summary>
-        Delegate IRepositoryConfiguration.LeftFilter { get { return LeftFilter; } }
+        Delegate IRepositoryConfiguration.LeftFilter => LeftFilter;
 
         /// <summary>
         /// Indicates if the values created by the repository have to be disposed when their are removed. 
         /// </summary>
-        public bool DisposeWhenValueIsRemoved { get; private set; }
+        public bool DisposeWhenValueIsRemoved { get; }
 
         /// <summary>
         /// Gets dispatcher used to notify all changes.
         /// </summary>
-        public Action<Action> Dispatcher { get; private set; }
+        public Action<Action> Dispatcher { get; }
 
         /// <summary>
         /// Gets the constructor delegate.
         /// </summary>
-        Delegate IRepositoryConfiguration.Ctor { get { return Ctor; } }
+        Delegate IRepositoryConfiguration.Ctor => Ctor;
 
         /// <summary>
         /// Gets the constructor arguments type.
@@ -139,7 +139,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets all joins configurations.
         /// </summary>
-        IReadOnlyList<IJoinConfiguration> IRepositoryConfiguration.Joins { get { return _joins; } }
+        IReadOnlyList<IJoinConfiguration> IRepositoryConfiguration.Joins => _joins;
 
         /// <summary>
         /// Gets the storage behavior.
@@ -159,9 +159,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the timestamp delegate for the TimeInterval behavior.
         /// </summary>
-        Delegate IRepositoryConfiguration.GetTimestamp { get { return GetTimestamp; } }
-
-
+        Delegate IRepositoryConfiguration.GetTimestamp => GetTimestamp;
 
         #endregion
 
@@ -169,9 +167,6 @@ namespace Observable.Repository.Configuration
         /// Add a join on the configuration.
         /// </summary>
         /// <param name="join">Join to add.</param>
-        public void AddJoin(IJoin<TKey, TValue, TLeft> join)
-        {
-            _joins.Add(join);
-        }
+        public void AddJoin(IJoin<TKey, TValue, TLeft> join) => _joins.Add(@join);
     }
 }

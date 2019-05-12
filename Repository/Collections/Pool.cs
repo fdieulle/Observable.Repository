@@ -10,27 +10,18 @@ namespace Observable.Repository.Collections
  
         public Pool(Func<T> factory, int capacity = 0)
         {
-            this._factory = factory;
+            _factory = factory;
 
             for(var i=0;i <capacity; i++)
                 _items.Push(factory());
         }
 
-        public T Get()
-        {
-            return _items.Count == 0 
-                ? _factory() 
-                : _items.Pop();
-        }
+        public T Get() => _items.Count == 0 
+            ? _factory() 
+            : _items.Pop();
 
-        public void Free(T item)
-        {
-            _items.Push(item);
-        }
+        public void Free(T item) => _items.Push(item);
 
-        public void Clear()
-        {
-            _items.Clear();
-        }
+        public void Clear() => _items.Clear();
     }
 }

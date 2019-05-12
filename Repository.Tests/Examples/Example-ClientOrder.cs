@@ -41,9 +41,9 @@ namespace Observable.Repository.Tests.Examples
 
         public class ClientOrder
         {
-            public ExecutedOrder ExecutedOrder { get; private set; }
+            public ExecutedOrder ExecutedOrder { get; }
 
-            public Client Client { get; private set; }
+            public Client Client { get; }
 
             public Company Company { get; set; }
 

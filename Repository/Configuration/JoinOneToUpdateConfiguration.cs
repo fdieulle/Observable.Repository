@@ -19,7 +19,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the update methods on the repository values.
         /// </summary>
-        public Func<TValue, Action<TRight>> OnUpdate { get; private set; }
+        public Func<TValue, Action<TRight>> OnUpdate { get; }
 
         /// <summary>
         /// Ctor
@@ -41,10 +41,8 @@ namespace Observable.Repository.Configuration
         /// <param name="mutex">Mutex to be thread safe</param>
         /// <param name="forward">Forward notifications to repository owner</param>
         /// <returns>Returns the created store.</returns>
-        protected override IStore<TKey, TValue, TLeft> CreateStore(IObservable<RepositoryNotification<TRight>> source, IEnumerable<TRight> snapshot, Mutex mutex, Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward)
-        {
-            return new StoreOneToUpdate<TKey, TValue, TLeft, TRight, TLinkKey>(this, source, snapshot, mutex, forward);
-        }
+        protected override IStore<TKey, TValue, TLeft> CreateStore(IObservable<RepositoryNotification<TRight>> source, IEnumerable<TRight> snapshot, Mutex mutex, Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward) 
+            => new StoreOneToUpdate<TKey, TValue, TLeft, TRight, TLinkKey>(this, source, snapshot, mutex, forward);
 
         #endregion
     }

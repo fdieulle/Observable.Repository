@@ -9,7 +9,7 @@ namespace Observable.Anonymous
 
         public AnonymousDisposable(Action onDispose = null)
         {
-            this._onDispose = onDispose;
+            _onDispose = onDispose;
         }
 
         public void Dispose()
@@ -27,17 +27,15 @@ namespace Observable.Anonymous
 
         public AnonymousDisposable(T data = default(T), Action<T> onDispose = null)
         {
-            this._data = data;
-            this._onDispose = onDispose;
+            _data = data;
+            _onDispose = onDispose;
         }
 
         #region Implementation of IDisposable
 
         public void Dispose()
         {
-            if (_onDispose != null)
-                _onDispose(_data);
-
+            _onDispose?.Invoke(_data);
             _onDispose = null;
             _data = default(T);
         }

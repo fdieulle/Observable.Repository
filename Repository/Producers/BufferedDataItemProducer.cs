@@ -13,59 +13,59 @@ namespace Observable.Repository.Producers
  
         public BufferedDataItemProducer(Producer<T> producer)
         {
-            this._producer = producer;
+            _producer = producer;
         } 
 
         public void Add(ActionType action, IObservable<T> observable)
         {
-            IDisposable suscription = null;
+            IDisposable subscription = null;
 
             switch (action)
             {
                 case ActionType.Add:
-                    suscription = observable.Subscribe(OnItemAdded);
+                    subscription = observable.Subscribe(OnItemAdded);
                     break;
                 case ActionType.Update:
-                    suscription = observable.Subscribe(OnItemUpdated);
+                    subscription = observable.Subscribe(OnItemUpdated);
                     break;
                 case ActionType.Remove:
-                    suscription = observable.Subscribe(OnItemRemoved);
+                    subscription = observable.Subscribe(OnItemRemoved);
                     break;
                 case ActionType.Reload:
-                    suscription = observable.Subscribe(OnItemReloaded);
+                    subscription = observable.Subscribe(OnItemReloaded);
                     break;
             }
 
-            _producers.Add(new Tuple<object, IDisposable>(observable, suscription));
+            _producers.Add(new Tuple<object, IDisposable>(observable, subscription));
         }
 
         public void Add(ActionType action, IObservable<List<T>> observable)
         {
-            IDisposable suscription = null;
+            IDisposable subscription = null;
 
             switch (action)
             {
                 case ActionType.Add:
-                    suscription = observable.Subscribe(OnItemAdded);
+                    subscription = observable.Subscribe(OnItemAdded);
                     break;
                 case ActionType.Update:
-                    suscription = observable.Subscribe(OnItemUpdated);
+                    subscription = observable.Subscribe(OnItemUpdated);
                     break;
                 case ActionType.Remove:
-                    suscription = observable.Subscribe(OnItemRemoved);
+                    subscription = observable.Subscribe(OnItemRemoved);
                     break;
                 case ActionType.Reload:
-                    suscription = observable.Subscribe(OnItemReloaded);
+                    subscription = observable.Subscribe(OnItemReloaded);
                     break;
             }
 
-            _producers.Add(new Tuple<object, IDisposable>(observable, suscription));
+            _producers.Add(new Tuple<object, IDisposable>(observable, subscription));
         }
 
         public void Add(IObservable<RepositoryNotification<T>> observable)
         {
-            var suscription = observable.Subscribe(OnItemNotification);
-            _producers.Add(new Tuple<object, IDisposable>(observable, suscription));
+            var subscription = observable.Subscribe(OnItemNotification);
+            _producers.Add(new Tuple<object, IDisposable>(observable, subscription));
         }
 
         public void Remove(IObservable<T> observable)
@@ -89,9 +89,7 @@ namespace Observable.Repository.Producers
             {
                 if (_producers[i].Item1 == observable)
                 {
-                    var suscription = _producers[i].Item2;
-                    if (suscription != null)
-                        suscription.Dispose();
+                    _producers[i].Item2?.Dispose();
 
                     _producers.RemoveAt(i);
                     break;
@@ -207,11 +205,7 @@ namespace Observable.Repository.Producers
         {
             var count = _producers.Count;
             for (var i = 0; i < count; i++)
-            {
-                var suscription = _producers[i].Item2;
-                if (suscription != null)
-                    suscription.Dispose();
-            }
+                _producers[i].Item2?.Dispose();
             _producers.Clear();
         }
 

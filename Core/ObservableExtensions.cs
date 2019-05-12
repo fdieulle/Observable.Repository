@@ -142,17 +142,17 @@ namespace Observable
 
         #region OfType
 
-        public static IObservable<To> OfType<TFrom, To>(this IObservable<TFrom> observable)
+        public static IObservable<TO> OfType<TFrom, TO>(this IObservable<TFrom> observable)
         {
-            if (observable == null) return new AnonymousObservable<To>(null);
+            if (observable == null) return new AnonymousObservable<TO>(null);
 
-            return new AnonymousObservable<To>(observer =>
+            return new AnonymousObservable<TO>(observer =>
                 observable.Subscribe(o =>
                 {
-                    To casted;
+                    TO casted;
                     try
                     {
-                        casted = (To)(object)o;
+                        casted = (TO)(object)o;
                     }
                     catch (Exception e)
                     {

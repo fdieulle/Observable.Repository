@@ -2,8 +2,8 @@
 {
     public class AdapterJoin
     {
-        public ModelLeft ModelLeft { get; private set; }
-        public ModelRight ModelRight { get; private set; }
+        public ModelLeft ModelLeft { get; }
+        public ModelRight ModelRight { get; }
 
         public AdapterJoin(ModelLeft modelLeft, ModelRight modelRight)
         {

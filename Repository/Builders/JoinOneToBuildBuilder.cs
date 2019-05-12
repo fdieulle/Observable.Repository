@@ -15,22 +15,22 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Gets the <see cref="IRepositoryContainer"/>
         /// </summary>
-        public IRepositoryContainer Container { get; private set; }
+        public IRepositoryContainer Container { get; }
 
         /// <summary>
         /// Gets the building repository configuration.
         /// </summary>
-        public RepositoryConfiguration<TKey, TValue, TLeft> Configuration { get; private set; }
+        public RepositoryConfiguration<TKey, TValue, TLeft> Configuration { get; }
 
         /// <summary>
         /// Gets the right source name.
         /// </summary>
-        public string RightSourceName { get; private set; }
+        public string RightSourceName { get; }
 
         /// <summary>
         /// Gets the right source filter.
         /// </summary>
-        public Func<TRight, bool> RightFilter { get; private set; }
+        public Func<TRight, bool> RightFilter { get; }
 
         /// <summary>
         /// Ctos
@@ -58,10 +58,8 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <returns>Returns the next building step</returns>
-        public IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> GetNext<TLinkKey>()
-        {
-            return new JoinOneToBuildBuilder<TKey, TValue, TLeft, TRight, TLinkKey>(this);
-        }
+        public IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> GetNext<TLinkKey>() 
+            => new JoinOneToBuildBuilder<TKey, TValue, TLeft, TRight, TLinkKey>(this);
 
         #endregion
     }
@@ -102,10 +100,8 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Build the join configuration.
         /// </summary>
-        public void Build()
-        {
-            Configuration.AddJoin(new JoinOneToBuildConfiguration<TKey, TValue, TLeft, TRight, TLinkKey>(this));
-        }
+        public void Build() 
+            => Configuration.AddJoin(new JoinOneToBuildConfiguration<TKey, TValue, TLeft, TRight, TLinkKey>(this));
 
         #endregion
     }

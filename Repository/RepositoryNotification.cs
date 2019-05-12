@@ -11,24 +11,20 @@ namespace Observable.Repository
     {
         private static readonly IEnumerable<T> emptyCollection = new T[0];
 
-        private readonly ActionType _action;
-        private readonly IEnumerable<T> _newItems;
-        private readonly IEnumerable<T> _oldItems; 
-
         /// <summary>
         /// Gets notification action of the producer.
         /// </summary>
-        public ActionType Action { get { return _action; } }
+        public ActionType Action { get; }
 
         /// <summary>
         /// Gets items added or updated from the producer.
         /// </summary>
-        public IEnumerable<T> NewItems { get { return _newItems; } }
+        public IEnumerable<T> NewItems { get; }
 
         /// <summary>
         /// Gets items removed or replaced from the producer.
         /// </summary>
-        public IEnumerable<T> OldItems { get { return _oldItems; } }
+        public IEnumerable<T> OldItems { get; }
 
         /// <summary>
         /// Constructor.
@@ -38,18 +34,18 @@ namespace Observable.Repository
         /// <param name="newItems">Items added or updated from the producer.</param>
         public RepositoryNotification(ActionType action, IEnumerable<T> oldItems, IEnumerable<T> newItems)
         {
-            this._action = action;
-            this._oldItems = oldItems ?? emptyCollection;
-            this._newItems = newItems ?? emptyCollection;
+            Action = action;
+            OldItems = oldItems ?? emptyCollection;
+            NewItems = newItems ?? emptyCollection;
         }
 
         #region Equality members
 
         public bool Equals(RepositoryNotification<T> other)
         {
-            return _action == other._action 
-                && Equals(_newItems, other._newItems) 
-                && Equals(_oldItems, other._oldItems);
+            return Action == other.Action 
+                && Equals(NewItems, other.NewItems) 
+                && Equals(OldItems, other.OldItems);
         }
 
         public override bool Equals(object obj)
@@ -63,28 +59,24 @@ namespace Observable.Repository
         {
             unchecked
             {
-                var hashCode = (int)_action;
-                hashCode = (hashCode * 397) ^ _newItems.GetHashCode();
-                hashCode = (hashCode * 397) ^ _oldItems.GetHashCode();
+                var hashCode = (int)Action;
+                hashCode = (hashCode * 397) ^ NewItems.GetHashCode();
+                hashCode = (hashCode * 397) ^ OldItems.GetHashCode();
                 return hashCode;
             }
         }
 
-        public static bool operator ==(RepositoryNotification<T> left, RepositoryNotification<T> right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(RepositoryNotification<T> left, RepositoryNotification<T> right) 
+            => left.Equals(right);
 
-        public static bool operator !=(RepositoryNotification<T> left, RepositoryNotification<T> right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(RepositoryNotification<T> left, RepositoryNotification<T> right) 
+            => !left.Equals(right);
 
         #endregion
 
         public override string ToString()
         {
-            return string.Format("[{0}] oldCount: {1}, newCount: {2}", _action, _oldItems.Count(), _newItems.Count());
+            return $"[{Action}] oldCount: {OldItems.Count()}, newCount: {NewItems.Count()}";
         }
     }
 }

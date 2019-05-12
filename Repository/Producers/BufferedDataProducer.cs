@@ -23,10 +23,7 @@ namespace Observable.Repository.Producers
 
         #region Overrides of AbstractDataProducer
 
-        protected override Producer<T> CreateProducer<T>()
-        {
-            return new Producer<T>(null);
-        }
+        protected override Producer<T> CreateProducer<T>() => new Producer<T>(null);
 
         public override IDataProducer AddProducer<T>(ActionType action, IObservable<T> observable, string name = null)
         {
@@ -123,8 +120,7 @@ namespace Observable.Repository.Producers
         private BufferedDataItemProducer<T> GetOrCreate<T>(string name)
         {
             var key = new ProducerKey(name, typeof(T));
-            IBufferedDataProducer producer;
-            if (!_producers.TryGetValue(key, out producer))
+            if (!_producers.TryGetValue(key, out var producer))
             {
                 _producers.Add(key, producer = new BufferedDataItemProducer<T>(GetProducer<T>(name)));
 
@@ -142,8 +138,7 @@ namespace Observable.Repository.Producers
         private BufferedDataItemProducer<T> Get<T>(string name)
         {
             var key = new ProducerKey(name, typeof(T));
-            IBufferedDataProducer producer;
-            if (!_producers.TryGetValue(key, out producer))
+            if (!_producers.TryGetValue(key, out var producer))
                 return null;
 
             return producer as BufferedDataItemProducer<T>;

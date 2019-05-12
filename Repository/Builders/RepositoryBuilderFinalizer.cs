@@ -22,8 +22,8 @@ namespace Observable.Repository.Builders
         /// <param name="configuration">Repository configuration.</param>
         public RepositoryBuilderFinalizer(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryBehaviorBuilder<TKey,TValue>

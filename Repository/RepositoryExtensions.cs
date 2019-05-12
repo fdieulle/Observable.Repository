@@ -42,10 +42,8 @@ namespace Observable.Repository
             string leftSourceName = null, 
             Func<TLeft, bool> filter = null, 
             bool disposeWhenValueIsRemoved = false, 
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications);
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications);
 
         /// <summary>
         /// Build a new <see cref="IRepository{TKey, TValue}"/> instance.
@@ -72,10 +70,8 @@ namespace Observable.Repository
             string leftSourceName = null,
             Func<TValue, bool> filter = null,
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(name, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications);
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(name, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications);
 
         /// <summary>
         /// Build a new <see cref="IRepository{TKey, TValue}"/> instance.
@@ -100,10 +96,8 @@ namespace Observable.Repository
             string leftSourceName = null,
             Func<TValue, bool> filter = null,
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications);
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications);
 
         #endregion
 
@@ -117,10 +111,9 @@ namespace Observable.Repository
             string leftSourceName = null,
             Func<TLeft, bool> filter = null,
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(name, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications).Register();
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(name, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications)
+                .Register();
 
         public static IRepositoryContainer Register<TKey, TValue, TLeft>(
             this IRepositoryContainer container,
@@ -129,10 +122,9 @@ namespace Observable.Repository
             string leftSourceName = null,
             Func<TLeft, bool> filter = null,
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications).Register();
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications)
+                .Register();
 
         public static IRepositoryContainer Register<TKey, TValue>(
             this IRepositoryContainer container, 
@@ -142,10 +134,9 @@ namespace Observable.Repository
             string leftSourceName = null,
             Func<TValue, bool> filter = null,
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(name, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications).Register();
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(name, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications)
+                .Register();
 
         public static IRepositoryContainer Register<TKey, TValue>(
             this IRepositoryContainer container,
@@ -154,10 +145,9 @@ namespace Observable.Repository
             string leftSourceName = null,
             Func<TValue, bool> filter = null,
             bool disposeWhenValueIsRemoved = false,
-            Action<Action> dispatchNotifications = null)
-        {
-            return container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications).Register();
-        }
+            Action<Action> dispatchNotifications = null) 
+            => container.Build(null, getKey, onUpdate, leftSourceName, filter, disposeWhenValueIsRemoved, dispatchNotifications)
+                .Register();
 
         #endregion
 
@@ -172,12 +162,8 @@ namespace Observable.Repository
         /// <param name="container"><see cref="IRepositoryContainer"/></param>
         /// <param name="name">Name of producer.</param>
         /// <returns>Gets <see cref="Producer{T}"/> instance. Returns null if not any producer has been found</returns>
-        public static Producer<T> GetProducer<T>(this IRepositoryContainer container, string name = null)
-        {
-            if (container == null) return null;
-
-            return container.DataProducer.GetProducer<T>(name);
-        }
+        public static Producer<T> GetProducer<T>(this IRepositoryContainer container, string name = null) 
+            => container?.DataProducer.GetProducer<T>(name);
 
         /// <summary>
         /// Add a producer publishing data for <see cref="IRepository{TKey, T}"/>.
@@ -190,11 +176,7 @@ namespace Observable.Repository
         /// <returns>The current <see cref="IRepositoryContainer"/>.</returns>
         public static IRepositoryContainer AddProducer<T>(this IRepositoryContainer container, ActionType action, IObservable<T> producer, string name = null)
         {
-            if (container == null)
-                return null;
-
-            container.DataProducer.AddProducer(action, producer, name);
-
+            container?.DataProducer.AddProducer(action, producer, name);
             return container;
         }
 
@@ -209,11 +191,7 @@ namespace Observable.Repository
         /// <returns>The current <see cref="IRepositoryContainer"/>.</returns>
         public static IRepositoryContainer AddProducer<T>(this IRepositoryContainer container, ActionType action, IObservable<List<T>> producer, string name = null)
         {
-            if (container == null)
-                return null;
-
-            container.DataProducer.AddProducer(action, producer, name);
-
+            container?.DataProducer.AddProducer(action, producer, name);
             return container;
         }
 
@@ -227,11 +205,7 @@ namespace Observable.Repository
         /// <returns>The current <see cref="IRepositoryContainer"/>.</returns>
         public static IRepositoryContainer AddProducer<T>(this IRepositoryContainer container, IObservable<RepositoryNotification<T>> producer, string name = null)
         {
-            if (container == null)
-                return null;
-
-            container.DataProducer.AddProducer(producer, name);
-
+            container?.DataProducer.AddProducer(producer, name);
             return container;
         }
 
@@ -245,11 +219,7 @@ namespace Observable.Repository
         /// <returns>The current <see cref="IRepositoryContainer"/>.</returns>
         public static IRepositoryContainer RemoveProducer<T>(this IRepositoryContainer container, IObservable<T> producer, string name = null)
         {
-            if (container == null)
-                return null;
-
-            container.DataProducer.RemoveProducer(producer, name);
-
+            container?.DataProducer.RemoveProducer(producer, name);
             return container;
         }
 
@@ -263,11 +233,7 @@ namespace Observable.Repository
         /// <returns>The current <see cref="IRepositoryContainer"/>.</returns>
         public static IRepositoryContainer RemoveProducer<T>(this IRepositoryContainer container, IObservable<List<T>> producer, string name = null)
         {
-            if (container == null)
-                return null;
-
-            container.DataProducer.RemoveProducer(producer, name);
-
+            container?.DataProducer.RemoveProducer(producer, name);
             return container;
         }
 
@@ -281,11 +247,7 @@ namespace Observable.Repository
         /// <returns>The current <see cref="IRepositoryContainer"/>.</returns>
         public static IRepositoryContainer RemoveProducer<T>(this IRepositoryContainer container, IObservable<RepositoryNotification<T>> producer, string name = null)
         {
-            if (container == null)
-                return null;
-
-            container.DataProducer.RemoveProducer(producer, name);
-
+            container?.DataProducer.RemoveProducer(producer, name);
             return container;
         }
 
@@ -304,14 +266,12 @@ namespace Observable.Repository
         /// <typeparam name="TValue">Type of values from <see cref="IRepository{TKey, TValue}"/>.</typeparam>
         /// <param name="observable">Observable repository.</param>
         /// <returns>Returns an selector observable.</returns>
-        public static IObservable<RepositoryNotification<TValue>> SelectValues<TKey, TValue>(this IObservable<RepositoryNotification<KeyValue<TKey, TValue>>> observable)
-        {
-            return observable.Select(e =>
+        public static IObservable<RepositoryNotification<TValue>> SelectValues<TKey, TValue>(this IObservable<RepositoryNotification<KeyValue<TKey, TValue>>> observable) 
+            => observable.Select(e =>
                 new RepositoryNotification<TValue>(
                     e.Action,
                     e.OldItems.Select(p => p.Value),
                     e.NewItems.Select(p => p.Value)));
-        }
 
         /// <summary>
         /// Subscribe for keys only on the <see cref="IRepository{TKey, TValue}"/>.
@@ -320,14 +280,12 @@ namespace Observable.Repository
         /// <typeparam name="TValue">Type of values from <see cref="IRepository{TKey, TValue}"/>.</typeparam>
         /// <param name="observable">Observable repository.</param>
         /// <returns>Returns an selector observable.</returns>
-        public static IObservable<RepositoryNotification<TKey>> SelectKeys<TKey, TValue>(this IObservable<RepositoryNotification<KeyValue<TKey, TValue>>> observable)
-        {
-            return observable.Select(e =>
+        public static IObservable<RepositoryNotification<TKey>> SelectKeys<TKey, TValue>(this IObservable<RepositoryNotification<KeyValue<TKey, TValue>>> observable) 
+            => observable.Select(e =>
                 new RepositoryNotification<TKey>(
                     e.Action,
                     e.OldItems.Select(p => p.Key),
                     e.NewItems.Select(p => p.Key)));
-        }
 
         #endregion
 
@@ -339,14 +297,12 @@ namespace Observable.Repository
         /// <param name="repository"></param>
         /// <param name="view">Instance of the <see cref="IList{TSelect}"/>.</param>
         /// <param name="filter">Filter values from <see cref="IRepository{TKey, TValue}"/>.</param>
-        /// <param name="synchronize">Define if the <see cref="IList{TSelect}"/> have to be synchronized with the <see cref="IRepository{TKey, TValue}"/> during the souscription.</param>
+        /// <param name="synchronize">Define if the <see cref="IList{TSelect}"/> have to be synchronized with the <see cref="IRepository{TKey, TValue}"/> during the subscription.</param>
         /// <param name="viewDispatcher">Define the dispatcher where the <see cref="IList{TSelect}"/> will be managed.</param>
         /// <returns>Returns the <see cref="IListView{TSelect}"/> instance. Dispose it to release the <see cref="IList{TSelect}"/> instance.</returns>
-        public static IListView<TValue> Subscribe<TKey, TValue>(this IRepository<TKey, TValue> repository, IList<TValue> view, Predicate<TValue> filter = null, bool synchronize = true, Action<Action> viewDispatcher = null)
-        {
-            return repository.Subscribe(view, p => p, filter, synchronize, viewDispatcher);
-        }
-        
+        public static IListView<TValue> Subscribe<TKey, TValue>(this IRepository<TKey, TValue> repository, IList<TValue> view, Predicate<TValue> filter = null, bool synchronize = true, Action<Action> viewDispatcher = null) 
+            => repository.Subscribe(view, p => p, filter, synchronize, viewDispatcher);
+
         #endregion
 
         #region Misc
@@ -394,7 +350,7 @@ namespace Observable.Repository
             var ctor = typeof (TValue).GetConstructor(array1);
 
             if(ctor == null)
-                throw new NotImplementedException(string.Format("A ctor have to be implemented for {0}, with this arguments {1}", typeof(TValue).Name, string.Join(",", array1.Select(p => p.Name))));
+                throw new NotImplementedException($"A ctor have to be implemented for {typeof(TValue).Name}, with this arguments {string.Join(",", array1.Select(p => p.Name))}");
 
             switch (count)
             {
@@ -492,7 +448,7 @@ namespace Observable.Repository
 
             // Create the dynamic method
             var method = new DynamicMethod(
-                string.Format("GeneratedCtor_{0}", Guid.NewGuid().ToString().Replace("-", "")),
+                $"GeneratedCtor_{Guid.NewGuid().ToString().Replace("-", "")}",
                 constructor.DeclaringType,
                 Array.ConvertAll(constructorParam, p => p.ParameterType), true);
 

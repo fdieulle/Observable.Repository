@@ -71,83 +71,83 @@ namespace Observable.Repository.Tests
 
         private class NoDispatcherTest : IDispatcherTest
         {
-            private int counter;
+            private int _counter;
 
-            public int Counter { get { return counter; } }
+            public int Counter => _counter;
 
             public void Method1()
             {
-                counter += 1;
+                _counter += 1;
             }
 
             public void Method2(int parameter)
             {
-                counter += parameter;
+                _counter += parameter;
             }
         }
 
         private class DispatcherTest : IDispatcherTest
         {
-            private readonly Action<Action> dispatch;
-            private int counter;
+            private readonly Action<Action> _dispatch;
+            private int _counter;
 
-            public int Counter { get { return counter; } }
+            public int Counter => _counter;
 
             public DispatcherTest(Action<Action> dispatch)
             {
-                this.dispatch = dispatch;
+                this._dispatch = dispatch;
             }
 
             public void Method1()
             {
-                if (dispatch != null)
-                    dispatch(InternalMethod1);
+                if (_dispatch != null)
+                    _dispatch(InternalMethod1);
                 else InternalMethod1();
             }
 
             private void InternalMethod1()
             {
-                counter += 1;
+                _counter += 1;
             }
 
             public void Method2(int parameter)
             {
-                if (dispatch != null)
-                    dispatch(() => InternalMethod2(parameter));
+                if (_dispatch != null)
+                    _dispatch(() => InternalMethod2(parameter));
                 else InternalMethod2(parameter);
             }
 
             private void InternalMethod2(int parameter)
             {
-                counter += parameter;
+                _counter += parameter;
             }
         }
 
         private class AlwaysDispatchedTest : IDispatcherTest
         {
-            private readonly Action<Action> dispatch;
-            private int counter;
+            private readonly Action<Action> _dispatch;
+            private int _counter;
 
-            public int Counter { get { return counter; } }
+            public int Counter => _counter;
 
             public AlwaysDispatchedTest(Action<Action> dispatch)
             {
-                this.dispatch = dispatch ?? (p => p());
+                this._dispatch = dispatch ?? (p => p());
             }
 
             public void Method1()
             {
-                dispatch(() =>
+                _dispatch(() =>
                 {
-                    counter += 1;
+                    _counter += 1;
                 });
             }
 
             public void Method2(int parameter)
             {
-                dispatch(() =>
+                _dispatch(() =>
                 {
-                    counter += parameter;
+                    _counter += parameter;
                 });
             }
         }
@@ -307,20 +307,20 @@ namespace Observable.Repository.Tests
 
         private class KeyClass
         {
-            private readonly string name;
-            private readonly Type type;
+            private readonly string _name;
+            private readonly Type _type;
 
             public KeyClass(string name, Type type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
             }
 
             #region Equality members
 
             private bool Equals(KeyClass other)
             {
-                return string.Equals(name, other.name) && type == other.type;
+                return string.Equals(_name, other._name) && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -335,7 +335,7 @@ namespace Observable.Repository.Tests
             {
                 unchecked
                 {
-                    return ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
+                    return ((_name != null ? _name.GetHashCode() : 0) * 397) ^ (_type != null ? _type.GetHashCode() : 0);
                 }
             }
 
@@ -354,18 +354,18 @@ namespace Observable.Repository.Tests
 
         private class KeyClassWithHasCodeReadOnly
         {
-            private readonly string name;
-            private readonly Type type;
-            private readonly int hashode;
+            private readonly string _name;
+            private readonly Type _type;
+            private readonly int _hashode;
 
             public KeyClassWithHasCodeReadOnly(string name, Type type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
 
                 unchecked
                 {
-                    hashode = ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
+                    _hashode = ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
                 }
             }
 
@@ -373,7 +373,7 @@ namespace Observable.Repository.Tests
 
             private bool Equals(KeyClassWithHasCodeReadOnly other)
             {
-                return string.Equals(name, other.name) && type == other.type;
+                return string.Equals(_name, other._name) && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -386,7 +386,7 @@ namespace Observable.Repository.Tests
 
             public override int GetHashCode()
             {
-                return hashode;
+                return _hashode;
             }
 
             public static bool operator ==(KeyClassWithHasCodeReadOnly left, KeyClassWithHasCodeReadOnly right)
@@ -404,20 +404,20 @@ namespace Observable.Repository.Tests
 
         private struct KeyStruct
         {
-            private readonly string name;
-            private readonly Type type;
+            private readonly string _name;
+            private readonly Type _type;
 
             public KeyStruct(string name, Type type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
             }
 
             #region Equality members
 
             private bool Equals(KeyStruct other)
             {
-                return string.Equals(name, other.name) && type == other.type;
+                return string.Equals(_name, other._name) && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -430,7 +430,7 @@ namespace Observable.Repository.Tests
             {
                 unchecked
                 {
-                    return ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
+                    return ((_name != null ? _name.GetHashCode() : 0) * 397) ^ (_type != null ? _type.GetHashCode() : 0);
                 }
             }
 
@@ -449,18 +449,18 @@ namespace Observable.Repository.Tests
 
         private struct KeyStructWithHasCodeReadOnly
         {
-            private readonly string name;
-            private readonly Type type;
-            private readonly int hashode;
+            private readonly string _name;
+            private readonly Type _type;
+            private readonly int _hashode;
 
             public KeyStructWithHasCodeReadOnly(string name, Type type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
 
                 unchecked
                 {
-                    hashode = ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
+                    _hashode = ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
                 }
             }
 
@@ -468,7 +468,7 @@ namespace Observable.Repository.Tests
 
             private bool Equals(KeyStructWithHasCodeReadOnly other)
             {
-                return string.Equals(name, other.name) && type == other.type;
+                return string.Equals(_name, other._name) && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -479,7 +479,7 @@ namespace Observable.Repository.Tests
 
             public override int GetHashCode()
             {
-                return hashode;
+                return _hashode;
             }
 
             public static bool operator ==(KeyStructWithHasCodeReadOnly left, KeyStructWithHasCodeReadOnly right)
@@ -495,43 +495,40 @@ namespace Observable.Repository.Tests
 
             #region Comparer
 
-            private sealed class NameTYPEEqualityComparer : IEqualityComparer<KeyStructWithHasCodeReadOnly>
+            private sealed class NameTypeEqualityComparer : IEqualityComparer<KeyStructWithHasCodeReadOnly>
             {
                 public bool Equals(KeyStructWithHasCodeReadOnly x, KeyStructWithHasCodeReadOnly y)
                 {
-                    return string.Equals(x.name, y.name) && x.type == y.type;
+                    return string.Equals(x._name, y._name) && x._type == y._type;
                 }
 
                 public int GetHashCode(KeyStructWithHasCodeReadOnly obj)
                 {
-                    return obj.hashode;
+                    return obj._hashode;
                 }
             }
 
-            private static readonly IEqualityComparer<KeyStructWithHasCodeReadOnly> comparerInstance = new NameTYPEEqualityComparer();
+            private static readonly IEqualityComparer<KeyStructWithHasCodeReadOnly> comparerInstance = new NameTypeEqualityComparer();
 
-            public static IEqualityComparer<KeyStructWithHasCodeReadOnly> Comparer
-            {
-                get { return comparerInstance; }
-            }
+            public static IEqualityComparer<KeyStructWithHasCodeReadOnly> Comparer => comparerInstance;
 
             #endregion
         }
 
         private struct KeyStructWithIEquatable : IEquatable<KeyStructWithIEquatable>
         {
-            private readonly string name;
-            private readonly Type type;
-            private readonly int hashode;
+            private readonly string _name;
+            private readonly Type _type;
+            private readonly int _hashode;
 
             public KeyStructWithIEquatable(string name, Type type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
 
                 unchecked
                 {
-                    hashode = ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
+                    _hashode = ((name != null ? name.GetHashCode() : 0) * 397) ^ (type != null ? type.GetHashCode() : 0);
                 }
             }
 
@@ -539,7 +536,7 @@ namespace Observable.Repository.Tests
 
             public bool Equals(KeyStructWithIEquatable other)
             {
-                return string.Equals(name, other.name) && type == other.type;
+                return string.Equals(_name, other._name) && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -550,7 +547,7 @@ namespace Observable.Repository.Tests
 
             public override int GetHashCode()
             {
-                return hashode;
+                return _hashode;
             }
 
             public static bool operator ==(KeyStructWithIEquatable left, KeyStructWithIEquatable right)
@@ -566,43 +563,40 @@ namespace Observable.Repository.Tests
 
             #region Comparer
 
-            private sealed class NameTYPEEqualityComparer : IEqualityComparer<KeyStructWithIEquatable>
+            private sealed class NameTypeEqualityComparer : IEqualityComparer<KeyStructWithIEquatable>
             {
                 public bool Equals(KeyStructWithIEquatable x, KeyStructWithIEquatable y)
                 {
-                    return string.Equals(x.name, y.name) && x.type == y.type;
+                    return string.Equals(x._name, y._name) && x._type == y._type;
                 }
 
                 public int GetHashCode(KeyStructWithIEquatable obj)
                 {
-                    return obj.hashode;
+                    return obj._hashode;
                 }
             }
 
-            private static readonly IEqualityComparer<KeyStructWithIEquatable> comparerInstance = new NameTYPEEqualityComparer();
+            private static readonly IEqualityComparer<KeyStructWithIEquatable> comparerInstance = new NameTypeEqualityComparer();
 
-            public static IEqualityComparer<KeyStructWithIEquatable> Comparer
-            {
-                get { return comparerInstance; }
-            }
+            public static IEqualityComparer<KeyStructWithIEquatable> Comparer => comparerInstance;
 
             #endregion
         }
 
         private class KeyClassNative
         {
-            private readonly int name;
-            private readonly int type;
-            private readonly int hashode;
+            private readonly int _name;
+            private readonly int _type;
+            private readonly int _hashode;
 
             public KeyClassNative(int name, int type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
 
                 unchecked
                 {
-                    hashode = (name.GetHashCode() * 397) ^ (type.GetHashCode());
+                    _hashode = (name.GetHashCode() * 397) ^ (type.GetHashCode());
                 }
             }
 
@@ -610,7 +604,7 @@ namespace Observable.Repository.Tests
 
             private bool Equals(KeyClassNative other)
             {
-                return name == other.name && type == other.type;
+                return _name == other._name && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -623,7 +617,7 @@ namespace Observable.Repository.Tests
 
             public override int GetHashCode()
             {
-                return hashode;
+                return _hashode;
             }
 
             public static bool operator ==(KeyClassNative left, KeyClassNative right)
@@ -641,18 +635,18 @@ namespace Observable.Repository.Tests
 
         private struct KeyStructNative : IEquatable<KeyStructNative>
         {
-            private readonly int name;
-            private readonly int type;
-            private readonly int hashode;
+            private readonly int _name;
+            private readonly int _type;
+            private readonly int _hashode;
 
             public KeyStructNative(int name, int type)
             {
-                this.name = name;
-                this.type = type;
+                this._name = name;
+                this._type = type;
 
                 unchecked
                 {
-                    hashode = (name.GetHashCode() * 397) ^ (type.GetHashCode());
+                    _hashode = (name.GetHashCode() * 397) ^ (type.GetHashCode());
                 }
             }
 
@@ -660,7 +654,7 @@ namespace Observable.Repository.Tests
 
             public bool Equals(KeyStructNative other)
             {
-                return string.Equals(name, other.name) && type == other.type;
+                return string.Equals(_name, other._name) && _type == other._type;
             }
 
             public override bool Equals(object obj)
@@ -671,7 +665,7 @@ namespace Observable.Repository.Tests
 
             public override int GetHashCode()
             {
-                return hashode;
+                return _hashode;
             }
 
             public static bool operator ==(KeyStructNative left, KeyStructNative right)
@@ -687,25 +681,22 @@ namespace Observable.Repository.Tests
 
             #region Comparer
 
-            private sealed class NameTYPEEqualityComparer : IEqualityComparer<KeyStructNative>
+            private sealed class NameTypeEqualityComparer : IEqualityComparer<KeyStructNative>
             {
                 public bool Equals(KeyStructNative x, KeyStructNative y)
                 {
-                    return string.Equals(x.name, y.name) && x.type == y.type;
+                    return string.Equals(x._name, y._name) && x._type == y._type;
                 }
 
                 public int GetHashCode(KeyStructNative obj)
                 {
-                    return obj.hashode;
+                    return obj._hashode;
                 }
             }
 
-            private static readonly IEqualityComparer<KeyStructNative> comparerInstance = new NameTYPEEqualityComparer();
+            private static readonly IEqualityComparer<KeyStructNative> comparerInstance = new NameTypeEqualityComparer();
 
-            public static IEqualityComparer<KeyStructNative> Comparer
-            {
-                get { return comparerInstance; }
-            }
+            public static IEqualityComparer<KeyStructNative> Comparer => comparerInstance;
 
             #endregion
         }

@@ -16,22 +16,22 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Gets the <see cref="IRepositoryContainer"/>
         /// </summary>
-        public IRepositoryContainer Container { get; private set; }
+        public IRepositoryContainer Container { get; }
 
         /// <summary>
         /// Gets the building repository configuration.
         /// </summary>
-        public RepositoryConfiguration<TKey, TValue, TLeft> Configuration { get; private set; }
+        public RepositoryConfiguration<TKey, TValue, TLeft> Configuration { get; }
 
         /// <summary>
         /// Gets the right source name.
         /// </summary>
-        public string RightSourceName { get; private set; }
+        public string RightSourceName { get; }
 
         /// <summary>
         /// Gets the right source filter.
         /// </summary>
-        public Func<TRight, bool> RightFilter { get; private set; }
+        public Func<TRight, bool> RightFilter { get; }
 
         /// <summary>
         /// Ctor
@@ -64,10 +64,8 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TRightKey">Type of right primary key used to populate the list.</typeparam>
         /// <returns>Returns the next builder step.</returns>
-        public IJoinManyBuilderNode<TKey, TValue, TLeft, TRight, TRightKey> GetNext<TRightKey>()
-        {
-            return new JoinManyBuilder<TKey, TValue, TLeft, TRight, TRightKey>(this);
-        }
+        public IJoinManyBuilderNode<TKey, TValue, TLeft, TRight, TRightKey> GetNext<TRightKey>() 
+            => new JoinManyBuilder<TKey, TValue, TLeft, TRight, TRightKey>(this);
 
         #endregion
     }
@@ -106,10 +104,7 @@ namespace Observable.Repository.Builders
         /// Gets the next building step.
         /// </summary>
         /// <returns>Returns the next builder step.</returns>
-        public IJoinBuilderNode<TKey, TValue, TLeft, TRight> GetNext()
-        {
-            return this;
-        }
+        public IJoinBuilderNode<TKey, TValue, TLeft, TRight> GetNext() => this;
 
         #endregion
 
@@ -120,10 +115,8 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <returns>Returns the next building step</returns>
-        IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> IJoinBuilderNode<TKey, TValue, TLeft, TRight>.GetNext<TLinkKey>()
-        {
-            return new JoinManyBuilder<TKey, TValue, TLeft, TRight, TLinkKey, TRightKey>(this);
-        }
+        IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> IJoinBuilderNode<TKey, TValue, TLeft, TRight>.GetNext<TLinkKey>() 
+            => new JoinManyBuilder<TKey, TValue, TLeft, TRight, TLinkKey, TRightKey>(this);
 
         #endregion
     }
@@ -165,10 +158,8 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Build the Join configuration.
         /// </summary>
-        public void Build()
-        {
-            Configuration.AddJoin(new JoinManyConfiguration<TKey, TValue, TLeft, TRight, TLinkKey, TRightKey>(this));
-        }
+        public void Build() 
+            => Configuration.AddJoin(new JoinManyConfiguration<TKey, TValue, TLeft, TRight, TLinkKey, TRightKey>(this));
 
         #endregion
     }

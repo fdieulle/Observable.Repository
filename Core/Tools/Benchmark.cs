@@ -13,7 +13,7 @@ namespace Observable.Tools
         public static void TakeMeasure(this Stopwatch sw, string message)
         {
             sw.Stop();
-            Console.WriteLine("{0} Elpased: {1} ms", message, sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine("{0} Elapsed: {1} ms", message, sw.Elapsed.TotalMilliseconds);
             sw.Reset();
             sw.Start();
         }
@@ -31,7 +31,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -43,11 +43,9 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin();
+                begin?.Invoke();
                 action();
-                if (end != null)
-                    end();
+                end?.Invoke();
             }
 
             var metrics = new double[times];
@@ -55,8 +53,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin();
+                begin?.Invoke();
 
                 if (checkMemory)
                 {
@@ -74,8 +71,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end();
+                end?.Invoke();
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -89,7 +85,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -103,11 +99,9 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg);
+                begin?.Invoke(arg);
                 action(arg);
-                if (end != null)
-                    end(arg);
+                end?.Invoke(arg);
             }
 
             var metrics = new double[times];
@@ -115,8 +109,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg);
+                begin?.Invoke(arg);
 
                 if (checkMemory)
                 {
@@ -134,8 +127,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg);
+                end?.Invoke(arg);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -150,7 +142,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -163,11 +155,9 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2);
+                begin?.Invoke(arg1, arg2);
                 action(arg1, arg2);
-                if (end != null)
-                    end(arg1, arg2);
+                end?.Invoke(arg1, arg2);
             }
 
             var metrics = new double[times];
@@ -175,8 +165,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2);
+                begin?.Invoke(arg1, arg2);
 
                 if (checkMemory)
                 {
@@ -194,8 +183,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2);
+                end?.Invoke(arg1, arg2);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -211,7 +199,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -225,13 +213,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3);
+                begin?.Invoke(arg1, arg2, arg3);
 
                 action(arg1, arg2, arg3);
 
-                if (end != null)
-                    end(arg1, arg2, arg3);
+                end?.Invoke(arg1, arg2, arg3);
             }
 
             var metrics = new double[times];
@@ -239,8 +225,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3);
+                begin?.Invoke(arg1, arg2, arg3);
 
                 if (checkMemory)
                 {
@@ -258,8 +243,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3);
+                end?.Invoke(arg1, arg2, arg3);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -276,7 +260,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -290,13 +274,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4);
+                begin?.Invoke(arg1, arg2, arg3, arg4);
 
                 action(arg1, arg2, arg3, arg4);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4);
+                end?.Invoke(arg1, arg2, arg3, arg4);
             }
 
             var metrics = new double[times];
@@ -304,8 +286,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4);
+                begin?.Invoke(arg1, arg2, arg3, arg4);
 
                 if (checkMemory)
                 {
@@ -323,8 +304,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4);
+                end?.Invoke(arg1, arg2, arg3, arg4);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -342,7 +322,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -356,13 +336,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5);
 
                 action(arg1, arg2, arg3, arg4, arg5);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5);
             }
 
             var metrics = new double[times];
@@ -370,8 +348,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5);
 
                 if (checkMemory)
                 {
@@ -389,8 +366,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -409,7 +385,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -423,13 +399,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
 
                 action(arg1, arg2, arg3, arg4, arg5, arg6);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
             }
 
             var metrics = new double[times];
@@ -437,8 +411,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
 
                 if (checkMemory)
                 {
@@ -456,8 +429,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -477,7 +449,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -491,13 +463,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
                 action(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
 
             var metrics = new double[times];
@@ -505,8 +475,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
                 if (checkMemory)
                 {
@@ -524,8 +493,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -546,7 +514,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -560,13 +528,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
                 action(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
 
             var metrics = new double[times];
@@ -574,8 +540,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
                 if (checkMemory)
                 {
@@ -593,8 +558,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -607,7 +571,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -620,11 +584,9 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin();
+                begin?.Invoke();
                 action();
-                if (end != null)
-                    end();
+                end?.Invoke();
             }
 
             var metrics = new double[times];
@@ -632,8 +594,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin();
+                begin?.Invoke();
 
                 if (checkMemory)
                 {
@@ -651,8 +612,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end();
+                end?.Invoke();
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -666,7 +626,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -679,11 +639,9 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg);
+                begin?.Invoke(arg);
                 action(arg);
-                if (end != null)
-                    end(arg);
+                end?.Invoke(arg);
             }
 
             var metrics = new double[times];
@@ -691,8 +649,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg);
+                begin?.Invoke(arg);
 
                 if (checkMemory)
                 {
@@ -710,8 +667,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg);
+                end?.Invoke(arg);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -726,7 +682,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -740,11 +696,9 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2);
+                begin?.Invoke(arg1, arg2);
                 action(arg1, arg2);
-                if (end != null)
-                    end(arg1, arg2);
+                end?.Invoke(arg1, arg2);
             }
 
             var metrics = new double[times];
@@ -752,8 +706,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2);
+                begin?.Invoke(arg1, arg2);
 
                 if (checkMemory)
                 {
@@ -771,8 +724,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2);
+                end?.Invoke(arg1, arg2);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -788,7 +740,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -802,13 +754,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3);
+                begin?.Invoke(arg1, arg2, arg3);
 
                 action(arg1, arg2, arg3);
 
-                if (end != null)
-                    end(arg1, arg2, arg3);
+                end?.Invoke(arg1, arg2, arg3);
             }
 
             var metrics = new double[times];
@@ -816,8 +766,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3);
+                begin?.Invoke(arg1, arg2, arg3);
 
                 if (checkMemory)
                 {
@@ -835,8 +784,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3);
+                end?.Invoke(arg1, arg2, arg3);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -853,7 +801,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -867,13 +815,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4);
+                begin?.Invoke(arg1, arg2, arg3, arg4);
 
                 action(arg1, arg2, arg3, arg4);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4);
+                end?.Invoke(arg1, arg2, arg3, arg4);
             }
 
             var metrics = new double[times];
@@ -881,8 +827,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4);
+                begin?.Invoke(arg1, arg2, arg3, arg4);
 
                 if (checkMemory)
                 {
@@ -900,8 +845,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4);
+                end?.Invoke(arg1, arg2, arg3, arg4);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -919,7 +863,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -933,13 +877,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5);
 
                 action(arg1, arg2, arg3, arg4, arg5);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5);
             }
 
             var metrics = new double[times];
@@ -947,8 +889,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5);
 
                 if (checkMemory)
                 {
@@ -966,8 +907,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -986,7 +926,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -1000,13 +940,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
 
                 action(arg1, arg2, arg3, arg4, arg5, arg6);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
             }
 
             var metrics = new double[times];
@@ -1014,8 +952,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
 
                 if (checkMemory)
                 {
@@ -1033,8 +970,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -1054,7 +990,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -1068,13 +1004,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
                 action(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
 
             var metrics = new double[times];
@@ -1082,8 +1016,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
                 if (checkMemory)
                 {
@@ -1101,8 +1034,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
 
             return GenerateMetrics(metrics, units, memory);
@@ -1123,7 +1055,7 @@ namespace Observable.Tools
         /// <param name="times">Number of function calls.</param>
         /// <param name="units">Measure units, by default Auto</param>
         /// <param name="jitterTimes">Number of jitter calls, 5 by default.</param>
-        /// <param name="checkMemory">DEfines if you want to measure memory also.</param>
+        /// <param name="checkMemory">Defines if you want to measure memory also.</param>
         /// <param name="begin">Function call before each measured function.</param>
         /// <param name="end">Function call after each measured function.</param>
         /// <returns>Return the measure metrics.</returns>
@@ -1137,13 +1069,11 @@ namespace Observable.Tools
         {
             for (var i = 0; i < jitterTimes; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
                 action(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
 
             var metrics = new double[times];
@@ -1151,8 +1081,7 @@ namespace Observable.Tools
             var sw = new Stopwatch();
             for (var i = 0; i < times; i++)
             {
-                if (begin != null)
-                    begin(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                begin?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
                 if (checkMemory)
                 {
@@ -1170,8 +1099,7 @@ namespace Observable.Tools
                 metrics[i] = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
-                if (end != null)
-                    end(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                end?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
 
             return GenerateMetrics(metrics, units, memory);

@@ -27,21 +27,21 @@ namespace Observable.Repository.Tests
 
         public class RepositoryChecker<TKey, TValue> : IDisposable
         {
-            private readonly IRepository<TKey, TValue> repository;
-            private readonly Func<TValue, TKey> getKey;
-            private readonly Queue<RepositoryNotification<KeyValue<TKey, TValue>>> notifications = new Queue<RepositoryNotification<KeyValue<TKey, TValue>>>();
-            private readonly IDisposable suscription;
+            private readonly IRepository<TKey, TValue> _repository;
+            private readonly Func<TValue, TKey> _getKey;
+            private readonly Queue<RepositoryNotification<KeyValue<TKey, TValue>>> _notifications = new Queue<RepositoryNotification<KeyValue<TKey, TValue>>>();
+            private readonly IDisposable _suscription;
 
             public RepositoryChecker(IRepository<TKey, TValue> repository, Func<TValue, TKey> getKey)
             {
-                this.repository = repository;
-                this.getKey = getKey;
-                suscription = repository.Subscribe(OnRepositoryNotified);
+                this._repository = repository;
+                this._getKey = getKey;
+                _suscription = repository.Subscribe(OnRepositoryNotified);
             }
 
             private void OnRepositoryNotified(RepositoryNotification<KeyValue<TKey, TValue>> e)
             {
-                notifications.Enqueue(e);
+                _notifications.Enqueue(e);
             }
 
             public void CheckAdded(TValue[] oldValues, TValue[] newValues)
@@ -66,8 +66,8 @@ namespace Observable.Repository.Tests
 
             public void CheckNotification(ActionType action, TValue[] oldValues, TValue[] newValues)
             {
-                Assert.Greater(notifications.Count, 0, "No notifications raised !");
-                var e = notifications.Dequeue();
+                Assert.Greater(_notifications.Count, 0, "No notifications raised !");
+                var e = _notifications.Dequeue();
                 Assert.AreEqual(action, e.Action);
                 Check(oldValues ?? new TValue[0], e.OldItems);
                 Check(newValues ?? new TValue[0], e.NewItems);
@@ -80,33 +80,33 @@ namespace Observable.Repository.Tests
                 for (var i = 0; i < x.Length; i++)
                 {
                     Assert.AreEqual(x[i], ay[i].Value);
-                    if(getKey != null)
-                        Assert.AreEqual(getKey(x[i]), ay[i].Key);
+                    if(_getKey != null)
+                        Assert.AreEqual(_getKey(x[i]), ay[i].Key);
                 }
             }
 
             public void Check(params TValue[] values)
             {
-                Check(values, repository);
+                Check(values, _repository);
             }
 
             #region Implementation of IDisposable
 
             public void Dispose()
             {
-                suscription.Dispose();
+                _suscription.Dispose();
             }
 
             #endregion
 
             public void CheckNoMoreNotifications()
             {
-                Assert.AreEqual(0, notifications.Count);
+                Assert.AreEqual(0, _notifications.Count);
             }
 
             public void ClearNotifications()
             {
-                notifications.Clear();
+                _notifications.Clear();
             }
         }
     }

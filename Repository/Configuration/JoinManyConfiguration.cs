@@ -20,12 +20,12 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets or sets the property list getter delegate.
         /// </summary>
-        public Func<TValue, IList<TRight>> GetList { get; private set; }
+        public Func<TValue, IList<TRight>> GetList { get; }
 
         /// <summary>
         /// Gets or sets the right key getter delegate
         /// </summary>
-        public Func<TRight, TRightKey> GetRightKey { get; private set; } 
+        public Func<TRight, TRightKey> GetRightKey { get; } 
 
         /// <summary>
         /// Ctor
@@ -54,10 +54,8 @@ namespace Observable.Repository.Configuration
         /// <param name="forward">Forward notifications to repository owner</param>
         /// <returns>Returns the created store.</returns>
         protected override IStore<TKey, TValue, TLeft> CreateStore(IObservable<RepositoryNotification<TRight>> source, IEnumerable<TRight> snapshot, Mutex mutex,
-            Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward)
-        {
-            return new StoreMany<TKey, TValue, TLeft, TRight, TLinkKey, TRightKey>(this, source, snapshot, mutex);
-        }
+            Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward) 
+            => new StoreMany<TKey, TValue, TLeft, TRight, TLinkKey, TRightKey>(this, source, snapshot, mutex);
 
         #endregion
     }

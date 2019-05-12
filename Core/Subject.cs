@@ -5,20 +5,20 @@ namespace Observable
 {
     public class Subject<T> : IObservable<T>, IObserver<T>
     {
-        private IObserver<T>[] observers = new IObserver<T>[0];
+        private IObserver<T>[] _observers = new IObserver<T>[0];
 
         #region Implementation of IObservable<out T>
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            lock (observers)
+            lock (_observers)
             {
-                var array = observers;
+                var array = _observers;
                 var length = array.Length;
                 var copy = new IObserver<T>[length + 1];
                 Array.Copy(array, copy, length);
                 copy[length] = observer;
-                observers = copy;
+                _observers = copy;
             }
 
             return new AnonymousDisposable<IObserver<T>>(observer, Unsubscribe);
@@ -26,9 +26,9 @@ namespace Observable
 
         private void Unsubscribe(IObserver<T> observer)
         {
-            lock (observers)
+            lock (_observers)
             {
-                var array = observers;
+                var array = _observers;
                 var length = array.Length;
                 var copy = new IObserver<T>[Math.Max(0, length - 1)];
                 var found = false;
@@ -45,11 +45,11 @@ namespace Observable
 
                 if (found)
                 {
-                    observers = copy;
+                    _observers = copy;
                     return;
                 }
 
-                observers = array;
+                _observers = array;
             }
         }
 
@@ -61,7 +61,7 @@ namespace Observable
         {
             try
             {
-                var array = observers;
+                var array = _observers;
                 var length = array.Length;
                 for (var i = 0; i < length; i++)
                     array[i].OnCompleted();
@@ -72,16 +72,16 @@ namespace Observable
             }
             finally
             {
-                lock (observers)
+                lock (_observers)
                 {
-                    observers = new IObserver<T>[0];
+                    _observers = new IObserver<T>[0];
                 }
             }
         }
 
         public virtual void OnError(Exception error)
         {
-            var array = observers;
+            var array = _observers;
             var length = array.Length;
             for (var i = 0; i < length; i++)
                 array[i].OnError(error);
@@ -89,7 +89,7 @@ namespace Observable
 
         public virtual void OnNext(T value)
         {
-            var array = observers;
+            var array = _observers;
             var length = array.Length;
             for (var i = 0; i < length; i++)
             {

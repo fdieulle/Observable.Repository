@@ -6,7 +6,7 @@ namespace Observable.Repository
 {
     /// <summary>
     /// The container allow to register, build create repositories. And add all producers sources.
-    /// To see all methods definie on the <see cref="IRepositoryContainer"/> see also <see cref="RepositoryExtensions"/> class.
+    /// To see all methods defined on the <see cref="IRepositoryContainer"/> see also <see cref="RepositoryExtensions"/> class.
     /// </summary>
     public interface IRepositoryContainer : IDisposable
     {

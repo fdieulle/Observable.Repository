@@ -4,10 +4,10 @@ namespace Observable.Repository.Tests.Data
 {
     public class AdapterJoinMany
     {
-        public ModelLeft ModelLeft { get; private set; }
+        public ModelLeft ModelLeft { get; }
 
         private readonly List<ModelRight> _modelRights = new List<ModelRight>();
-        public List<ModelRight> ModelRights { get { return _modelRights; } }
+        public List<ModelRight> ModelRights => _modelRights;
 
         public AdapterJoinMany(ModelLeft left)
         {

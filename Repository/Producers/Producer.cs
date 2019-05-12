@@ -19,7 +19,7 @@ namespace Observable.Repository.Producers
         /// <param name="dispatch">Dispatcher to produce items.</param>
         public Producer(Action<Action> dispatch)
         {
-            this._dispatch = dispatch;
+            _dispatch = dispatch;
         }
 
         /// <summary>
@@ -105,10 +105,8 @@ namespace Observable.Repository.Producers
         /// Remove an atomic producer.
         /// </summary>
         /// <param name="producer"><see cref="IObservable{T}"/> producer instance.</param>
-        public void Remove(IObservable<T> producer)
-        {
-            InternalRemove(producer);
-        }
+        public void Remove(IObservable<T> producer) 
+            => InternalRemove(producer);
 
         /// <summary>
         /// Remove a producer.
@@ -118,10 +116,8 @@ namespace Observable.Repository.Producers
         ///     <cref>IObservable{IEnumerable{T}}</cref>
         ///   </see>
         /// producer instance.</param>
-        public void Remove(IObservable<IEnumerable<T>> producer)
-        {
-            InternalRemove(producer);
-        }
+        public void Remove(IObservable<IEnumerable<T>> producer) 
+            => InternalRemove(producer);
 
         private void InternalRemove(object observable)
         {

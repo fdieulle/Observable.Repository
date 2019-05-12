@@ -50,14 +50,14 @@ namespace Observable.Repository.Join
             Mutex mutex,
             Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward)
         {
-            this._mutex = mutex ?? new Mutex();
+            _mutex = mutex ?? new Mutex();
             _valuesUpdated = new HashLinkedList<TKey, TValue>(_pool2);
 
             _getLeftLinkKey = configuration.LeftLinkKey;
             _getRightLinkKey = configuration.RightLinkKey;
             _rightFilter = configuration.RightFilter;
             _onUpdate = configuration.OnUpdate;
-            this._forward = forward;
+            _forward = forward;
 
             if(snapshot != null)
                 OnRightItemsReceived(new RepositoryNotification<TRight>(ActionType.Add, null, snapshot));
@@ -70,10 +70,8 @@ namespace Observable.Repository.Join
         /// <summary>
         /// 
         /// </summary>
-        public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer)
-        {
-            throw new NotSupportedException("This store isn't used to build the value");
-        }
+        public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer) 
+            => throw new NotSupportedException("This store isn't used to build the value");
 
         #endregion
 
@@ -84,8 +82,7 @@ namespace Observable.Repository.Join
         /// </summary>
         public void Dispose()
         {
-            if(_subscribesOnRightSource != null)
-                _subscribesOnRightSource.Dispose();
+            _subscribesOnRightSource?.Dispose();
 
             _rightItems.Clear();
             _valueItems.Clear();
@@ -104,10 +101,8 @@ namespace Observable.Repository.Join
         /// </summary>
         /// <param name="left">The left instance.</param>
         /// <returns>The right instance.</returns>
-        public object GetRight(TLeft left)
-        {
-            throw new NotSupportedException("This store isn't used to build the value");
-        }
+        public object GetRight(TLeft left) 
+            => throw new NotSupportedException("This store isn't used to build the value");
 
         /// <summary>
         /// Call when the repository added new values.
@@ -119,22 +114,18 @@ namespace Observable.Repository.Join
         {
             var linkKey = _getLeftLinkKey(left);
 
-            TLinkKey previousLinkKey;
-            Dictionary<TKey, TValue> previousValues;
-            if (_keys.TryGetValue(key, out previousLinkKey)
+            if (_keys.TryGetValue(key, out var previousLinkKey)
                 && !Equals(previousLinkKey, linkKey)
-                && _valueItems.TryGetValue(previousLinkKey, out previousValues))
+                && _valueItems.TryGetValue(previousLinkKey, out var previousValues))
                 RemoveValues(key, previousLinkKey, previousValues);
             _keys[key] = linkKey;
 
-            Dictionary<TKey, TValue> values;
-            if(!_valueItems.TryGetValue(linkKey, out values))
+            if(!_valueItems.TryGetValue(linkKey, out var values))
                 _valueItems.Add(linkKey, values = _pool.Get());
 
             values[key] = value;
 
-            TRight right;
-            if (_rightItems.TryGetValue(linkKey, out right))
+            if (_rightItems.TryGetValue(linkKey, out var right))
                 _onUpdate(value)(right);
         }
 
@@ -148,16 +139,13 @@ namespace Observable.Repository.Join
         {
             var linkKey = _getLeftLinkKey(left);
 
-            TLinkKey previousLinkKey;
-            Dictionary<TKey, TValue> previousValues;
-            if (_keys.TryGetValue(key, out previousLinkKey)
+            if (_keys.TryGetValue(key, out var previousLinkKey)
                 && !Equals(previousLinkKey, linkKey)
-                && _valueItems.TryGetValue(previousLinkKey, out previousValues))
+                && _valueItems.TryGetValue(previousLinkKey, out var previousValues))
                 previousValues.Remove(key);
             _keys.Remove(key);
 
-            Dictionary<TKey, TValue> values;
-            if (!_valueItems.TryGetValue(linkKey, out values))
+            if (!_valueItems.TryGetValue(linkKey, out var values))
                 return;
 
             RemoveValues(key, linkKey, values);
@@ -228,8 +216,7 @@ namespace Observable.Repository.Join
 
             _rightItems[key] = right;
 
-            Dictionary<TKey, TValue> values;
-            if (!_valueItems.TryGetValue(key, out values))
+            if (!_valueItems.TryGetValue(key, out var values))
                 return;
 
             foreach (var pair in values)
@@ -246,8 +233,7 @@ namespace Observable.Repository.Join
             if (!_rightItems.Remove(key))
                 return;
 
-            Dictionary<TKey, TValue> values;
-            if (!_valueItems.TryGetValue(key, out values))
+            if (!_valueItems.TryGetValue(key, out var values))
                 return;
 
             foreach (var pair in values)
@@ -261,8 +247,7 @@ namespace Observable.Repository.Join
         {
             foreach (var right in _rightItems)
             {
-                Dictionary<TKey, TValue> values;
-                if(!_valueItems.TryGetValue(right.Key, out values))
+                if(!_valueItems.TryGetValue(right.Key, out var values))
                     continue;
 
                 foreach (var pair in values)

@@ -23,17 +23,17 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the right source filter.
         /// </summary>
-        public Func<TRight, bool> RightFilter { get; private set; }
+        public Func<TRight, bool> RightFilter { get; }
 
         /// <summary>
         /// Gets or sets the link key getter from left items source.
         /// </summary>
-        public Func<TLeft, TLinkKey> LeftLinkKey { get; private set; }
+        public Func<TLeft, TLinkKey> LeftLinkKey { get; }
 
         /// <summary>
         /// Gets or sets the link key getter from right items source.
         /// </summary>
-        public Func<TRight, TLinkKey> RightLinkKey { get; private set; }
+        public Func<TRight, TLinkKey> RightLinkKey { get; }
 
         /// <summary>
         /// Ctor
@@ -52,7 +52,7 @@ namespace Observable.Repository.Configuration
             Func<TRight, TLinkKey> rightLinkKey,
             Func<TLeft, TLinkKey> leftLinkKey)
         {
-            this._container = container;
+            _container = container;
 
             ValueType = typeof (TValue);
             LeftType = typeof (TLeft);
@@ -63,9 +63,9 @@ namespace Observable.Repository.Configuration
             RightSourceName = rightSourceName;
             RightFilter = rightFilter;
             RightLinkKey = rightLinkKey;
-            this._rightLinkKey = new KeyConfiguration<TRight, TLinkKey>(rightLinkKey);
+            _rightLinkKey = new KeyConfiguration<TRight, TLinkKey>(rightLinkKey);
             LeftLinkKey = leftLinkKey;
-            this._leftLinkKey = new KeyConfiguration<TLeft, TLinkKey>(leftLinkKey);
+            _leftLinkKey = new KeyConfiguration<TLeft, TLinkKey>(leftLinkKey);
         }
 
         #region Implementation of IJoinConfiguration
@@ -73,47 +73,47 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the type of repository values.
         /// </summary>
-        public Type ValueType { get; private set; }
+        public Type ValueType { get; }
 
         /// <summary>
         /// Gets the type of repository left items source.
         /// </summary>
-        public Type LeftType { get; private set; }
+        public Type LeftType { get; }
 
         /// <summary>
         /// Gets the type of repository right items source.
         /// </summary>
-        public Type RightType { get; private set; }
+        public Type RightType { get; }
 
         /// <summary>
         /// Gets the type of repository join link key.
         /// </summary>
-        public Type LinkKeyType { get; private set; }
+        public Type LinkKeyType { get; }
 
         /// <summary>
         /// Gets the right source name.
         /// </summary>
-        public string RightSourceName { get; private set; }
+        public string RightSourceName { get; }
 
         /// <summary>
         /// Gets the right source filter.
         /// </summary>
-        Delegate IJoinConfiguration.RightFilter { get { return RightFilter; } }
+        Delegate IJoinConfiguration.RightFilter => RightFilter;
 
         /// <summary>
         /// Gets the join mode.
         /// </summary>
-        public JoinMode Mode { get; private set; }
+        public JoinMode Mode { get; }
 
         /// <summary>
         /// Gets the left link key configuration
         /// </summary>
-        KeyConfiguration IJoinConfiguration.LeftLinkKey { get { return _leftLinkKey; } }
+        KeyConfiguration IJoinConfiguration.LeftLinkKey => _leftLinkKey;
 
         /// <summary>
         /// Gets the right link key configuration
         /// </summary>
-        KeyConfiguration IJoinConfiguration.RightLinkKey { get { return _rightLinkKey; } }
+        KeyConfiguration IJoinConfiguration.RightLinkKey => _rightLinkKey;
 
         #endregion
 

@@ -11,13 +11,13 @@
         /// <summary>
         /// Gets the key.
         /// </summary>
-        public TKey Key { get { return _key; } }
+        public TKey Key => _key;
 
         internal TValue _value;
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public TValue Value { get { return _value; } }
+        public TValue Value => _value;
 
         /// <summary>
         /// Ctor
@@ -26,17 +26,14 @@
         /// <param name="value">Value</param>
         public KeyValue(TKey key, TValue value)
         {
-            this._key = key;
-            this._value = value;
+            _key = key;
+            _value = value;
         }
 
         /// <summary>
         /// Display instance
         /// </summary>
         /// <returns>Data format</returns>
-        public override string ToString()
-        {
-            return string.Format("[{0}] {1}", _key, _value);
-        }
+        public override string ToString() => $"[{_key}] {_value}";
     }
 }

@@ -10,27 +10,27 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TValue">Type of repository values</typeparam>
     /// <typeparam name="TLeft">Type of repository source</typeparam>
     /// <typeparam name="TRight">Type of repository join source</typeparam>
-    public class JoinOneToUpdateBuilder<TKey, TValue, TLeft, TRight> : IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight>, IJoinBuilderNode<TKey, TValue, TLeft, TRight>
+    public class JoinOneToUpdateBuilder<TKey, TValue, TLeft, TRight> : IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight>, IJoinBuilderNode<TKey, TValue, TLeft, TRight>
     {
         /// <summary>
         /// Gets the <see cref="IRepositoryContainer"/>
         /// </summary>
-        public IRepositoryContainer Container { get; private set; }
+        public IRepositoryContainer Container { get; }
 
         /// <summary>
         /// Gets the building repository configuration.
         /// </summary>
-        public RepositoryConfiguration<TKey, TValue, TLeft> Configuration { get; private set; }
+        public RepositoryConfiguration<TKey, TValue, TLeft> Configuration { get; }
 
         /// <summary>
         /// Gets the right source name.
         /// </summary>
-        public string RightSourceName { get; private set; }
+        public string RightSourceName { get; }
 
         /// <summary>
         /// Gets the right source filter.
         /// </summary>
-        public Func<TRight, bool> RightFilter { get; private set; }
+        public Func<TRight, bool> RightFilter { get; }
 
         /// <summary>
         /// Ctor
@@ -51,7 +51,7 @@ namespace Observable.Repository.Builders
             RightFilter = rightFilter;
         }
 
-        #region Implementation of IJoinToUpateBuilderNode<TKey,TValue,TLeft,TRight>
+        #region Implementation of IJoinToUpdateBuilderNode<TKey,TValue,TLeft,TRight>
 
         /// <summary>
         /// Gets the update methods on the repository values.
@@ -62,10 +62,7 @@ namespace Observable.Repository.Builders
         /// Get next building step.
         /// </summary>
         /// <returns>Returns the next building step</returns>
-        public IJoinBuilderNode<TKey, TValue, TLeft, TRight> GetNext()
-        {
-            return this;
-        }
+        public IJoinBuilderNode<TKey, TValue, TLeft, TRight> GetNext() => this;
 
         #endregion
 
@@ -76,10 +73,8 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <returns>Returns the next building step</returns>
-        public IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> GetNext<TLinkKey>()
-        {
-            return new JoinOneToUpdateBuilder<TKey, TValue, TLeft, TRight, TLinkKey>(this);
-        }
+        public IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> GetNext<TLinkKey>() 
+            => new JoinOneToUpdateBuilder<TKey, TValue, TLeft, TRight, TLinkKey>(this);
 
         #endregion
     }
@@ -122,10 +117,8 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Build the Join configuration.
         /// </summary>
-        public void Build()
-        {
-            Configuration.AddJoin(new JoinOneToUpdateConfiguration<TKey, TValue, TLeft, TRight, TLinkKey>(this));
-        }
+        public void Build() 
+            => Configuration.AddJoin(new JoinOneToUpdateConfiguration<TKey, TValue, TLeft, TRight, TLinkKey>(this));
 
         #endregion
     }

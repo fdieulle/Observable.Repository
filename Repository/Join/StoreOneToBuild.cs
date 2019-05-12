@@ -48,7 +48,7 @@ namespace Observable.Repository.Join
             IEnumerable<TRight> snapshot,
             Mutex mutex)
         {
-            this._mutex = mutex ?? new Mutex();
+            _mutex = mutex ?? new Mutex();
 
             _getLeftLinkKey = configuration.LeftLinkKey;
             _getRightLinkKey = configuration.RightLinkKey;
@@ -68,11 +68,9 @@ namespace Observable.Repository.Join
         /// Subscribe on the store notifications.
         /// </summary>
         /// <param name="observer">Observer</param>
-        /// <returns>Returns the result of suscription.</returns>
-        public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer)
-        {
-            return _subject.Subscribe(observer);
-        }
+        /// <returns>Returns the result of subscription.</returns>
+        public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer) 
+            => _subject.Subscribe(observer);
 
         #endregion
 
@@ -83,8 +81,7 @@ namespace Observable.Repository.Join
         /// </summary>
         public void Dispose()
         {
-            if (_subscribesOnRightSource != null)
-                _subscribesOnRightSource.Dispose();
+            _subscribesOnRightSource?.Dispose();
 
             _rightItems.Clear();
             _leftItems.Clear();
@@ -108,8 +105,7 @@ namespace Observable.Repository.Join
         public object GetRight(TLeft left)
         {
             var key = _getLeftLinkKey(left);
-            TRight right;
-            _rightItems.TryGetValue(key, out right);
+            _rightItems.TryGetValue(key, out var right);
             return right;
         }
 
@@ -123,16 +119,13 @@ namespace Observable.Repository.Join
         {
             var linkKey = _getLeftLinkKey(left);
 
-            TLinkKey previousLinkKey;
-            Dictionary<TKey, TLeft> previousLefts;
-            if (_keys.TryGetValue(key, out previousLinkKey)
+            if (_keys.TryGetValue(key, out var previousLinkKey)
                 && !Equals(previousLinkKey, linkKey)
-                && _leftItems.TryGetValue(previousLinkKey, out previousLefts))
+                && _leftItems.TryGetValue(previousLinkKey, out var previousLefts))
                 RemoveLefts(key, previousLinkKey, previousLefts);
             _keys[key] = linkKey;
 
-            Dictionary<TKey, TLeft> lefts;
-            if (!_leftItems.TryGetValue(linkKey, out lefts))
+            if (!_leftItems.TryGetValue(linkKey, out var lefts))
                 _leftItems.Add(linkKey, lefts = _poolForLefts.Get());
 
             lefts[key] = left;
@@ -148,8 +141,7 @@ namespace Observable.Repository.Join
         {
             var linkKey = _getLeftLinkKey(left);
 
-            Dictionary<TKey, TLeft> lefts;
-            if (!_leftItems.TryGetValue(linkKey, out lefts))
+            if (!_leftItems.TryGetValue(linkKey, out var lefts))
                 return;
 
             RemoveLefts(key, linkKey, lefts);
@@ -218,8 +210,7 @@ namespace Observable.Repository.Join
             var key = _getRightLinkKey(right);
             _rightItems[key] = right;
 
-            Dictionary<TKey, TLeft> lefts;
-            if (!_leftItems.TryGetValue(key, out lefts))
+            if (!_leftItems.TryGetValue(key, out var lefts))
                 return;
 
             foreach (var left in lefts)
@@ -233,8 +224,7 @@ namespace Observable.Repository.Join
             if (!_rightItems.Remove(key))
                 return;
 
-            Dictionary<TKey, TLeft> lefts;
-            if (!_leftItems.TryGetValue(key, out lefts))
+            if (!_leftItems.TryGetValue(key, out var lefts))
                 return;
 
             foreach (var left in lefts)
@@ -245,8 +235,7 @@ namespace Observable.Repository.Join
         {
             foreach (var right in _rightItems)
             {
-                Dictionary<TKey, TLeft> lefts;
-                if (!_leftItems.TryGetValue(right.Key, out lefts))
+                if (!_leftItems.TryGetValue(right.Key, out var lefts))
                     continue;
 
                 foreach (var left in lefts)

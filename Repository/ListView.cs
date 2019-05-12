@@ -56,11 +56,11 @@ namespace Observable.Repository
             bool synchronize,
             Action<Action> dispatcher)
         {
-            this._repository = repository;
-            this._view = view;
-            this._filter = filter;
-            this._selector = selector;
-            this._dispatcher = dispatcher;
+            _repository = repository;
+            _view = view;
+            _filter = filter;
+            _selector = selector;
+            _dispatcher = dispatcher;
 
             _newItems = new HashLinkedList<TKey, TSelect>(_poolToNotify);
             _oldItems = new HashLinkedList<TKey, TSelect>(_poolToNotify);
@@ -76,20 +76,17 @@ namespace Observable.Repository
         /// <summary>
         /// Synchronize the <see cref="IListView{T}"/> with the <see cref="IRepository{TKey, T}"/> source.
         /// </summary>
-        public void Synchronize()
-        {
-            OnItemsReceived(new RepositoryNotification<KeyValue<TKey, T>>(ActionType.Reload, null, _repository));
-        }
+        public void Synchronize() => OnItemsReceived(new RepositoryNotification<KeyValue<TKey, T>>(ActionType.Reload, null, _repository));
 
         #endregion
 
         #region Implementation of IObservable<out RepositoryNotification<TSelect>>
 
         /// <summary>
-        /// Subscrive on <see cref="IListView{TSelect}"/> notifications.
+        /// Subscribes on <see cref="IListView{TSelect}"/> notifications.
         /// </summary>
         /// <param name="observer">Observer of notifications.</param>
-        /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
+        /// <returns>Returns result of the subscription. Dispose to release the subscription.</returns>
         public IDisposable Subscribe(IObserver<RepositoryNotification<TSelect>> observer)
         {
             var result = _subject.Subscribe(observer);
@@ -107,10 +104,10 @@ namespace Observable.Repository
         #region Implementation of IObservable<out AtomicNotification<TSelect>>
 
         /// <summary>
-        /// Subscrive on <see cref="IListView{TSelect}"/> atomic notifications.
+        /// Subscribes on <see cref="IListView{TSelect}"/> atomic notifications.
         /// </summary>
         /// <param name="observer">Observer of notifications.</param>
-        /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
+        /// <returns>Returns result of the subscription. Dispose to release the subscription.</returns>
         public IDisposable Subscribe(IObserver<AtomicNotification<TSelect>> observer)
         {
             var result = _atomicSubject.Subscribe(observer);
@@ -132,8 +129,7 @@ namespace Observable.Repository
         /// </summary>
         public void Dispose()
         {
-            if (_subscribesOnRepository != null)
-                _subscribesOnRepository.Dispose();
+            _subscribesOnRepository?.Dispose();
 
             if (_dispatcher != null)
                 _dispatcher(Disposing);
@@ -183,8 +179,7 @@ namespace Observable.Repository
                 case ActionType.Reload:
                     removed = Clear();
 
-                    var resetable = _view as IResetableList<TSelect>;
-                    if (resetable != null)
+                    if (_view is IResetableList<TSelect> resetable)
                     {
                         added = Reset(e.NewItems);
                         resetable.Reset(added);
@@ -214,8 +209,7 @@ namespace Observable.Repository
                 var key = pair.Key;
                 var select = _selector(value);
 
-                LinkedNode<int, TSelect> node;
-                if (!_indices.TryGetValue(key, out node))
+                if (!_indices.TryGetValue(key, out var node))
                 {
                     _indices.Add(key, node = _pool.Get());
 
@@ -269,8 +263,7 @@ namespace Observable.Repository
         {
             var key = pair.Key;
 
-            LinkedNode<int, TSelect> node;
-            if (!_indices.TryGetValue(key, out node))
+            if (!_indices.TryGetValue(key, out var node))
                 return;
 
             if (node._previous == null)
@@ -348,8 +341,7 @@ namespace Observable.Repository
                 var oldValue = default(TSelect);
                 var action = ActionType.Add;
 
-                LinkedNode<int, TSelect> node;
-                if (!_indices.TryGetValue(key, out node))
+                if (!_indices.TryGetValue(key, out var node))
                 {
                     _indices.Add(key, node = _pool.Get());
 

@@ -20,17 +20,17 @@ namespace Observable.Repository.Core
         /// <summary>
         /// Gets the first node.
         /// </summary>
-        public LinkedNode<TKey, TValue> First { get { return _first; } }
+        public LinkedNode<TKey, TValue> First => _first;
 
         /// <summary>
         /// Gets the last node.
         /// </summary>
-        public LinkedNode<TKey, TValue> Last { get { return _last; } } 
+        public LinkedNode<TKey, TValue> Last => _last;
 
         /// <summary>
         /// Gets the number of items.
         /// </summary>
-        public int Count { get { return _items.Count; } }
+        public int Count => _items.Count;
 
         /// <summary>
         /// Ctor
@@ -38,7 +38,7 @@ namespace Observable.Repository.Core
         /// <param name="pool">A pool to recycle nodes</param>
         public HashLinkedList(Pool<LinkedNode<TKey, TValue>> pool)
         {
-            this._pool = pool;
+            _pool = pool;
         }
 
         #region Implementation of IEnumerable
@@ -57,10 +57,7 @@ namespace Observable.Repository.Core
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
@@ -71,8 +68,8 @@ namespace Observable.Repository.Core
         /// <returns>The value found</returns>
         public TValue this[TKey key]
         {
-            get { return _items[key]._value; }
-            set { Add(key, value); }
+            get => _items[key]._value;
+            set => Add(key, value);
         }
 
         /// <summary>
@@ -80,10 +77,7 @@ namespace Observable.Repository.Core
         /// </summary>
         /// <param name="key">Key to test</param>
         /// <returns>Returns true if it contains the key, false else.</returns>
-        public bool ContainsKey(TKey key)
-        {
-            return _items.ContainsKey(key);
-        }
+        public bool ContainsKey(TKey key) => _items.ContainsKey(key);
 
         /// <summary>
         /// Add or update a new key value pair.
@@ -92,8 +86,7 @@ namespace Observable.Repository.Core
         /// <param name="value">Value</param>
         public void Add(TKey key, TValue value)
         {
-            LinkedNode<TKey, TValue> node;
-            if (!_items.TryGetValue(key, out node))
+            if (!_items.TryGetValue(key, out var node))
             {
                 _items.Add(key, node = _pool.Get());
                 node._key = key;
@@ -120,8 +113,7 @@ namespace Observable.Repository.Core
         /// <returns>Returns true if a value has been removed. False else.</returns>
         public bool Remove(TKey key)
         {
-            LinkedNode<TKey, TValue> node;
-            if (!_items.TryGetValue(key, out node)) return false;
+            if (!_items.TryGetValue(key, out var node)) return false;
 
             if (node._previous == null)
                 _first = node._next;
@@ -146,8 +138,7 @@ namespace Observable.Repository.Core
         /// <returns>Return true if a value has been found. False else.</returns>
         public bool TryGetValue(TKey key, out TValue value)
         {
-            LinkedNode<TKey, TValue> node;
-            if (_items.TryGetValue(key, out node))
+            if (_items.TryGetValue(key, out var node))
             {
                 value = node._value;
                 return true;
@@ -187,7 +178,7 @@ namespace Observable.Repository.Core
         /// <summary>
         /// Flush all items, make an array copy then clear them.
         /// </summary>
-        /// <returns>The items aray copy.</returns>
+        /// <returns>The items array copy.</returns>
         public KeyValue<TKey, TValue>[] Flush()
         {
             var array = new KeyValue<TKey, TValue>[_items.Count];

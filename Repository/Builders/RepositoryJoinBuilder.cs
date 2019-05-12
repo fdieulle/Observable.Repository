@@ -68,7 +68,7 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TValue">Type of repository values</typeparam>
     /// <typeparam name="TLeft">Type of repository source</typeparam>
     /// <typeparam name="TRight">Type of repository join source</typeparam>
-    public interface IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight>
+    public interface IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight>
     {
         /// <summary>
         /// Gets the update methods on the repository values.
@@ -129,7 +129,7 @@ namespace Observable.Repository.Builders
     #region Depth1
 
     /// <summary>
-    /// Repositor Join builder
+    /// Repository Join builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -180,7 +180,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey);
     }
 
@@ -219,7 +219,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate);
     }
 
@@ -237,7 +237,7 @@ namespace Observable.Repository.Builders
     public interface IJoinManyBuilder<TKey, TValue, out TLeft, TRight>
     {
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -295,7 +295,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         IRepositoryJoinBuilder<TKey, TValue, TLeft> LeftLinkKey(Func<TLeft, TLinkKey> getKey);
     }
 
@@ -320,7 +320,7 @@ namespace Observable.Repository.Builders
     #region Depth2
 
     /// <summary>
-    /// Repositor Join builder
+    /// Repository Join builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -373,7 +373,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey);
     }
 
@@ -414,7 +414,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate);
     }
 
@@ -433,7 +433,7 @@ namespace Observable.Repository.Builders
     public interface IJoinManyBuilder<TKey, TValue, out TLeft, out TRight1, TRight>
     {
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -494,7 +494,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1> LeftLinkKey(Func<TLeft, TLinkKey> getKey);
     }
 
@@ -520,7 +520,7 @@ namespace Observable.Repository.Builders
     #region Depth3
 
     /// <summary>
-    /// Repositor Join builder
+    /// Repository Join builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -575,7 +575,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey);
     }
 
@@ -618,7 +618,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate);
     }
 
@@ -638,7 +638,7 @@ namespace Observable.Repository.Builders
     public interface IJoinManyBuilder<TKey, TValue, out TLeft, out TRight1, out TRight2, TRight>
     {
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -702,7 +702,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2> LeftLinkKey(Func<TLeft, TLinkKey> getKey);
     }
 
@@ -729,7 +729,7 @@ namespace Observable.Repository.Builders
     #region Depth4
 
     /// <summary>
-    /// Repositor Join builder
+    /// Repository Join builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -786,7 +786,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey);
     }
 
@@ -831,7 +831,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate);
     }
 
@@ -852,7 +852,7 @@ namespace Observable.Repository.Builders
     public interface IJoinManyBuilder<TKey, TValue, out TLeft, out TRight1, out TRight2, out TRight3, TRight>
     {
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -919,7 +919,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3> LeftLinkKey(Func<TLeft, TLinkKey> getKey);
     }
 
@@ -947,7 +947,7 @@ namespace Observable.Repository.Builders
     #region Depth5
 
     /// <summary>
-    /// Repositor Join builder
+    /// Repository Join builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -1006,7 +1006,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey);
     }
 
@@ -1053,7 +1053,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate);
     }
 
@@ -1075,7 +1075,7 @@ namespace Observable.Repository.Builders
     public interface IJoinManyBuilder<TKey, TValue, out TLeft, out TRight1, out TRight2, out TRight3, out TRight4, TRight>
     {
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -1145,7 +1145,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4> LeftLinkKey(Func<TLeft, TLinkKey> getKey);
     }
 
@@ -1174,7 +1174,7 @@ namespace Observable.Repository.Builders
     #region Last Depth
 
     /// <summary>
-    /// Repositor Join builder
+    /// Repository Join builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -1225,7 +1225,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight5, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate);
     }
 
@@ -1248,7 +1248,7 @@ namespace Observable.Repository.Builders
     public interface IJoinManyBuilder<TKey, TValue, out TLeft, out TRight1, out TRight2, out TRight3, out TRight4, out TRight5, TRight>
     {
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -1321,7 +1321,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight5> LeftLinkKey(Func<TLeft, TLinkKey> getKey);
     }
 
@@ -1355,7 +1355,7 @@ namespace Observable.Repository.Builders
     #region Depth1
 
     /// <summary>
-    /// Repositor Join and ctor builder
+    /// Repository Join and ctor builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -1373,8 +1373,8 @@ namespace Observable.Repository.Builders
         public RepositoryJoinBuilder(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
             : base(container, configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryCtorBuilder<TKey,TValue,out TLeft>
@@ -1450,10 +1450,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight>
@@ -1463,7 +1463,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         public IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey)
         {
             var next = _builder.GetNext<TLinkKey>();
@@ -1489,10 +1489,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -1525,15 +1525,15 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TRight">Type of repository join source</typeparam>
     public class RepositoryJoinUpdateBuilder<TKey, TValue, TLeft, TRight> : IJoinUpdateBuilder<TKey, TValue, TLeft, TRight>
     {
-        private readonly IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
+        private readonly IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
 
         /// <summary>
         /// Ctor.
         /// </summary>
         /// <param name="builder">Previous step builder.</param>
-        public RepositoryJoinUpdateBuilder(IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> builder)
+        public RepositoryJoinUpdateBuilder(IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinUpdateBuilder<TKey,TValue,out TLeft,out TRight>
@@ -1542,7 +1542,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         public IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate)
         {
             _builder.OnUpdate = onUpdate;
@@ -1574,13 +1574,13 @@ namespace Observable.Repository.Builders
         /// <param name="builder">Previous builder step.</param>
         public RepositoryJoinManyBuilder(IJoinManyBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinManyBuilder<TKey,TValue,out TLeft,TRight>
 
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -1626,10 +1626,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyBuilder<TKey,TValue,out TLeft,out TRight>
@@ -1665,10 +1665,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -1677,7 +1677,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         public IRepositoryJoinBuilder<TKey, TValue, TLeft> LeftLinkKey(Func<TLeft, TLinkKey> getKey)
         {
             _builder.GetLeftLinkKey = getKey;
@@ -1693,7 +1693,7 @@ namespace Observable.Repository.Builders
     #region Depth2
 
     /// <summary>
-    /// Repositor Join and ctor builder
+    /// Repository Join and ctor builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -1712,8 +1712,8 @@ namespace Observable.Repository.Builders
         public RepositoryJoinBuilder(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
             : base(container, configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryCtorBuilder<TKey,TValue,out TLeft,out TRight>
@@ -1790,10 +1790,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight>
@@ -1803,7 +1803,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         public IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey)
         {
             var next = _builder.GetNext<TLinkKey>();
@@ -1831,10 +1831,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -1868,15 +1868,15 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TRight1">Type of repository join source 1</typeparam>
     public class RepositoryJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight> : IJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight>
     {
-        private readonly IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
+        private readonly IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
 
         /// <summary>
         /// Ctor.
         /// </summary>
         /// <param name="builder">Previous step builder.</param>
-        public RepositoryJoinUpdateBuilder(IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> builder)
+        public RepositoryJoinUpdateBuilder(IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinUpdateBuilder<TKey,TValue,out TLeft,out TRight>
@@ -1885,7 +1885,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         public IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate)
         {
             _builder.OnUpdate = onUpdate;
@@ -1918,13 +1918,13 @@ namespace Observable.Repository.Builders
         /// <param name="builder">Previous builder step.</param>
         public RepositoryJoinManyBuilder(IJoinManyBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinManyBuilder<TKey,TValue,out TLeft,TRight>
 
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -1971,10 +1971,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyBuilder<TKey,TValue,out TLeft,out TRight1,out TRight>
@@ -2011,10 +2011,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -2023,7 +2023,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         public IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1> LeftLinkKey(Func<TLeft, TLinkKey> getKey)
         {
             _builder.GetLeftLinkKey = getKey;
@@ -2039,7 +2039,7 @@ namespace Observable.Repository.Builders
     #region Depth3
 
     /// <summary>
-    /// Repositor Join and ctor builder
+    /// Repository Join and ctor builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -2059,8 +2059,8 @@ namespace Observable.Repository.Builders
         public RepositoryJoinBuilder(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
             : base(container, configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryCtorBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2138,10 +2138,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2151,7 +2151,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         public IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey)
         {
             var next = _builder.GetNext<TLinkKey>();
@@ -2180,10 +2180,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -2218,15 +2218,15 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TRight2">Type of repository join source 2</typeparam>
     public class RepositoryJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight> : IJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight>
     {
-        private readonly IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
+        private readonly IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
 
         /// <summary>
         /// Ctor.
         /// </summary>
         /// <param name="builder">Previous step builder.</param>
-        public RepositoryJoinUpdateBuilder(IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> builder)
+        public RepositoryJoinUpdateBuilder(IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinUpdateBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2235,7 +2235,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         public IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate)
         {
             _builder.OnUpdate = onUpdate;
@@ -2269,13 +2269,13 @@ namespace Observable.Repository.Builders
         /// <param name="builder">Previous builder step.</param>
         public RepositoryJoinManyBuilder(IJoinManyBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinManyBuilder<TKey,TValue,out TLeft,TRight>
 
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -2323,10 +2323,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyBuilder<TKey,TValue,out TLeft, TRight1,out TRight>
@@ -2364,10 +2364,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -2376,7 +2376,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         public IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2> LeftLinkKey(Func<TLeft, TLinkKey> getKey)
         {
             _builder.GetLeftLinkKey = getKey;
@@ -2392,7 +2392,7 @@ namespace Observable.Repository.Builders
     #region Depth4
 
     /// <summary>
-    /// Repositor Join and ctor builder
+    /// Repository Join and ctor builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -2413,8 +2413,8 @@ namespace Observable.Repository.Builders
         public RepositoryJoinBuilder(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
             : base(container, configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryCtorBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2493,10 +2493,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2506,7 +2506,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         public IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey)
         {
             var next = _builder.GetNext<TLinkKey>();
@@ -2536,10 +2536,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -2575,15 +2575,15 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TRight3">Type of repository join source 3</typeparam>
     public class RepositoryJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight> : IJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight>
     {
-        private readonly IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
+        private readonly IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
 
         /// <summary>
         /// Ctor.
         /// </summary>
         /// <param name="builder">Previous step builder.</param>
-        public RepositoryJoinUpdateBuilder(IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> builder)
+        public RepositoryJoinUpdateBuilder(IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinUpdateBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2592,7 +2592,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         public IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate)
         {
             _builder.OnUpdate = onUpdate;
@@ -2627,13 +2627,13 @@ namespace Observable.Repository.Builders
         /// <param name="builder">Previous builder step.</param>
         public RepositoryJoinManyBuilder(IJoinManyBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinManyBuilder<TKey,TValue,out TLeft,TRight>
 
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -2682,10 +2682,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyBuilder<TKey,TValue,out TLeft, TRight1,out TRight>
@@ -2724,10 +2724,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -2736,7 +2736,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         public IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3> LeftLinkKey(Func<TLeft, TLinkKey> getKey)
         {
             _builder.GetLeftLinkKey = getKey;
@@ -2752,7 +2752,7 @@ namespace Observable.Repository.Builders
     #region Depth5
 
     /// <summary>
-    /// Repositor Join and ctor builder
+    /// Repository Join and ctor builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -2774,8 +2774,8 @@ namespace Observable.Repository.Builders
         public RepositoryJoinBuilder(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
             : base(container, configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryCtorBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2855,10 +2855,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2868,7 +2868,7 @@ namespace Observable.Repository.Builders
         /// </summary>
         /// <typeparam name="TLinkKey">Type of link key</typeparam>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the link key bulider for the main source</returns>
+        /// <returns>Returns the link key builder for the main source</returns>
         public IJoinLeftKeyToBuildBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight, TLinkKey> RightLinkKey<TLinkKey>(Func<TRight, TLinkKey> getKey)
         {
             var next = _builder.GetNext<TLinkKey>();
@@ -2899,10 +2899,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyToBuildBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyToBuildBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -2939,15 +2939,15 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TRight4">Type of repository join source 4</typeparam>
     public class RepositoryJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight> : IJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight>
     {
-        private readonly IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
+        private readonly IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
 
         /// <summary>
         /// Ctor.
         /// </summary>
         /// <param name="builder">Previous step builder.</param>
-        public RepositoryJoinUpdateBuilder(IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> builder)
+        public RepositoryJoinUpdateBuilder(IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinUpdateBuilder<TKey,TValue,out TLeft,out TRight>
@@ -2956,7 +2956,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         public IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate)
         {
             _builder.OnUpdate = onUpdate;
@@ -2992,13 +2992,13 @@ namespace Observable.Repository.Builders
         /// <param name="builder">Previous builder step.</param>
         public RepositoryJoinManyBuilder(IJoinManyBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinManyBuilder<TKey,TValue,out TLeft,TRight>
 
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -3048,10 +3048,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyBuilder<TKey,TValue,out TLeft, TRight1,out TRight>
@@ -3091,10 +3091,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -3103,7 +3103,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         public IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4> LeftLinkKey(Func<TLeft, TLinkKey> getKey)
         {
             _builder.GetLeftLinkKey = getKey;
@@ -3119,7 +3119,7 @@ namespace Observable.Repository.Builders
     #region Last Depth
 
     /// <summary>
-    /// Repositor Join and ctor builder
+    /// Repository Join and ctor builder
     /// </summary>
     /// <typeparam name="TKey">Type of repository keys</typeparam>
     /// <typeparam name="TValue">Type of repository values</typeparam>
@@ -3142,8 +3142,8 @@ namespace Observable.Repository.Builders
         public RepositoryJoinBuilder(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
             : base(container, configuration)
         {
-            this._container = container;
-            this._configuration = configuration;
+            _container = container;
+            _configuration = configuration;
         }
 
         #region Implementation of IRepositoryCtorBuilder<TKey,TValue,out TLeft,out TRight1,out TRight2,out TRight3,out TRight4>
@@ -3207,15 +3207,15 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TRight5">Type of repository join source 5</typeparam>
     public class RepositoryJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight5, TRight> : IJoinUpdateBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight5, TRight>
     {
-        private readonly IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
+        private readonly IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> _builder;
 
         /// <summary>
         /// Ctor.
         /// </summary>
         /// <param name="builder">Previous step builder.</param>
-        public RepositoryJoinUpdateBuilder(IJoinToUpateBuilderNode<TKey, TValue, TLeft, TRight> builder)
+        public RepositoryJoinUpdateBuilder(IJoinToUpdateBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinUpdateBuilder<TKey,TValue,out TLeft,out TRight>
@@ -3224,7 +3224,7 @@ namespace Observable.Repository.Builders
         /// Define the update method on the repository values.
         /// </summary>
         /// <param name="onUpdate">Method delegate to call.</param>
-        /// <returns>Next biulder step.</returns>
+        /// <returns>Next builder step.</returns>
         public IJoinRightKeyBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight5, TRight> DefineUpdate(Func<TValue, Action<TRight>> onUpdate)
         {
             _builder.OnUpdate = onUpdate;
@@ -3261,13 +3261,13 @@ namespace Observable.Repository.Builders
         /// <param name="builder">Previous builder step.</param>
         public RepositoryJoinManyBuilder(IJoinManyBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinManyBuilder<TKey,TValue,out TLeft,TRight>
 
         /// <summary>
-        /// Define the liste getter to populate it by the repository.
+        /// Define the list getter to populate it by the repository.
         /// </summary>
         /// <param name="getList">List getter delegate.</param>
         /// <returns>Next builder step.</returns>
@@ -3318,10 +3318,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinRightKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinRightKeyBuilder<TKey,TValue,out TLeft, TRight1,out TRight>
@@ -3362,10 +3362,10 @@ namespace Observable.Repository.Builders
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="builder">Previous step Bulider</param>
+        /// <param name="builder">Previous step Builder</param>
         public RepositoryJoinLeftKeyBuilder(IJoinBuilderNode<TKey, TValue, TLeft, TRight, TLinkKey> builder)
         {
-            this._builder = builder;
+            _builder = builder;
         }
 
         #region Implementation of IJoinLeftKeyBuilder<TKey,TValue,out TLeft,out TRight,in TLinkKey>
@@ -3374,7 +3374,7 @@ namespace Observable.Repository.Builders
         /// Define the main link key getter delegate
         /// </summary>
         /// <param name="getKey">Link key getter delegate</param>
-        /// <returns>Returns the repostory builder</returns>
+        /// <returns>Returns the repository builder</returns>
         public IRepositoryJoinBuilder<TKey, TValue, TLeft, TRight1, TRight2, TRight3, TRight4, TRight5> LeftLinkKey(Func<TLeft, TLinkKey> getKey)
         {
             _builder.GetLeftLinkKey = getKey;

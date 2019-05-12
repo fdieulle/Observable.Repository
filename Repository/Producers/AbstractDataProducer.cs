@@ -11,7 +11,7 @@ namespace Observable.Repository.Producers
         #region Implementation of IDataProducer
 
         /// <summary>
-        /// Gets a producer multicast subject instance specified by its type and its name.
+        /// Gets a producer multi cast subject instance specified by its type and its name.
         /// There is only one producer instance by couple of data type and name in a container.
         /// All producers which are added or removed with double key will be done inside this same instance.
         /// </summary>
@@ -24,8 +24,7 @@ namespace Observable.Repository.Producers
             {
                 var key = new ProducerKey(name, typeof(T));
 
-                IDisposable producer;
-                if (_producers.TryGetValue(key, out producer))
+                if (_producers.TryGetValue(key, out var producer))
                     return (Producer<T>)producer;
 
                 var newProducer = CreateProducer<T>();

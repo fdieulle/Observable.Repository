@@ -22,7 +22,6 @@ namespace Observable.Repository.Join
         private readonly Func<TLeft, TLinkKey> _getLeftLinkKey;
         private readonly Func<TRight, TLinkKey> _getRightLinkKey;
         private readonly Func<TRight, bool> _rightFilter;
-        private readonly Func<TValue, IList<TRight>> _getList;
         private readonly Func<TRight, TRightKey> _getRightKey;
 
         private readonly Dictionary<TRightKey, TLinkKey> _rightItems = new Dictionary<TRightKey, TLinkKey>();
@@ -47,15 +46,14 @@ namespace Observable.Repository.Join
             IEnumerable<TRight> snapshot,
             Mutex mutex)
         {
-            this._mutex = mutex ?? new Mutex();
+            _mutex = mutex ?? new Mutex();
 
             _getLeftLinkKey = configuration.LeftLinkKey;
             _getRightLinkKey = configuration.RightLinkKey;
             _rightFilter = configuration.RightFilter;
-            _getList = configuration.GetList;
             _getRightKey = configuration.GetRightKey;
 
-            _managersPool = new Pool<ListManager>(() => new ListManager(_getList, _rightNodesPool));
+            _managersPool = new Pool<ListManager>(() => new ListManager(configuration.GetList, _rightNodesPool));
 
             if (snapshot != null)
                 OnRightItemsReceived(new RepositoryNotification<TRight>(ActionType.Add, null, snapshot));
@@ -68,10 +66,8 @@ namespace Observable.Repository.Join
         /// <summary>
         /// Do not use
         /// </summary>
-        public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer)
-        {
-            throw new NotSupportedException("This store isn't used to build the value");
-        }
+        public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer) 
+            => throw new NotSupportedException("This store isn't used to build the value");
 
         #endregion
 
@@ -82,8 +78,7 @@ namespace Observable.Repository.Join
         /// </summary>
         public void Dispose()
         {
-            if(_subscribesOnRightSource != null)
-                _subscribesOnRightSource.Dispose();
+            _subscribesOnRightSource?.Dispose();
 
             _rightItems.Clear();
             _managers.Clear();
@@ -100,10 +95,8 @@ namespace Observable.Repository.Join
         /// </summary>
         /// <param name="left">The left instance.</param>
         /// <returns>The right instance.</returns>
-        public object GetRight(TLeft left)
-        {
-            throw new NotSupportedException("This store isn't used to build the value");
-        }
+        public object GetRight(TLeft left) 
+            => throw new NotSupportedException("This store isn't used to build the value");
 
         /// <summary>
         /// Call when the repository added new values.
@@ -115,8 +108,7 @@ namespace Observable.Repository.Join
         {
             var linkKey = _getLeftLinkKey(left);
 
-            ListManager manager;
-            if(!_managers.TryGetValue(linkKey, out manager))
+            if(!_managers.TryGetValue(linkKey, out var manager))
                 _managers.Add(linkKey, manager = _managersPool.Get());
 
             manager.AddValue(key, value);
@@ -132,8 +124,7 @@ namespace Observable.Repository.Join
         {
             var linkKey = _getLeftLinkKey(left);
 
-            ListManager manager;
-            if (!_managers.TryGetValue(linkKey, out manager))
+            if (!_managers.TryGetValue(linkKey, out var manager))
                 return;
 
             manager.RemoveValue(key);
@@ -198,8 +189,7 @@ namespace Observable.Repository.Join
             var rightKey = _getRightKey(right);
             var linkKey = _getRightLinkKey(right);
 
-            TLinkKey oldLinkKey;
-            if (_rightItems.TryGetValue(rightKey, out oldLinkKey))
+            if (_rightItems.TryGetValue(rightKey, out var oldLinkKey))
             {
                 // In case of the right instance has changed its link key
                 if (!linkKey.Equals(oldLinkKey) && _managers.ContainsKey(oldLinkKey))
@@ -208,8 +198,7 @@ namespace Observable.Repository.Join
 
             _rightItems[rightKey] = linkKey;
 
-            ListManager manager;
-            if(!_managers.TryGetValue(linkKey, out manager))
+            if(!_managers.TryGetValue(linkKey, out var manager))
                 _managers.Add(linkKey, manager = _managersPool.Get());
 
             manager.AddRight(rightKey, right);
@@ -224,8 +213,7 @@ namespace Observable.Repository.Join
 
             var linkKey = _getRightLinkKey(right);
 
-            ListManager manager;
-            if (!_managers.TryGetValue(linkKey, out manager))
+            if (!_managers.TryGetValue(linkKey, out var manager))
                 return;
 
             manager.RemoveRight(rightKey);
@@ -266,21 +254,17 @@ namespace Observable.Repository.Join
             private LinkedNode<int, TRight> _last;
             private LinkedNode<int, TRight> _first;
 
-            public bool IsEmpty
-            {
-                get { return _rightIndices.Count == 0 && _lists.Count == 0; }
-            }
+            public bool IsEmpty => _rightIndices.Count == 0 && _lists.Count == 0;
 
             public ListManager(Func<TValue, IList<TRight>> getList, Pool<LinkedNode<int, TRight>> pool)
             {
-                this._getList = getList;
-                this._pool = pool;
+                _getList = getList;
+                _pool = pool;
             }
 
             public void AddRight(TRightKey rightKey, TRight right)
             {
-                LinkedNode<int, TRight> node;
-                if (_rightIndices.TryGetValue(rightKey, out node)) // Update lists
+                if (_rightIndices.TryGetValue(rightKey, out var node)) // Update lists
                 {
                     node._value = right;
 
@@ -312,8 +296,7 @@ namespace Observable.Repository.Join
 
             public void RemoveRight(TRightKey rightKey)
             {
-                LinkedNode<int, TRight> node;
-                if (!_rightIndices.TryGetValue(rightKey, out node)) 
+                if (!_rightIndices.TryGetValue(rightKey, out var node)) 
                     return;
 
                 if (node._previous == null)
@@ -380,8 +363,7 @@ namespace Observable.Repository.Join
 
             public void RemoveValue(TKey key)
             {
-                IList<TRight> list;
-                if (!_lists.TryGetValue(key, out list))
+                if (!_lists.TryGetValue(key, out var list))
                     return;
 
                 list.Clear();

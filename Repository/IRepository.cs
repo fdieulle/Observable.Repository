@@ -19,7 +19,7 @@ namespace Observable.Repository
         string Name { get; }
 
         /// <summary>
-        /// Gets the <see cref="IRepository{TKey, TValue}"/> confguration.
+        /// Gets the <see cref="IRepository{TKey, TValue}"/> configuration.
         /// </summary>
         IRepositoryConfiguration Configuration { get; }
 
@@ -47,7 +47,7 @@ namespace Observable.Repository
         /// Gets a a value from a key in the <see cref="IRepository{TKey, TValue}"/>.
         /// </summary>
         /// <param name="key">Key of the value.</param>
-        /// <returns>Retuens the value.</returns>
+        /// <returns>Returns the value.</returns>
         TValue this[TKey key] { get; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Observable.Repository
         /// <param name="filter">Define a filter on notifications.</param>
         /// <param name="withSnapshot">Define if the snapshot should be send during the subscribe</param>
         /// <param name="dispatch">Dispatch the notification.</param>
-        /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
+        /// <returns>Returns result of the subscription. Dispose to release the subscription.</returns>
         IDisposable Subscribe<TSelect>(Action<RepositoryNotification<TSelect>> action, Func<KeyValue<TKey, TValue>, TSelect> selector, Func<KeyValue<TKey, TValue>, bool> filter = null, bool withSnapshot = false, Action<Action> dispatch = null);
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Observable.Repository
         /// <param name="filter">Define a filter on notifications.</param>
         /// <param name="withSnapshot">Define if the snapshot should be send during the subscribe</param>
         /// <param name="dispatch">Dispatch the notification.</param>
-        /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
+        /// <returns>Returns result of the subscription. Dispose to release the subscription.</returns>
         IDisposable Subscribe(Action<RepositoryNotification<KeyValue<TKey, TValue>>> action, Func<KeyValue<TKey, TValue>, bool> filter = null, bool withSnapshot = false, Action<Action> dispatch = null);
 
         /// <summary>

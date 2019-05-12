@@ -10,14 +10,12 @@ namespace Observable.Anonymous
 
         public AnonymousObservable(Func<IObserver<T>, IDisposable> subscription)
         {
-            this._subscription = subscription;
+            _subscription = subscription;
         }
 
-        public IDisposable Subscribe(IObserver<T> observer)
-        {
-            return _subscription == null 
+        public IDisposable Subscribe(IObserver<T> observer) 
+            => _subscription == null 
                 ? AnonymousDisposable.Empty 
                 : _subscription(observer);
-        }
     }
 }
