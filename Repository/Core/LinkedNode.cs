@@ -10,19 +10,19 @@
         /// <summary>
         /// Gets the next node
         /// </summary>
-        public LinkedNode<TKey, TValue> next;
+        public LinkedNode<TKey, TValue> _next;
         /// <summary>
         /// Gets the previous node
         /// </summary>
-        public LinkedNode<TKey, TValue> previous;
+        public LinkedNode<TKey, TValue> _previous;
         /// <summary>
         /// Gets the key.
         /// </summary>
-        public TKey key;
+        public TKey _key;
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public TValue value;
+        public TValue _value;
 
         /// <summary>
         /// Format the instance.
@@ -30,7 +30,7 @@
         /// <returns>Formatted instance.</returns>
         public override string ToString()
         {
-            return string.Format("[{0}, {1}]", key, value);
+            return string.Format("[{0}, {1}]", _key, _value);
         }
     }
 }

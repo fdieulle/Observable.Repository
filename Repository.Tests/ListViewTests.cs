@@ -8,32 +8,32 @@ namespace Observable.Repository.Tests
     [TestFixture]
     public class ListViewTests
     {
-        private Subject<ModelLeft> addProducer;
-        private Subject<ModelLeft> removeProducer;
-        private Subject<List<ModelLeft>> reloadProducer;
-        private IRepositoryContainer container;
+        private Subject<ModelLeft> _addProducer;
+        private Subject<ModelLeft> _removeProducer;
+        private Subject<List<ModelLeft>> _reloadProducer;
+        private IRepositoryContainer _container;
 
         [SetUp]
         public void SetUp()
         {
-            addProducer = new Subject<ModelLeft>();
-            removeProducer = new Subject<ModelLeft>();
-            reloadProducer = new Subject<List<ModelLeft>>();
+            _addProducer = new Subject<ModelLeft>();
+            _removeProducer = new Subject<ModelLeft>();
+            _reloadProducer = new Subject<List<ModelLeft>>();
 
-            container = new RepositoryContainer();
+            _container = new RepositoryContainer();
 
-            container.AddProducer(ActionType.Add, addProducer);
-            container.AddProducer(ActionType.Remove, removeProducer);
-            container.AddProducer(ActionType.Reload, reloadProducer);
+            _container.AddProducer(ActionType.Add, _addProducer);
+            _container.AddProducer(ActionType.Remove, _removeProducer);
+            _container.AddProducer(ActionType.Reload, _reloadProducer);
 
-            container.Build<int, ModelLeft>(p => p.PrimaryKey)
+            _container.Build<int, ModelLeft>(p => p.PrimaryKey)
                 .Register();
         }
 
         [Test]
         public void SubscribeAndDispose()
         {
-            var repository = container.GetRepository<int, ModelLeft>();
+            var repository = _container.GetRepository<int, ModelLeft>();
 
             var list = new List<ModelLeft> { CreateLeft(1), CreateLeft(2) };
 
@@ -43,10 +43,10 @@ namespace Observable.Repository.Tests
             Assert.AreEqual(0, list.Count);
 
             // Add 4 items in the repository
-            addProducer.OnNext(CreateLeft(1));
-            addProducer.OnNext(CreateLeft(2));
-            addProducer.OnNext(CreateLeft(3));
-            addProducer.OnNext(CreateLeft(4));
+            _addProducer.OnNext(CreateLeft(1));
+            _addProducer.OnNext(CreateLeft(2));
+            _addProducer.OnNext(CreateLeft(3));
+            _addProducer.OnNext(CreateLeft(4));
 
             // Assure that the list contains all elements
             AreEqual(list, CreateLeft(1), CreateLeft(2), CreateLeft(3), CreateLeft(4));
@@ -70,7 +70,7 @@ namespace Observable.Repository.Tests
             Assert.AreEqual(0, list.Count);
 
             // Update an item in the repository
-            addProducer.OnNext(CreateLeft(2, "Update"));
+            _addProducer.OnNext(CreateLeft(2, "Update"));
             // Only the new updated item should added in the list
             AreEqual(list, CreateLeft(2, "Update"));
 
@@ -117,29 +117,29 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestMangeItems()
         {
-            var repository = container.GetRepository<int, ModelLeft>();
+            var repository = _container.GetRepository<int, ModelLeft>();
 
             var list = new List<ModelLeft>();
 
             var subscribe = repository.Subscribe(list, p => p.PrimaryKey != 3);
 
-            addProducer.OnNext(CreateLeft(1));
-            addProducer.OnNext(CreateLeft(2));
-            addProducer.OnNext(CreateLeft(3));
-            addProducer.OnNext(CreateLeft(4));
+            _addProducer.OnNext(CreateLeft(1));
+            _addProducer.OnNext(CreateLeft(2));
+            _addProducer.OnNext(CreateLeft(3));
+            _addProducer.OnNext(CreateLeft(4));
 
             AreEqual(list, CreateLeft(1), CreateLeft(2), CreateLeft(4));
 
-            addProducer.OnNext(CreateLeft(1, "Update"));
-            addProducer.OnNext(CreateLeft(4, "Update"));
+            _addProducer.OnNext(CreateLeft(1, "Update"));
+            _addProducer.OnNext(CreateLeft(4, "Update"));
 
             AreEqual(list, CreateLeft(1, "Update"), CreateLeft(2), CreateLeft(4, "Update"));
 
-            removeProducer.OnNext(CreateLeft(1));
+            _removeProducer.OnNext(CreateLeft(1));
 
             AreEqual(list, CreateLeft(2), CreateLeft(4, "Update"));
 
-            reloadProducer.OnNext(new List<ModelLeft> { CreateLeft(3), CreateLeft(4), CreateLeft(4, "Update"), CreateLeft(5) });
+            _reloadProducer.OnNext(new List<ModelLeft> { CreateLeft(3), CreateLeft(4), CreateLeft(4, "Update"), CreateLeft(5) });
 
             AreEqual(list, CreateLeft(4, "Update"), CreateLeft(5));
 

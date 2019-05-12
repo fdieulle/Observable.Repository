@@ -6,18 +6,18 @@ namespace Observable.Anonymous
     {
         public static readonly AnonymousObservable<T> Empty =  new AnonymousObservable<T>(null);
 
-        private readonly Func<IObserver<T>, IDisposable> subscription;
+        private readonly Func<IObserver<T>, IDisposable> _subscription;
 
         public AnonymousObservable(Func<IObserver<T>, IDisposable> subscription)
         {
-            this.subscription = subscription;
+            this._subscription = subscription;
         }
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            return subscription == null 
+            return _subscription == null 
                 ? AnonymousDisposable.Empty 
-                : subscription(observer);
+                : _subscription(observer);
         }
     }
 }

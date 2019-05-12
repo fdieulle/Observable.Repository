@@ -12,8 +12,8 @@ namespace Observable.Repository.Builders
     /// <typeparam name="TLeft">Type of repository main source.</typeparam>
     public class RepositoryBuilderFinalizer<TKey, TValue, TLeft> : IRepositoryBehaviorBuilder<TKey, TValue>
     {
-        private readonly IRepositoryContainer container;
-        private readonly RepositoryConfiguration<TKey, TValue, TLeft> configuration;
+        private readonly IRepositoryContainer _container;
+        private readonly RepositoryConfiguration<TKey, TValue, TLeft> _configuration;
 
         /// <summary>
         /// Ctor
@@ -22,8 +22,8 @@ namespace Observable.Repository.Builders
         /// <param name="configuration">Repository configuration.</param>
         public RepositoryBuilderFinalizer(IRepositoryContainer container, RepositoryConfiguration<TKey, TValue, TLeft> configuration)
         {
-            this.container = container;
-            this.configuration = configuration;
+            this._container = container;
+            this._configuration = configuration;
         }
 
         #region Implementation of IRepositoryBehaviorBuilder<TKey,TValue>
@@ -35,8 +35,8 @@ namespace Observable.Repository.Builders
         /// <returns>Return the next building step.</returns>
         public IRepositoryBuilderFinalizer<TKey, TValue> AddRollingBehavior(int rollingCount)
         {
-            configuration.Behavior = StorageBehavior.Rolling;
-            configuration.RollingCount = rollingCount;
+            _configuration.Behavior = StorageBehavior.Rolling;
+            _configuration.RollingCount = rollingCount;
             return this;
         }
 
@@ -49,9 +49,9 @@ namespace Observable.Repository.Builders
         /// <returns>Return the next building step.</returns>
         public IRepositoryBuilderFinalizer<TKey, TValue> AddTimeIntervalBehavior(TimeSpan timeSpan, Func<TValue, DateTime> getTimestamp)
         {
-            configuration.Behavior = StorageBehavior.TimeInterval;
-            configuration.TimeInterval = timeSpan;
-            configuration.GetTimestamp = getTimestamp;
+            _configuration.Behavior = StorageBehavior.TimeInterval;
+            _configuration.TimeInterval = timeSpan;
+            _configuration.GetTimestamp = getTimestamp;
             return this;
         }
 
@@ -65,10 +65,10 @@ namespace Observable.Repository.Builders
         /// <returns>Return the next building step.</returns>
         public IRepositoryBuilderFinalizer<TKey, TValue> AddRollingAndTimeIntervalBehavior(int rollingCount, TimeSpan timeSpan, Func<TValue, DateTime> getTimestamp)
         {
-            configuration.Behavior = StorageBehavior.RollingAndTimeInterval;
-            configuration.RollingCount = rollingCount;
-            configuration.TimeInterval = timeSpan;
-            configuration.GetTimestamp = getTimestamp;
+            _configuration.Behavior = StorageBehavior.RollingAndTimeInterval;
+            _configuration.RollingCount = rollingCount;
+            _configuration.TimeInterval = timeSpan;
+            _configuration.GetTimestamp = getTimestamp;
             return this;
         }
 
@@ -82,10 +82,10 @@ namespace Observable.Repository.Builders
         /// <returns>An instance of <see cref="IRepository{TKey, TValue}"/></returns>
         public IRepository<TKey, TValue> Create()
         {
-            var repository = container.GetRepository<TKey, TLeft>(configuration.LeftSourceName);
+            var repository = _container.GetRepository<TKey, TLeft>(_configuration.LeftSourceName);
             return repository != null 
-                ? new Repository<TKey, TValue, TLeft>(container, configuration, repository.SelectValues(), repository.Select(p => p.Value)) 
-                : new Repository<TKey, TValue, TLeft>(container, configuration, container.GetProducer<TLeft>(configuration.LeftSourceName), null);
+                ? new Repository<TKey, TValue, TLeft>(_container, _configuration, repository.SelectValues(), repository.Select(p => p.Value)) 
+                : new Repository<TKey, TValue, TLeft>(_container, _configuration, _container.GetProducer<TLeft>(_configuration.LeftSourceName), null);
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace Observable.Repository.Builders
         public IRepositoryContainer Register()
         {
             var repository = Create();
-            container.Register(repository);
-            return container;
+            _container.Register(repository);
+            return _container;
         }
 
         #endregion

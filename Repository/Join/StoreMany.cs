@@ -19,18 +19,18 @@ namespace Observable.Repository.Join
     {
         #region Fields
 
-        private readonly Func<TLeft, TLinkKey> getLeftLinkKey;
-        private readonly Func<TRight, TLinkKey> getRightLinkKey;
-        private readonly Func<TRight, bool> rightFilter;
-        private readonly Func<TValue, IList<TRight>> getList;
-        private readonly Func<TRight, TRightKey> getRightKey;
+        private readonly Func<TLeft, TLinkKey> _getLeftLinkKey;
+        private readonly Func<TRight, TLinkKey> _getRightLinkKey;
+        private readonly Func<TRight, bool> _rightFilter;
+        private readonly Func<TValue, IList<TRight>> _getList;
+        private readonly Func<TRight, TRightKey> _getRightKey;
 
-        private readonly Dictionary<TRightKey, TLinkKey> rightItems = new Dictionary<TRightKey, TLinkKey>();
-        private readonly Dictionary<TLinkKey, ListManager> managers = new Dictionary<TLinkKey, ListManager>();
-        private readonly Pool<ListManager> managersPool;
-        private readonly Pool<LinkedNode<int, TRight>> rightNodesPool = new Pool<LinkedNode<int, TRight>>(() => new LinkedNode<int, TRight>());
-        private readonly Mutex mutex;
-        private readonly IDisposable subscribesOnRightSource;
+        private readonly Dictionary<TRightKey, TLinkKey> _rightItems = new Dictionary<TRightKey, TLinkKey>();
+        private readonly Dictionary<TLinkKey, ListManager> _managers = new Dictionary<TLinkKey, ListManager>();
+        private readonly Pool<ListManager> _managersPool;
+        private readonly Pool<LinkedNode<int, TRight>> _rightNodesPool = new Pool<LinkedNode<int, TRight>>(() => new LinkedNode<int, TRight>());
+        private readonly Mutex _mutex;
+        private readonly IDisposable _subscribesOnRightSource;
 
         #endregion // Fields
 
@@ -47,20 +47,20 @@ namespace Observable.Repository.Join
             IEnumerable<TRight> snapshot,
             Mutex mutex)
         {
-            this.mutex = mutex ?? new Mutex();
+            this._mutex = mutex ?? new Mutex();
 
-            getLeftLinkKey = configuration.LeftLinkKey;
-            getRightLinkKey = configuration.RightLinkKey;
-            rightFilter = configuration.RightFilter;
-            getList = configuration.GetList;
-            getRightKey = configuration.GetRightKey;
+            _getLeftLinkKey = configuration.LeftLinkKey;
+            _getRightLinkKey = configuration.RightLinkKey;
+            _rightFilter = configuration.RightFilter;
+            _getList = configuration.GetList;
+            _getRightKey = configuration.GetRightKey;
 
-            managersPool = new Pool<ListManager>(() => new ListManager(getList, rightNodesPool));
+            _managersPool = new Pool<ListManager>(() => new ListManager(_getList, _rightNodesPool));
 
             if (snapshot != null)
                 OnRightItemsReceived(new RepositoryNotification<TRight>(ActionType.Add, null, snapshot));
             if (source != null)
-                subscribesOnRightSource = source.Subscribe(OnRightItemsReceived);
+                _subscribesOnRightSource = source.Subscribe(OnRightItemsReceived);
         }
 
         #region Implementation of IObservable<out RepositoryNotification<TLeft>>
@@ -82,13 +82,13 @@ namespace Observable.Repository.Join
         /// </summary>
         public void Dispose()
         {
-            if(subscribesOnRightSource != null)
-                subscribesOnRightSource.Dispose();
+            if(_subscribesOnRightSource != null)
+                _subscribesOnRightSource.Dispose();
 
-            rightItems.Clear();
-            managers.Clear();
-            managersPool.Clear();
-            rightNodesPool.Clear();
+            _rightItems.Clear();
+            _managers.Clear();
+            _managersPool.Clear();
+            _rightNodesPool.Clear();
         }
 
         #endregion
@@ -113,11 +113,11 @@ namespace Observable.Repository.Join
         /// <param name="value">The item value</param>
         public void LeftAdded(TKey key, TLeft left, TValue value)
         {
-            var linkKey = getLeftLinkKey(left);
+            var linkKey = _getLeftLinkKey(left);
 
             ListManager manager;
-            if(!managers.TryGetValue(linkKey, out manager))
-                managers.Add(linkKey, manager = managersPool.Get());
+            if(!_managers.TryGetValue(linkKey, out manager))
+                _managers.Add(linkKey, manager = _managersPool.Get());
 
             manager.AddValue(key, value);
         }
@@ -130,18 +130,18 @@ namespace Observable.Repository.Join
         /// <param name="value">The item value</param>
         public void LeftRemoved(TKey key, TLeft left, TValue value)
         {
-            var linkKey = getLeftLinkKey(left);
+            var linkKey = _getLeftLinkKey(left);
 
             ListManager manager;
-            if (!managers.TryGetValue(linkKey, out manager))
+            if (!_managers.TryGetValue(linkKey, out manager))
                 return;
 
             manager.RemoveValue(key);
 
             if (manager.IsEmpty)
             {
-                managers.Remove(linkKey);
-                managersPool.Free(manager);
+                _managers.Remove(linkKey);
+                _managersPool.Free(manager);
             }
         }
 
@@ -150,9 +150,9 @@ namespace Observable.Repository.Join
         /// </summary>
         public void LeftCleared()
         {
-            var entriesToRemove = new KeyValuePair<TLinkKey, ListManager>[managers.Count];
+            var entriesToRemove = new KeyValuePair<TLinkKey, ListManager>[_managers.Count];
             var count = 0;
-            foreach (var pair in managers)
+            foreach (var pair in _managers)
             {
                 pair.Value.ClearValues();
                 if (pair.Value.IsEmpty)
@@ -161,8 +161,8 @@ namespace Observable.Repository.Join
 
             for (var i = 0; i < count; i++)
             {
-                managers.Remove(entriesToRemove[i].Key);
-                managersPool.Free(entriesToRemove[i].Value);
+                _managers.Remove(entriesToRemove[i].Key);
+                _managersPool.Free(entriesToRemove[i].Value);
             }
         }
 
@@ -172,7 +172,7 @@ namespace Observable.Repository.Join
 
         private void OnRightItemsReceived(RepositoryNotification<TRight> e)
         {
-            lock (mutex.input)
+            lock (_mutex._input)
             {
                 if (e.Action == ActionType.Reload)
                     ClearRight();
@@ -189,59 +189,59 @@ namespace Observable.Repository.Join
 
         private void AddOrUpdateRight(TRight right)
         {
-            if (rightFilter != null && !rightFilter(right))
+            if (_rightFilter != null && !_rightFilter(right))
             {
                 RemoveRight(right);
                 return;
             }
 
-            var rightKey = getRightKey(right);
-            var linkKey = getRightLinkKey(right);
+            var rightKey = _getRightKey(right);
+            var linkKey = _getRightLinkKey(right);
 
             TLinkKey oldLinkKey;
-            if (rightItems.TryGetValue(rightKey, out oldLinkKey))
+            if (_rightItems.TryGetValue(rightKey, out oldLinkKey))
             {
                 // In case of the right instance has changed its link key
-                if (!linkKey.Equals(oldLinkKey) && managers.ContainsKey(oldLinkKey))
-                    managers[oldLinkKey].RemoveRight(rightKey);
+                if (!linkKey.Equals(oldLinkKey) && _managers.ContainsKey(oldLinkKey))
+                    _managers[oldLinkKey].RemoveRight(rightKey);
             }
 
-            rightItems[rightKey] = linkKey;
+            _rightItems[rightKey] = linkKey;
 
             ListManager manager;
-            if(!managers.TryGetValue(linkKey, out manager))
-                managers.Add(linkKey, manager = managersPool.Get());
+            if(!_managers.TryGetValue(linkKey, out manager))
+                _managers.Add(linkKey, manager = _managersPool.Get());
 
             manager.AddRight(rightKey, right);
         }
 
         private void RemoveRight(TRight right)
         {
-            var rightKey = getRightKey(right);
+            var rightKey = _getRightKey(right);
 
-            if (!rightItems.Remove(rightKey))
+            if (!_rightItems.Remove(rightKey))
                 return;
 
-            var linkKey = getRightLinkKey(right);
+            var linkKey = _getRightLinkKey(right);
 
             ListManager manager;
-            if (!managers.TryGetValue(linkKey, out manager))
+            if (!_managers.TryGetValue(linkKey, out manager))
                 return;
 
             manager.RemoveRight(rightKey);
 
             if (manager.IsEmpty)
             {
-                managers.Remove(linkKey);
-                managersPool.Free(manager);
+                _managers.Remove(linkKey);
+                _managersPool.Free(manager);
             }
         }
 
         private void ClearRight()
         {
-            var entriesToRemove = new KeyValuePair<TLinkKey, ListManager>[managers.Count];
+            var entriesToRemove = new KeyValuePair<TLinkKey, ListManager>[_managers.Count];
             var count = 0;
-            foreach (var pair in managers)
+            foreach (var pair in _managers)
             {
                 pair.Value.ClearRights();
                 if (pair.Value.IsEmpty)
@@ -250,62 +250,62 @@ namespace Observable.Repository.Join
 
             for (var i = 0; i < count; i++)
             {
-                managers.Remove(entriesToRemove[i].Key);
-                managersPool.Free(entriesToRemove[i].Value);
+                _managers.Remove(entriesToRemove[i].Key);
+                _managersPool.Free(entriesToRemove[i].Value);
             }
 
-            rightItems.Clear();
+            _rightItems.Clear();
         }
 
         private class ListManager
         {
-            private readonly Func<TValue, IList<TRight>> getList;
-            private readonly Pool<LinkedNode<int, TRight>> pool;
-            private readonly Dictionary<TRightKey, LinkedNode<int, TRight>> rightIndices = new Dictionary<TRightKey, LinkedNode<int, TRight>>();
-            private readonly Dictionary<TKey, IList<TRight>> lists = new Dictionary<TKey, IList<TRight>>();
-            private LinkedNode<int, TRight> last;
-            private LinkedNode<int, TRight> first;
+            private readonly Func<TValue, IList<TRight>> _getList;
+            private readonly Pool<LinkedNode<int, TRight>> _pool;
+            private readonly Dictionary<TRightKey, LinkedNode<int, TRight>> _rightIndices = new Dictionary<TRightKey, LinkedNode<int, TRight>>();
+            private readonly Dictionary<TKey, IList<TRight>> _lists = new Dictionary<TKey, IList<TRight>>();
+            private LinkedNode<int, TRight> _last;
+            private LinkedNode<int, TRight> _first;
 
             public bool IsEmpty
             {
-                get { return rightIndices.Count == 0 && lists.Count == 0; }
+                get { return _rightIndices.Count == 0 && _lists.Count == 0; }
             }
 
             public ListManager(Func<TValue, IList<TRight>> getList, Pool<LinkedNode<int, TRight>> pool)
             {
-                this.getList = getList;
-                this.pool = pool;
+                this._getList = getList;
+                this._pool = pool;
             }
 
             public void AddRight(TRightKey rightKey, TRight right)
             {
                 LinkedNode<int, TRight> node;
-                if (rightIndices.TryGetValue(rightKey, out node)) // Update lists
+                if (_rightIndices.TryGetValue(rightKey, out node)) // Update lists
                 {
-                    node.value = right;
+                    node._value = right;
 
-                    foreach (var pair in lists)
-                        pair.Value[node.key] = right;
+                    foreach (var pair in _lists)
+                        pair.Value[node._key] = right;
                 }
                 else // Add right item in lists
                 {
-                    node = pool.Get();
-                    node.key = rightIndices.Count;
-                    node.next = null;
+                    node = _pool.Get();
+                    node._key = _rightIndices.Count;
+                    node._next = null;
 
-                    if (first == null)
-                        first = node;
-                    if (last != null)
-                        last.next = node;
+                    if (_first == null)
+                        _first = node;
+                    if (_last != null)
+                        _last._next = node;
 
-                    node.previous = last;
-                    last = node;
+                    node._previous = _last;
+                    _last = node;
 
-                    rightIndices.Add(rightKey, node);
+                    _rightIndices.Add(rightKey, node);
 
-                    node.value = right;
+                    node._value = right;
 
-                    foreach (var pair in lists)
+                    foreach (var pair in _lists)
                         pair.Value.Add(right);
                 }
             }
@@ -313,87 +313,87 @@ namespace Observable.Repository.Join
             public void RemoveRight(TRightKey rightKey)
             {
                 LinkedNode<int, TRight> node;
-                if (!rightIndices.TryGetValue(rightKey, out node)) 
+                if (!_rightIndices.TryGetValue(rightKey, out node)) 
                     return;
 
-                if (node.previous == null)
-                    first = node.next;
-                else node.previous.next = node.next;
+                if (node._previous == null)
+                    _first = node._next;
+                else node._previous._next = node._next;
 
-                if (node.next == null)
-                    last = node.previous;
-                else node.next.previous = node.previous;
+                if (node._next == null)
+                    _last = node._previous;
+                else node._next._previous = node._previous;
 
                 // Update indices
-                var cursor = node.next;
+                var cursor = node._next;
                 while (cursor != null)
                 {
-                    cursor.key -= 1;
-                    cursor = cursor.next;
+                    cursor._key -= 1;
+                    cursor = cursor._next;
                 }
 
                 // Remove from lists
-                var index = node.key;
-                foreach (var pair in lists)
+                var index = node._key;
+                foreach (var pair in _lists)
                     pair.Value.RemoveAt(index);
 
                 // Free right node
-                rightIndices.Remove(rightKey);
-                node.value = default(TRight);
-                pool.Free(node);
+                _rightIndices.Remove(rightKey);
+                node._value = default(TRight);
+                _pool.Free(node);
             }
 
             public void ClearRights()
             {
-                rightIndices.Clear();
+                _rightIndices.Clear();
                 
-                var cursor = first;
+                var cursor = _first;
                 while (cursor != null)
                 {
-                    var next = cursor.next;
-                    cursor.value = default(TRight);
-                    pool.Free(cursor);
+                    var next = cursor._next;
+                    cursor._value = default(TRight);
+                    _pool.Free(cursor);
 
                     cursor = next;
                 }
-                first = null;
-                last = null;
+                _first = null;
+                _last = null;
 
-                foreach (var pair in lists)
+                foreach (var pair in _lists)
                     pair.Value.Clear();
             }
 
             public void AddValue(TKey key, TValue value)
             {
-                var list = getList(value);
+                var list = _getList(value);
                 if (list == null) return;
 
-                lists[key] = list;
+                _lists[key] = list;
 
-                var cursor = first;
+                var cursor = _first;
                 while (cursor != null)
                 {
-                    list.Add(cursor.value);
-                    cursor = cursor.next;
+                    list.Add(cursor._value);
+                    cursor = cursor._next;
                 }
             }
 
             public void RemoveValue(TKey key)
             {
                 IList<TRight> list;
-                if (!lists.TryGetValue(key, out list))
+                if (!_lists.TryGetValue(key, out list))
                     return;
 
                 list.Clear();
-                lists.Remove(key);
+                _lists.Remove(key);
             }
 
             public void ClearValues()
             {
-                foreach (var pair in lists)
+                foreach (var pair in _lists)
                     pair.Value.Clear();
                 
-                lists.Clear();
+                _lists.Clear();
             }
         }
 

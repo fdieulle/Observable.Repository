@@ -7,36 +7,36 @@ namespace Observable.Repository.Tests
     [TestFixture]
     public class RepositoryJoinOneToUpdateTests : RepositoryBaseTests
     {
-        private IRepositoryContainer container;
-        private Subject<ModelLeft> addLeft;
-        private Subject<ModelLeft> removeLeft;
-        private Subject<List<ModelLeft>> reloadLeft;
-        private Subject<ModelRight> addRight;
-        private Subject<ModelRight> removeRight;
-        private Subject<List<ModelRight>> reloadRight;
+        private IRepositoryContainer _container;
+        private Subject<ModelLeft> _addLeft;
+        private Subject<ModelLeft> _removeLeft;
+        private Subject<List<ModelLeft>> _reloadLeft;
+        private Subject<ModelRight> _addRight;
+        private Subject<ModelRight> _removeRight;
+        private Subject<List<ModelRight>> _reloadRight;
         private const string FILTERED_NAME = "FILTER";
 
         [SetUp]
         public void SetUp()
         {
-            addLeft = new Subject<ModelLeft>();
-            removeLeft = new Subject<ModelLeft>();
-            reloadLeft = new Subject<List<ModelLeft>>();
+            _addLeft = new Subject<ModelLeft>();
+            _removeLeft = new Subject<ModelLeft>();
+            _reloadLeft = new Subject<List<ModelLeft>>();
 
-            addRight = new Subject<ModelRight>();
-            removeRight = new Subject<ModelRight>();
-            reloadRight = new Subject<List<ModelRight>>();
+            _addRight = new Subject<ModelRight>();
+            _removeRight = new Subject<ModelRight>();
+            _reloadRight = new Subject<List<ModelRight>>();
 
-            container = new RepositoryContainer();
+            _container = new RepositoryContainer();
 
-            container.AddProducer(ActionType.Add, addLeft);
-            container.AddProducer(ActionType.Remove, removeLeft);
-            container.AddProducer(ActionType.Reload, reloadLeft);
-            container.AddProducer(ActionType.Add, addRight);
-            container.AddProducer(ActionType.Remove, removeRight);
-            container.AddProducer(ActionType.Reload, reloadRight);
+            _container.AddProducer(ActionType.Add, _addLeft);
+            _container.AddProducer(ActionType.Remove, _removeLeft);
+            _container.AddProducer(ActionType.Reload, _reloadLeft);
+            _container.AddProducer(ActionType.Add, _addRight);
+            _container.AddProducer(ActionType.Remove, _removeRight);
+            _container.AddProducer(ActionType.Reload, _reloadRight);
 
-            container.Build<int, AdapterJoinToUpdate, ModelLeft>(p => p.PrimaryKey)
+            _container.Build<int, AdapterJoinToUpdate, ModelLeft>(p => p.PrimaryKey)
                 .JoinUpdate<ModelRight>(null, p => p.Name != FILTERED_NAME)
                     .DefineUpdate(p => p.Update)
                     .RightLinkKey(p => p.ForeignKey)
@@ -47,24 +47,24 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestAddRightBeforeLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinToUpdate>();
+            var repository = _container.GetRepository<int, AdapterJoinToUpdate>();
             var checker = repository.GetChecker(p => p.ModelLeft.PrimaryKey);
             
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 2, "Right 3"));
-            addRight.OnNext(R(4, 3, FILTERED_NAME));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(4, 3, FILTERED_NAME));
 
             checker.CheckNoMoreNotifications();
             checker.Check(); // Means empty repository
 
-            addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(1, "Left 1"));
 
             checker.CheckAdded(null, V(A(L(1, "Left 1"), R(1, 1, "Right 1"))));
             checker.CheckNoMoreNotifications();
             checker.Check(A(L(1, "Left 1"), R(1, 1, "Right 1")));
 
-            addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(2, "Left 2"));
 
             checker.CheckAdded(null, V(A(L(2, "Left 2"), R(3, 2, "Right 3"))));
             checker.CheckNoMoreNotifications();
@@ -72,7 +72,7 @@ namespace Observable.Repository.Tests
                 A(L(1, "Left 1"), R(1, 1, "Right 1")),
                 A(L(2, "Left 2"), R(3, 2, "Right 3")));
 
-            addLeft.OnNext(L(3, "Left 3"));
+            _addLeft.OnNext(L(3, "Left 3"));
 
             checker.CheckAdded(null, V(A(L(3, "Left 3"))));
             checker.CheckNoMoreNotifications();
@@ -85,16 +85,16 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestAddRightAfterLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinToUpdate>();
+            var repository = _container.GetRepository<int, AdapterJoinToUpdate>();
             var checker = repository.GetChecker(p => p.ModelLeft.PrimaryKey);
 
-            addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(1, "Left 1"));
 
             checker.CheckAdded(null, V(A(L(1, "Left 1"))));
             checker.CheckNoMoreNotifications();
             checker.Check(A(L(1, "Left 1")));
 
-            addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(2, "Left 2"));
 
             checker.CheckAdded(null, V(A(L(2, "Left 2"))));
             checker.CheckNoMoreNotifications();
@@ -102,14 +102,14 @@ namespace Observable.Repository.Tests
                 A(L(1, "Left 1")), 
                 A(L(2, "Left 2")));
 
-            addRight.OnNext(R(1, 1, FILTERED_NAME));
+            _addRight.OnNext(R(1, 1, FILTERED_NAME));
 
             checker.CheckNoMoreNotifications();
             checker.Check(
                 A(L(1, "Left 1")), 
                 A(L(2, "Left 2")));
 
-            addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(1, 1, "Right 1"));
 
             // Can't distinct old value than new one because we update the reference
             checker.CheckUpdated(V(A(L(1, "Left 1"), R(1, 1, "Right 1"))), V(A(L(1, "Left 1"), R(1, 1, "Right 1"))));
@@ -118,7 +118,7 @@ namespace Observable.Repository.Tests
                 A(L(1, "Left 1"), R(1, 1, "Right 1")), 
                 A(L(2, "Left 2")));
 
-            addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
 
             // Can't distinct old value than new one because we update the reference
             checker.CheckUpdated(V(A(L(2, "Left 2"), R(2, 2, "Right 2"))), V(A(L(2, "Left 2"), R(2, 2, "Right 2"))));
@@ -127,7 +127,7 @@ namespace Observable.Repository.Tests
                 A(L(1, "Left 1"), R(1, 1, "Right 1")), 
                 A(L(2, "Left 2"), R(2, 2, "Right 2")));
 
-            addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
 
             // Can't distinct old value than new one because we update the reference
             checker.CheckUpdated(V(A(L(2, "Left 2"), R(3, 2, "Right 3"))), V(A(L(2, "Left 2"), R(3, 2, "Right 3"))));
@@ -136,7 +136,7 @@ namespace Observable.Repository.Tests
                 A(L(1, "Left 1"), R(1, 1, "Right 1")), 
                 A(L(2, "Left 2"), R(3, 2, "Right 3")));
 
-            addRight.OnNext(R(4, 2, FILTERED_NAME));
+            _addRight.OnNext(R(4, 2, FILTERED_NAME));
 
             // Can't distinct old value than new one because we update the reference
             checker.CheckUpdated(V(A(L(2, "Left 2"))), V(A(L(2, "Left 2"))));
@@ -149,22 +149,22 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestRemoveRight()
         {
-            var repository = container.GetRepository<int, AdapterJoinToUpdate>();
+            var repository = _container.GetRepository<int, AdapterJoinToUpdate>();
             var checker = repository.GetChecker(p => p.ModelLeft.PrimaryKey);
 
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
 
-            addLeft.OnNext(L(1, "Left 1"));
-            addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(2, "Left 2"));
 
             checker.ClearNotifications();
             checker.Check(
                 A(L(1, "Left 1"), R(1, 1, "Right 1")),
                 A(L(2, "Left 2"), R(3, 2, "Right 3")));
 
-            removeRight.OnNext(R(1, 1, "Right 1"));
+            _removeRight.OnNext(R(1, 1, "Right 1"));
 
             // Can't distinct old value than new one because we update the reference
             checker.CheckUpdated(V(A(L(1, "Left 1"))), V(A(L(1, "Left 1"))));
@@ -173,7 +173,7 @@ namespace Observable.Repository.Tests
                 A(L(1, "Left 1")),
                 A(L(2, "Left 2"), R(3, 2, "Right 3")));
 
-            removeRight.OnNext(R(100, 2, "Right 100"));
+            _removeRight.OnNext(R(100, 2, "Right 100"));
 
             // Normal side effect, Because right foreign key match Left 2 primary key
             checker.CheckUpdated(V(A(L(2, "Left 2"))), V(A(L(2, "Left 2"))));
@@ -187,16 +187,16 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestReloadRight()
         {
-            var repository = container.GetRepository<int, AdapterJoinToUpdate>();
+            var repository = _container.GetRepository<int, AdapterJoinToUpdate>();
             var checker = repository.GetChecker(p => p.ModelLeft.PrimaryKey);
 
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
 
-            addLeft.OnNext(L(1, "Left 1"));
-            addLeft.OnNext(L(2, "Left 2"));
-            addLeft.OnNext(L(3, "Left 3"));
+            _addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(3, "Left 3"));
 
             checker.ClearNotifications();
             checker.Check(
@@ -204,7 +204,7 @@ namespace Observable.Repository.Tests
                 A(L(2, "Left 2"), R(3, 2, "Right 3")),
                 A(L(3, "Left 3")));
 
-            reloadRight.OnNext(R(100, 1, "Right 100"), R(103, 3, "Right 103"));
+            _reloadRight.OnNext(R(100, 1, "Right 100"), R(103, 3, "Right 103"));
 
             // Can't distinct old value than new one because we update the reference
             checker.CheckUpdated(
@@ -226,16 +226,16 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestRemoveLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinToUpdate>();
+            var repository = _container.GetRepository<int, AdapterJoinToUpdate>();
             var checker = repository.GetChecker(p => p.ModelLeft.PrimaryKey);
 
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
 
-            addLeft.OnNext(L(1, "Left 1"));
-            addLeft.OnNext(L(2, "Left 2"));
-            addLeft.OnNext(L(3, "Left 3"));
+            _addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(3, "Left 3"));
 
             checker.ClearNotifications();
             checker.Check(
@@ -243,7 +243,7 @@ namespace Observable.Repository.Tests
                 A(L(2, "Left 2"), R(3, 2, "Right 3")),
                 A(L(3, "Left 3")));
 
-            removeLeft.OnNext(L(2, "Left 200"));
+            _removeLeft.OnNext(L(2, "Left 200"));
 
             checker.CheckRemoved(V(A(L(2, "Left 2"), R(3, 2, "Right 3"))), null);
             checker.CheckNoMoreNotifications();
@@ -255,17 +255,17 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestReloadLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinToUpdate>();
+            var repository = _container.GetRepository<int, AdapterJoinToUpdate>();
             var checker = repository.GetChecker(p => p.ModelLeft.PrimaryKey);
 
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 2, "Right 3"));
-            addRight.OnNext(R(4, 4, "Right 4"));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(4, 4, "Right 4"));
 
-            addLeft.OnNext(L(1, "Left 1"));
-            addLeft.OnNext(L(2, "Left 2"));
-            addLeft.OnNext(L(3, "Left 3"));
+            _addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(3, "Left 3"));
 
             checker.ClearNotifications();
             checker.Check(
@@ -273,7 +273,7 @@ namespace Observable.Repository.Tests
                 A(L(2, "Left 2"), R(3, 2, "Right 3")),
                 A(L(3, "Left 3")));
 
-            reloadLeft.OnNext(L(2, "Left 200"), L(4, "Left 400"));
+            _reloadLeft.OnNext(L(2, "Left 200"), L(4, "Left 400"));
 
             checker.CheckReloaded(
                 V(
@@ -292,7 +292,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestChangeLinkKeyOnLeft()
         {
-            var checker = container.Build<int, AdapterJoinToUpdate, ModelLeft>(p => p.PrimaryKey)
+            var checker = _container.Build<int, AdapterJoinToUpdate, ModelLeft>(p => p.PrimaryKey)
                      .JoinUpdate<ModelRight>()
                          .DefineUpdate(p => p.Update)
                          .RightLinkKey(p => p.ForeignKey)
@@ -300,14 +300,14 @@ namespace Observable.Repository.Tests
                      .Create()
                      .GetChecker(p => p.ModelLeft.PrimaryKey);
 
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 2, "Right 3"));
-            addRight.OnNext(R(4, 4, "Right 4"));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 2, "Right 3"));
+            _addRight.OnNext(R(4, 4, "Right 4"));
 
-            addLeft.OnNext(L(1, "Left 1", 1));
-            addLeft.OnNext(L(2, "Left 2", 2));
-            addLeft.OnNext(L(3, "Left 3", 4));
+            _addLeft.OnNext(L(1, "Left 1", 1));
+            _addLeft.OnNext(L(2, "Left 2", 2));
+            _addLeft.OnNext(L(3, "Left 3", 4));
 
             checker.ClearNotifications();
             checker.Check(
@@ -315,7 +315,7 @@ namespace Observable.Repository.Tests
                 A(L(2, "Left 2", 2), R(3, 2, "Right 3")),
                 A(L(3, "Left 3", 4), R(4, 4, "Right 4")));
 
-            addLeft.OnNext(L(3, "Left 3", 2));
+            _addLeft.OnNext(L(3, "Left 3", 2));
 
             checker.CheckNotification(ActionType.Update,
                 V(A(L(3, "Left 3", 4), R(4, 4, "Right 4"))), 
@@ -326,14 +326,14 @@ namespace Observable.Repository.Tests
                A(L(2, "Left 2", 2), R(3, 2, "Right 3")),
                A(L(3, "Left 3", 2), R(3, 2, "Right 3")));
 
-            addRight.OnNext(R(4, 4, "Right 4 Updated"));
+            _addRight.OnNext(R(4, 4, "Right 4 Updated"));
             checker.CheckNoMoreNotifications();
             checker.Check(
                A(L(1, "Left 1", 1), R(1, 1, "Right 1")),
                A(L(2, "Left 2", 2), R(3, 2, "Right 3")),
                A(L(3, "Left 3", 2), R(3, 2, "Right 3")));
 
-            addLeft.OnNext(L(3, "Left 3", 4));
+            _addLeft.OnNext(L(3, "Left 3", 4));
 
             checker.CheckNotification(ActionType.Update,
                 V(A(L(3, "Left 3", 2), R(3, 2, "Right 3"))),
@@ -348,37 +348,37 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestGetSnapshotFromRightSource()
         {
-            container.Build<int, ModelRight>(p => p.PrimaryKey)
+            _container.Build<int, ModelRight>(p => p.PrimaryKey)
                 .Register();
 
-            addRight.OnNext(R(1, 1, "Right 1"));
-            addRight.OnNext(R(2, 2, "Right 2"));
-            addRight.OnNext(R(3, 3, "Right 3"));
-            addRight.OnNext(R(4, 2, "Right 4"));
-            addRight.OnNext(R(5, 3, FILTERED_NAME));
+            _addRight.OnNext(R(1, 1, "Right 1"));
+            _addRight.OnNext(R(2, 2, "Right 2"));
+            _addRight.OnNext(R(3, 3, "Right 3"));
+            _addRight.OnNext(R(4, 2, "Right 4"));
+            _addRight.OnNext(R(5, 3, FILTERED_NAME));
 
-            var checker = container.GetRepository<int, ModelRight>().GetChecker(p => p.PrimaryKey);
+            var checker = _container.GetRepository<int, ModelRight>().GetChecker(p => p.PrimaryKey);
             checker.Check(
                 R(1, 1, "Right 1"),
                 R(2, 2, "Right 2"),
                 R(3, 3, "Right 3"),
                 R(4, 2, "Right 4"),
                 R(5, 3, FILTERED_NAME));
-            Assert.AreEqual(5, container.GetRepository<int, ModelRight>().Count);
+            Assert.AreEqual(5, _container.GetRepository<int, ModelRight>().Count);
 
             // Build repository and get snapshot from TRight source
-            container.Build<int, AdapterJoinToUpdate, ModelLeft>("2", p => p.PrimaryKey)
+            _container.Build<int, AdapterJoinToUpdate, ModelLeft>("2", p => p.PrimaryKey)
                 .JoinUpdate<ModelRight>(null, p => p.Name != FILTERED_NAME)
                     .DefineUpdate(p => p.Update)
                     .RightLinkKey(p => p.ForeignKey)
                     .LeftLinkKey(p => p.PrimaryKey)
                 .Register();
 
-            addLeft.OnNext(L(1, "Left 1"));
-            addLeft.OnNext(L(2, "Left 2"));
-            addLeft.OnNext(L(3, "Left 3"));
+            _addLeft.OnNext(L(1, "Left 1"));
+            _addLeft.OnNext(L(2, "Left 2"));
+            _addLeft.OnNext(L(3, "Left 3"));
 
-            container.GetRepository<int, AdapterJoinToUpdate>("2")
+            _container.GetRepository<int, AdapterJoinToUpdate>("2")
                 .GetChecker(p => p.ModelLeft.PrimaryKey)
                 .Check(
                     A(L(1, "Left 1"), R(1, 1, "Right 1")),

@@ -11,27 +11,27 @@ namespace Observable.Repository.Tests
     [TestFixture]
     public class RepositoryTests
     {
-        private IRepositoryContainer container;
+        private IRepositoryContainer _container;
         private const string FILTER_NAME = "Exclude";
 
-        private Subject<List<ModelLeft>> addSubject;
-        private Subject<List<ModelLeft>> removeSubject;
-        private Subject<List<ModelLeft>> reloadSubject;
+        private Subject<List<ModelLeft>> _addSubject;
+        private Subject<List<ModelLeft>> _removeSubject;
+        private Subject<List<ModelLeft>> _reloadSubject;
 
         [SetUp]
         public void SetUp()
         {
-            container = new RepositoryContainer();
+            _container = new RepositoryContainer();
 
-            addSubject = new Subject<List<ModelLeft>>();
-            removeSubject = new Subject<List<ModelLeft>>();
-            reloadSubject = new Subject<List<ModelLeft>>();
+            _addSubject = new Subject<List<ModelLeft>>();
+            _removeSubject = new Subject<List<ModelLeft>>();
+            _reloadSubject = new Subject<List<ModelLeft>>();
 
-            container.AddProducer(ActionType.Add, addSubject);
-            container.AddProducer(ActionType.Remove, removeSubject);
-            container.AddProducer(ActionType.Reload, reloadSubject);
+            _container.AddProducer(ActionType.Add, _addSubject);
+            _container.AddProducer(ActionType.Remove, _removeSubject);
+            _container.AddProducer(ActionType.Reload, _reloadSubject);
 
-            container.Build<int, AdapterJoin, ModelLeft>(p => p.PrimaryKey, filter: p => p.Name != FILTER_NAME)
+            _container.Build<int, AdapterJoin, ModelLeft>(p => p.PrimaryKey, filter: p => p.Name != FILTER_NAME)
                      .DefineCtor(p => new AdapterJoin(p, null))
                      .Register();
         }
@@ -39,13 +39,13 @@ namespace Observable.Repository.Tests
         [TearDown]
         public void TearDown()
         {
-            container.Dispose();
+            _container.Dispose();
         }
 
         [Test]
         public void TestAddOrUpdate()
         {
-            var repository = container.GetRepository<int, AdapterJoin>();
+            var repository = _container.GetRepository<int, AdapterJoin>();
 
             IEnumerable<AdapterJoin> addedItems = new List<AdapterJoin>();
             IEnumerable<AdapterJoin> updatedItems = new List<AdapterJoin>();
@@ -86,7 +86,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(3, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[0]));
@@ -111,7 +111,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(3, updatedItems.Count());
@@ -139,7 +139,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(1, updatedItems.Count());
@@ -162,7 +162,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -183,7 +183,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[1]));
@@ -204,7 +204,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -224,7 +224,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -247,7 +247,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -268,7 +268,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[2]));
@@ -291,7 +291,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[3]));
@@ -313,7 +313,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -333,7 +333,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[0]));
@@ -354,7 +354,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(1, updatedItems.Count());
@@ -378,7 +378,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(1, updatedItems.Count());
@@ -403,7 +403,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -423,7 +423,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoin>();
             removedItems = new List<AdapterJoin>();
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             Assert.AreEqual(0, addedItems.Count());
             Assert.AreEqual(0, updatedItems.Count());
@@ -454,10 +454,10 @@ namespace Observable.Repository.Tests
             var itemProduceCount = new[] { 1, 10, 100, 1000, 10000, 100000, 1000000};
             var length = itemProduceCount.Length;
 
-            var repository = container.GetRepository<int, AdapterJoin>();
+            var repository = _container.GetRepository<int, AdapterJoin>();
             
             var producer = new Subject<List<ModelLeft>>();
-            container.AddProducer(ActionType.Reload, producer);
+            _container.AddProducer(ActionType.Reload, producer);
 
             // Jitter
             producer.OnNext(CreateScenario("Reload", 1).Items);
@@ -515,13 +515,13 @@ namespace Observable.Repository.Tests
             var itemsProduceCount = new[] { 1, 10, 100, 1000, 10000, 100000/*, 1000000*/};
 
             // Jitter
-            PerformancesTest("Target", 5, 5, (r, p) => addSubject.OnNext(p));
+            PerformancesTest("Target", 5, 5, (r, p) => _addSubject.OnNext(p));
 
             var results1 = new List<string>();
             var results2 = new List<string>();
             foreach (var t in itemsProduceCount)
             {
-                var l = PerformancesTest("Target", iterationCount, t, (r, p) => addSubject.OnNext(p));
+                var l = PerformancesTest("Target", iterationCount, t, (r, p) => _addSubject.OnNext(p));
 
                 var result = new[]
                     {
@@ -557,7 +557,7 @@ namespace Observable.Repository.Tests
 
         private List<double> PerformancesTest(string title, int iterationCount, int itemsProduceCount, Action<IRepository<int, AdapterJoin>, List<ModelLeft>> doWork)
         {
-            var repository = container.GetRepository<int, AdapterJoin>();
+            var repository = _container.GetRepository<int, AdapterJoin>();
 
             MonitorProduce[] monitor = null;
             var sw = new Stopwatch();
@@ -588,7 +588,7 @@ namespace Observable.Repository.Tests
                 doWork(repository, fullPlay);
                 sw.Stop();
 
-                reloadSubject.OnNext(null);
+                _reloadSubject.OnNext(null);
 
                 play.Clear();
 

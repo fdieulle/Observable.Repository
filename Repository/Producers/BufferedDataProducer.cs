@@ -5,14 +5,14 @@ namespace Observable.Repository.Producers
 {
     public class BufferedDataProducer : AbstractDataProducer, IBufferedDataProducer
     {
-        private readonly Dictionary<ProducerKey, IBufferedDataProducer> producers = new Dictionary<ProducerKey, IBufferedDataProducer>();
-        private IBufferedDataProducer[] aProducers = new IBufferedDataProducer[0];
+        private readonly Dictionary<ProducerKey, IBufferedDataProducer> _producers = new Dictionary<ProducerKey, IBufferedDataProducer>();
+        private IBufferedDataProducer[] _aProducers = new IBufferedDataProducer[0];
 
         #region Implementation of IBufferedDataProducer
 
         public void Flush()
         {
-            var array = aProducers;
+            var array = _aProducers;
             var length = array.Length;
 
             for (var i = 0; i < length; i++)
@@ -30,7 +30,7 @@ namespace Observable.Repository.Producers
 
         public override IDataProducer AddProducer<T>(ActionType action, IObservable<T> observable, string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var producer = GetOrCreate<T>(name);
                 if (producer == null) return this;
@@ -43,7 +43,7 @@ namespace Observable.Repository.Producers
 
         public override IDataProducer AddProducer<T>(ActionType action, IObservable<List<T>> observable, string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var producer = GetOrCreate<T>(name);
                 if (producer == null) return this;
@@ -56,7 +56,7 @@ namespace Observable.Repository.Producers
 
         public override IDataProducer AddProducer<T>(IObservable<RepositoryNotification<T>> observable, string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var producer = GetOrCreate<T>(name);
                 if (producer == null) return this;
@@ -69,7 +69,7 @@ namespace Observable.Repository.Producers
 
         public override IDataProducer RemoveProducer<T>(IObservable<T> observable, string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var producer = Get<T>(name);
                 if (producer == null) return this;
@@ -82,7 +82,7 @@ namespace Observable.Repository.Producers
 
         public override IDataProducer RemoveProducer<T>(IObservable<List<T>> observable, string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var producer = Get<T>(name);
                 if (producer == null) return this;
@@ -95,7 +95,7 @@ namespace Observable.Repository.Producers
 
         public override IDataProducer RemoveProducer<T>(IObservable<RepositoryNotification<T>> observable, string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var producer = Get<T>(name);
                 if (producer == null) return this;
@@ -108,14 +108,14 @@ namespace Observable.Repository.Producers
 
         protected override void DisposingSafe()
         {
-            var array = aProducers;
+            var array = _aProducers;
             var length = array.Length;
             for (var i = 0; i < length; i++)
                 array[i].Dispose();
 
-            aProducers = new IBufferedDataProducer[0];
+            _aProducers = new IBufferedDataProducer[0];
 
-            producers.Clear();
+            _producers.Clear();
         }
 
         #endregion
@@ -124,16 +124,16 @@ namespace Observable.Repository.Producers
         {
             var key = new ProducerKey(name, typeof(T));
             IBufferedDataProducer producer;
-            if (!producers.TryGetValue(key, out producer))
+            if (!_producers.TryGetValue(key, out producer))
             {
-                producers.Add(key, producer = new BufferedDataItemProducer<T>(GetProducer<T>(name)));
+                _producers.Add(key, producer = new BufferedDataItemProducer<T>(GetProducer<T>(name)));
 
-                var array = aProducers;
+                var array = _aProducers;
                 var length = array.Length;
                 var copy = new IBufferedDataProducer[length + 1];
                 Array.Copy(array, copy, length);
                 copy[length] = producer;
-                aProducers = copy;
+                _aProducers = copy;
             }
 
             return producer as BufferedDataItemProducer<T>;
@@ -143,7 +143,7 @@ namespace Observable.Repository.Producers
         {
             var key = new ProducerKey(name, typeof(T));
             IBufferedDataProducer producer;
-            if (!producers.TryGetValue(key, out producer))
+            if (!_producers.TryGetValue(key, out producer))
                 return null;
 
             return producer as BufferedDataItemProducer<T>;

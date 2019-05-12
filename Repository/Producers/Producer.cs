@@ -10,8 +10,8 @@ namespace Observable.Repository.Producers
     /// <typeparam name="T">Type of data to produce</typeparam>
     public class Producer<T> : ZipSubject<RepositoryNotification<T>>, IDisposable
     {
-        private readonly Action<Action> dispatch;
-        private readonly List<ProducerItem> producers = new List<ProducerItem>();
+        private readonly Action<Action> _dispatch;
+        private readonly List<ProducerItem> _producers = new List<ProducerItem>();
 
         /// <summary>
         /// Ctor
@@ -19,7 +19,7 @@ namespace Observable.Repository.Producers
         /// <param name="dispatch">Dispatcher to produce items.</param>
         public Producer(Action<Action> dispatch)
         {
-            this.dispatch = dispatch;
+            this._dispatch = dispatch;
         }
 
         /// <summary>
@@ -27,8 +27,8 @@ namespace Observable.Repository.Producers
         /// </summary>
         public override void OnCompleted()
         {
-            if(dispatch != null)
-                dispatch(base.OnCompleted);
+            if(_dispatch != null)
+                _dispatch(base.OnCompleted);
             else base.OnCompleted();
         }
 
@@ -38,8 +38,8 @@ namespace Observable.Repository.Producers
         /// <param name="error">Exception raised.</param>
         public override void OnError(Exception error)
         {
-            if (dispatch != null)
-                dispatch(() => base.OnError(error));
+            if (_dispatch != null)
+                _dispatch(() => base.OnError(error));
             else base.OnError(error);
         }
 
@@ -49,8 +49,8 @@ namespace Observable.Repository.Producers
         /// <param name="value">Item to publish.</param>
         public override void OnNext(RepositoryNotification<T> value)
         {
-            if (dispatch != null)
-                dispatch(() => base.OnNext(value));
+            if (_dispatch != null)
+                _dispatch(() => base.OnNext(value));
             else base.OnNext(value);
         }
 
@@ -95,9 +95,9 @@ namespace Observable.Repository.Producers
         private void Add(object source, IObservable<RepositoryNotification<T>> selector)
         {
             Add(selector);
-            lock (producers)
+            lock (_producers)
             {
-                producers.Add(new ProducerItem { Source = source, Selector = selector });
+                _producers.Add(new ProducerItem { Source = source, Selector = selector });
             }
         }
 
@@ -125,12 +125,12 @@ namespace Observable.Repository.Producers
 
         private void InternalRemove(object observable)
         {
-            for (var i = producers.Count - 1; i >= 0; i--)
+            for (var i = _producers.Count - 1; i >= 0; i--)
             {
-                var producer = producers[i];
+                var producer = _producers[i];
                 if (producer.Source != observable) continue;
                 Remove(producer.Selector);
-                producers.RemoveAt(i);
+                _producers.RemoveAt(i);
                 break;
             }
         }
@@ -148,11 +148,11 @@ namespace Observable.Repository.Producers
         /// </summary>
         public void Dispose()
         {
-            lock (producers)
+            lock (_producers)
             {
-                foreach (var producer in producers)
+                foreach (var producer in _producers)
                     Remove(producer.Selector);
-                producers.Clear();
+                _producers.Clear();
             }
             OnCompleted();
         }

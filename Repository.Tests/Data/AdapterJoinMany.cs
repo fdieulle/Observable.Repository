@@ -6,8 +6,8 @@ namespace Observable.Repository.Tests.Data
     {
         public ModelLeft ModelLeft { get; private set; }
 
-        private readonly List<ModelRight> modelRights = new List<ModelRight>();
-        public List<ModelRight> ModelRights { get { return modelRights; } }
+        private readonly List<ModelRight> _modelRights = new List<ModelRight>();
+        public List<ModelRight> ModelRights { get { return _modelRights; } }
 
         public AdapterJoinMany(ModelLeft left)
         {

@@ -10,35 +10,35 @@ namespace Observable.Repository.Tests
     [TestFixture]
     public class RepositoryBehaviorsTests
     {
-        private IRepositoryContainer container;
-        private Subject<List<ModelLeft>> addSubject;
-        private Subject<List<ModelLeft>> removeSubject;
-        private Subject<List<ModelLeft>> reloadSubject;
+        private IRepositoryContainer _container;
+        private Subject<List<ModelLeft>> _addSubject;
+        private Subject<List<ModelLeft>> _removeSubject;
+        private Subject<List<ModelLeft>> _reloadSubject;
 
         [SetUp]
         public void SetUp()
         {
-            container = new RepositoryContainer();
+            _container = new RepositoryContainer();
 
-            addSubject = new Subject<List<ModelLeft>>();
-            removeSubject = new Subject<List<ModelLeft>>();
-            reloadSubject = new Subject<List<ModelLeft>>();
+            _addSubject = new Subject<List<ModelLeft>>();
+            _removeSubject = new Subject<List<ModelLeft>>();
+            _reloadSubject = new Subject<List<ModelLeft>>();
 
-            container.AddProducer(ActionType.Add, addSubject);
-            container.AddProducer(ActionType.Remove, removeSubject);
-            container.AddProducer(ActionType.Reload, reloadSubject);
+            _container.AddProducer(ActionType.Add, _addSubject);
+            _container.AddProducer(ActionType.Remove, _removeSubject);
+            _container.AddProducer(ActionType.Reload, _reloadSubject);
         }
 
         [TearDown]
         public void TearDown()
         {
-            container.Dispose();
+            _container.Dispose();
         }
 
         [Test]
         public void TestRollingBehavior()
         {
-            var repository = container.Build<int, ModelLeft>(p => p.PrimaryKey)
+            var repository = _container.Build<int, ModelLeft>(p => p.PrimaryKey)
                 .AddRollingBehavior(5)
                 .Create();
 
@@ -70,7 +70,7 @@ namespace Observable.Repository.Tests
 
             var list = CreateData(1, 3);
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             AssertContains(addedItems, CreateDataTest(1, 3));
             AssertContains(updatedItems);
@@ -83,7 +83,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            addSubject.OnNext(CreateData(4, 7));
+            _addSubject.OnNext(CreateData(4, 7));
 
             AssertContains(addedItems, CreateDataTest(4, 7));
             AssertContains(updatedItems);
@@ -96,7 +96,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            removeSubject.OnNext(CreateData(5, 6));
+            _removeSubject.OnNext(CreateData(5, 6));
 
             AssertContains(addedItems);
             AssertContains(updatedItems);
@@ -109,7 +109,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            addSubject.OnNext(CreateData(8, 14));
+            _addSubject.OnNext(CreateData(8, 14));
 
             AssertContains(addedItems, CreateDataTest(10, 14));
             AssertContains(updatedItems);
@@ -122,7 +122,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            reloadSubject.OnNext(CreateData(1, 6));
+            _reloadSubject.OnNext(CreateData(1, 6));
 
             AssertContains(addedItems, CreateDataTest(2, 6));
             AssertContains(updatedItems);
@@ -134,7 +134,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestTimeIntervalBehavior()
         {
-            var repository = container.Build<int, ModelLeft>(p => p.PrimaryKey)
+            var repository = _container.Build<int, ModelLeft>(p => p.PrimaryKey)
                 .AddTimeIntervalBehavior(TimeSpan.FromSeconds(5), p => p.Timestamp)
                 .Create();
 
@@ -166,7 +166,7 @@ namespace Observable.Repository.Tests
 
             var list = CreateData(1, 3);
 
-            addSubject.OnNext(list);
+            _addSubject.OnNext(list);
 
             AssertContains(addedItems, CreateDataTest(1, 3));
             AssertContains(updatedItems);
@@ -179,7 +179,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            addSubject.OnNext(CreateData(4, 7));
+            _addSubject.OnNext(CreateData(4, 7));
 
             AssertContains(addedItems, CreateDataTest(4, 7));
             AssertContains(updatedItems);
@@ -192,7 +192,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            removeSubject.OnNext(CreateData(5, 6));
+            _removeSubject.OnNext(CreateData(5, 6));
 
             AssertContains(addedItems);
             AssertContains(updatedItems);
@@ -205,7 +205,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            addSubject.OnNext(CreateData(8, 14));
+            _addSubject.OnNext(CreateData(8, 14));
 
             AssertContains(addedItems, CreateDataTest(10, 14));
             AssertContains(updatedItems);
@@ -218,7 +218,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<KeyValue<int, ModelLeft>>();
             removedItems = new List<KeyValue<int, ModelLeft>>();
 
-            reloadSubject.OnNext(CreateData(1, 6));
+            _reloadSubject.OnNext(CreateData(1, 6));
 
             AssertContains(addedItems, CreateDataTest(2, 6));
             AssertContains(updatedItems);

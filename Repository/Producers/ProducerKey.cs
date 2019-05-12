@@ -4,18 +4,18 @@ namespace Observable.Repository.Producers
 {
     public class ProducerKey
     {
-        private readonly string name;
-        private readonly Type type;
-        private readonly int hashCode;
+        private readonly string _name;
+        private readonly Type _type;
+        private readonly int _hashCode;
 
         public ProducerKey(string name, Type type)
         {
-            this.name = name ?? string.Empty;
-            this.type = type ?? typeof(object);
+            this._name = name ?? string.Empty;
+            this._type = type ?? typeof(object);
 
             unchecked
             {
-                hashCode = (this.name.GetHashCode() * 397) ^ this.type.GetHashCode();
+                _hashCode = (this._name.GetHashCode() * 397) ^ this._type.GetHashCode();
             }
         }
 
@@ -23,8 +23,8 @@ namespace Observable.Repository.Producers
 
         private bool Equals(ProducerKey other)
         {
-            return string.Equals(name, other.name)
-                && type == other.type;
+            return string.Equals(_name, other._name)
+                && _type == other._type;
         }
 
         public override bool Equals(object obj)
@@ -37,7 +37,7 @@ namespace Observable.Repository.Producers
 
         public override int GetHashCode()
         {
-            return hashCode;
+            return _hashCode;
         }
 
         public static bool operator ==(ProducerKey left, ProducerKey right)

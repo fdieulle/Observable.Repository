@@ -5,8 +5,8 @@ namespace Observable.Repository.Producers
 {
     public abstract class AbstractDataProducer : IDataProducer
     {
-        private readonly Dictionary<ProducerKey, IDisposable> producers = new Dictionary<ProducerKey, IDisposable>();
-        protected readonly object mutex = new object();
+        private readonly Dictionary<ProducerKey, IDisposable> _producers = new Dictionary<ProducerKey, IDisposable>();
+        protected readonly object _mutex = new object();
 
         #region Implementation of IDataProducer
 
@@ -20,16 +20,16 @@ namespace Observable.Repository.Producers
         /// <returns>Gets <see cref="Producer{T}"/> instance. Returns null if not any producer has been found</returns>
         public Producer<T> GetProducer<T>(string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var key = new ProducerKey(name, typeof(T));
 
                 IDisposable producer;
-                if (producers.TryGetValue(key, out producer))
+                if (_producers.TryGetValue(key, out producer))
                     return (Producer<T>)producer;
 
                 var newProducer = CreateProducer<T>();
-                producers[key] = newProducer;
+                _producers[key] = newProducer;
 
                 return newProducer;
             }
@@ -81,12 +81,12 @@ namespace Observable.Repository.Producers
 
         public void Dispose()
         {
-            lock (mutex)
+            lock (_mutex)
             {
-                foreach (var pair in producers)
+                foreach (var pair in _producers)
                     pair.Value.Dispose();
 
-                producers.Clear();
+                _producers.Clear();
             }
         }
 

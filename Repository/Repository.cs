@@ -22,50 +22,50 @@ namespace Observable.Repository
     {
         #region Fields
 
-        private readonly IRepositoryContainer container;
-        private readonly RepositoryConfiguration<TKey, TValue, TLeft> configuration;
-        private readonly Subject<RepositoryNotification<KeyValue<TKey, TValue>>> subject = new Subject<RepositoryNotification<KeyValue<TKey, TValue>>>();
-        private readonly IDisposable subscribeOnSource;
+        private readonly IRepositoryContainer _container;
+        private readonly RepositoryConfiguration<TKey, TValue, TLeft> _configuration;
+        private readonly Subject<RepositoryNotification<KeyValue<TKey, TValue>>> _subject = new Subject<RepositoryNotification<KeyValue<TKey, TValue>>>();
+        private readonly IDisposable _subscribeOnSource;
 
-        private readonly Func<TLeft, TKey> getLeftKey;
-        private readonly Func<TLeft, bool> leftFilter;
-        private readonly Func<TLeft, object[], TValue> ctor;
-        private readonly Action<TValue, TLeft> updateValue;
+        private readonly Func<TLeft, TKey> _getLeftKey;
+        private readonly Func<TLeft, bool> _leftFilter;
+        private readonly Func<TLeft, object[], TValue> _ctor;
+        private readonly Action<TValue, TLeft> _updateValue;
 
         // Build value
-        private readonly int nbCtorArguments;
-        private readonly object[] ctorArguments;
-        private readonly bool isDisposable;
+        private readonly int _nbCtorArguments;
+        private readonly object[] _ctorArguments;
+        private readonly bool _isDisposable;
 
         // Joins
-        private readonly int nbStores;
-        private readonly IStore<TKey, TValue, TLeft>[] stores;
-        private readonly int nbStoresToBuild;
-        private readonly IStore<TKey, TValue, TLeft>[] storesToBuild;
-        private readonly IDisposable[] storesSuscriptions;
+        private readonly int _nbStores;
+        private readonly IStore<TKey, TValue, TLeft>[] _stores;
+        private readonly int _nbStoresToBuild;
+        private readonly IStore<TKey, TValue, TLeft>[] _storesToBuild;
+        private readonly IDisposable[] _storesSuscriptions;
 
         // Behavior
-        private readonly bool hasBehavior;
-        private readonly bool hasRollingBehavior;
-        private readonly bool hasTimeIntervalBehavior;
-        private readonly Pool<LinkedNode<TKey, TLeft>> leftPool;
-        private readonly HashLinkedList<TKey, TLeft> leftItems;
-        private readonly int rollingCount;
-        private readonly TimeSpan timeInterval;
-        private readonly Func<TValue, DateTime> getTimestamp;
+        private readonly bool _hasBehavior;
+        private readonly bool _hasRollingBehavior;
+        private readonly bool _hasTimeIntervalBehavior;
+        private readonly Pool<LinkedNode<TKey, TLeft>> _leftPool;
+        private readonly HashLinkedList<TKey, TLeft> _leftItems;
+        private readonly int _rollingCount;
+        private readonly TimeSpan _timeInterval;
+        private readonly Func<TValue, DateTime> _getTimestamp;
 
         // Items and notifications
-        private readonly Pool<LinkedNode<TKey, TValue>> pool = new Pool<LinkedNode<TKey, TValue>>(() => new LinkedNode<TKey, TValue>());
-        private readonly HashLinkedList<TKey, TValue> items;
-        private readonly HashLinkedList<TKey, TValue> itemsAdded;
-        private readonly HashLinkedList<TKey, TValue> itemsUpdated;
-        private readonly HashLinkedList<TKey, TValue> itemsReplaced;
-        private readonly HashLinkedList<TKey, TValue> itemsRemoved;
-        private readonly HashLinkedList<TKey, TValue> itemsCleared;
-        private IEnumerable<KeyValue<TKey, TValue>> lazyItems;
+        private readonly Pool<LinkedNode<TKey, TValue>> _pool = new Pool<LinkedNode<TKey, TValue>>(() => new LinkedNode<TKey, TValue>());
+        private readonly HashLinkedList<TKey, TValue> _items;
+        private readonly HashLinkedList<TKey, TValue> _itemsAdded;
+        private readonly HashLinkedList<TKey, TValue> _itemsUpdated;
+        private readonly HashLinkedList<TKey, TValue> _itemsReplaced;
+        private readonly HashLinkedList<TKey, TValue> _itemsRemoved;
+        private readonly HashLinkedList<TKey, TValue> _itemsCleared;
+        private IEnumerable<KeyValue<TKey, TValue>> _lazyItems;
 
-        private readonly Action<Action> dispatcher;
-        private readonly Mutex mutex = new Mutex();
+        private readonly Action<Action> _dispatcher;
+        private readonly Mutex _mutex = new Mutex();
 
         #endregion Fields
 
@@ -82,107 +82,107 @@ namespace Observable.Repository
             IObservable<RepositoryNotification<TLeft>> source,
             IEnumerable<TLeft> snapshot)
         {
-            this.container = container;
-            this.configuration = configuration;
+            this._container = container;
+            this._configuration = configuration;
 
-            getLeftKey = configuration.GetKey ?? (p => default(TKey));
-            updateValue = configuration.OnUpdate;
-            leftFilter = configuration.LeftFilter ?? (p => true);
+            _getLeftKey = configuration.GetKey ?? (p => default(TKey));
+            _updateValue = configuration.OnUpdate;
+            _leftFilter = configuration.LeftFilter ?? (p => true);
             
             var valueType = configuration.ValueType;
-            isDisposable = configuration.DisposeWhenValueIsRemoved && valueType.GetInterfaces().Any(t => t == typeof(IDisposable));
+            _isDisposable = configuration.DisposeWhenValueIsRemoved && valueType.GetInterfaces().Any(t => t == typeof(IDisposable));
 
-            dispatcher = configuration.Dispatcher;
+            _dispatcher = configuration.Dispatcher;
 
             #region Initialize Ctor
 
-            ctor = configuration.Ctor;
-            if (ctor == null)
+            _ctor = configuration.Ctor;
+            if (_ctor == null)
             {
                 var ctorArgs = new List<Type> { typeof(TLeft) };
                 if (valueType.IsBaseType(configuration.LeftType))
-                    ctor = GetItSelf;
+                    _ctor = GetItSelf;
                 else
                 {
                     ctorArgs.AddRange(configuration.Joins
                         .Where(p => p.Mode == JoinMode.OneToBuild)
                         .Select(p => p.RightType));
 
-                    ctor = ctorArgs.CreateCtor<TLeft, TValue>();
+                    _ctor = ctorArgs.CreateCtor<TLeft, TValue>();
                 }
 
-                configuration.Ctor = ctor;
+                configuration.Ctor = _ctor;
                 configuration.CtorArguments = new ReadOnlyCollection<Type>(ctorArgs);
             }
 
-            nbCtorArguments = configuration.CtorArguments.Count - 1;
-            ctorArguments = new object[nbCtorArguments];
+            _nbCtorArguments = configuration.CtorArguments.Count - 1;
+            _ctorArguments = new object[_nbCtorArguments];
 
             #endregion
 
             #region Initialize Stores
 
             var joins = configuration.Joins;
-            nbStores = joins.Count;
-            stores = new IStore<TKey, TValue, TLeft>[nbStores];
+            _nbStores = joins.Count;
+            _stores = new IStore<TKey, TValue, TLeft>[_nbStores];
 
             var filteredStores = new List<IStore<TKey, TValue, TLeft>>();
-            for (var i = 0; i < nbStores; i++)
+            for (var i = 0; i < _nbStores; i++)
             {
                 var join = joins[i];
 
-                var store = joins[i].CreateStore(mutex, Forward);
-                stores[i] = store;
+                var store = joins[i].CreateStore(_mutex, Forward);
+                _stores[i] = store;
 
                 if (join.Mode == JoinMode.OneToBuild)
                     filteredStores.Add(store);
             }
 
-            nbStoresToBuild = filteredStores.Count;
-            storesToBuild = new IStore<TKey, TValue, TLeft>[nbStoresToBuild];
-            storesSuscriptions = new IDisposable[nbStoresToBuild];
+            _nbStoresToBuild = filteredStores.Count;
+            _storesToBuild = new IStore<TKey, TValue, TLeft>[_nbStoresToBuild];
+            _storesSuscriptions = new IDisposable[_nbStoresToBuild];
 
-            for (var i = 0; i < nbStoresToBuild; i++)
+            for (var i = 0; i < _nbStoresToBuild; i++)
             {
                 var store = filteredStores[i];
-                storesToBuild[i] = store;
-                storesSuscriptions[i] = store.Subscribe(OnItemsReceived);
+                _storesToBuild[i] = store;
+                _storesSuscriptions[i] = store.Subscribe(OnItemsReceived);
             }
 
             #endregion // Initialize Stores
 
             #region Initialize Behaviors
 
-            rollingCount = configuration.RollingCount;
-            timeInterval = configuration.TimeInterval;
-            getTimestamp = configuration.GetTimestamp;
+            _rollingCount = configuration.RollingCount;
+            _timeInterval = configuration.TimeInterval;
+            _getTimestamp = configuration.GetTimestamp;
 
             var behavior = configuration.Behavior;
-            hasRollingBehavior = (behavior == StorageBehavior.Rolling || behavior == StorageBehavior.RollingAndTimeInterval) && rollingCount > 0;
-            hasTimeIntervalBehavior = (behavior == StorageBehavior.TimeInterval || behavior == StorageBehavior.RollingAndTimeInterval) && timeInterval > TimeSpan.Zero && getTimestamp != null;
+            _hasRollingBehavior = (behavior == StorageBehavior.Rolling || behavior == StorageBehavior.RollingAndTimeInterval) && _rollingCount > 0;
+            _hasTimeIntervalBehavior = (behavior == StorageBehavior.TimeInterval || behavior == StorageBehavior.RollingAndTimeInterval) && _timeInterval > TimeSpan.Zero && _getTimestamp != null;
 
-            hasBehavior = hasRollingBehavior || hasTimeIntervalBehavior;
+            _hasBehavior = _hasRollingBehavior || _hasTimeIntervalBehavior;
 
-            if (hasBehavior)
+            if (_hasBehavior)
             {
-                leftPool = new Pool<LinkedNode<TKey, TLeft>>(() => new LinkedNode<TKey, TLeft>());
-                leftItems = new HashLinkedList<TKey, TLeft>(leftPool);
+                _leftPool = new Pool<LinkedNode<TKey, TLeft>>(() => new LinkedNode<TKey, TLeft>());
+                _leftItems = new HashLinkedList<TKey, TLeft>(_leftPool);
             }
 
             #endregion
 
-            items = new HashLinkedList<TKey, TValue>(pool);
-            itemsAdded = new HashLinkedList<TKey, TValue>(pool);
-            itemsUpdated = new HashLinkedList<TKey, TValue>(pool);
-            itemsReplaced = new HashLinkedList<TKey, TValue>(pool);
-            itemsRemoved = new HashLinkedList<TKey, TValue>(pool);
-            itemsCleared = new HashLinkedList<TKey, TValue>(pool);
+            _items = new HashLinkedList<TKey, TValue>(_pool);
+            _itemsAdded = new HashLinkedList<TKey, TValue>(_pool);
+            _itemsUpdated = new HashLinkedList<TKey, TValue>(_pool);
+            _itemsReplaced = new HashLinkedList<TKey, TValue>(_pool);
+            _itemsRemoved = new HashLinkedList<TKey, TValue>(_pool);
+            _itemsCleared = new HashLinkedList<TKey, TValue>(_pool);
 
             if (snapshot != null)
                 OnItemsReceived(new RepositoryNotification<TLeft>(ActionType.Add, null, snapshot));
 
             if (source != null)
-                subscribeOnSource = source.Subscribe(OnItemsReceived);
+                _subscribeOnSource = source.Subscribe(OnItemsReceived);
         }
 
         #region Implementation of IEnumerable
@@ -193,12 +193,12 @@ namespace Observable.Repository
         /// <returns>Returns the enumerator.</returns>
         public IEnumerator<KeyValue<TKey, TValue>> GetEnumerator()
         {
-            var lazy = lazyItems;
+            var lazy = _lazyItems;
             if (lazy == null)
             {
-                lock (mutex.input)
+                lock (_mutex._input)
                 {
-                    lazy = lazyItems = items.MakeCopy();
+                    lazy = _lazyItems = _items.MakeCopy();
                 }
             }
 
@@ -221,7 +221,7 @@ namespace Observable.Repository
         /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
         public IDisposable Subscribe(IObserver<RepositoryNotification<KeyValue<TKey, TValue>>> observer)
         {
-            return subject.Subscribe(observer);
+            return _subject.Subscribe(observer);
         }
 
         #endregion
@@ -233,35 +233,35 @@ namespace Observable.Repository
         /// </summary>
         public void Dispose()
         {
-            if (subscribeOnSource != null)
-                subscribeOnSource.Dispose();
+            if (_subscribeOnSource != null)
+                _subscribeOnSource.Dispose();
 
-            lock (mutex.input)
+            lock (_mutex._input)
             {
-                for (var i = 0; i < nbStores; i++)
+                for (var i = 0; i < _nbStores; i++)
                 {
-                    stores[i].Dispose();
-                    if (i < nbStoresToBuild)
-                        storesSuscriptions[i].Dispose();
+                    _stores[i].Dispose();
+                    if (i < _nbStoresToBuild)
+                        _storesSuscriptions[i].Dispose();
                 }
 
-                items.Clear((k, v) => Dispose(v));
-                lazyItems = null;
-                itemsAdded.Clear();
-                itemsRemoved.Clear();
-                itemsReplaced.Clear();
-                itemsUpdated.Clear();
-                itemsCleared.Clear();
-                pool.Clear();
+                _items.Clear((k, v) => Dispose(v));
+                _lazyItems = null;
+                _itemsAdded.Clear();
+                _itemsRemoved.Clear();
+                _itemsReplaced.Clear();
+                _itemsUpdated.Clear();
+                _itemsCleared.Clear();
+                _pool.Clear();
 
-                if (hasBehavior)
+                if (_hasBehavior)
                 {
-                    leftItems.Clear();
-                    leftPool.Clear();
+                    _leftItems.Clear();
+                    _leftPool.Clear();
                 }
             }
 
-            subject.OnCompleted();
+            _subject.OnCompleted();
         }
 
         #endregion
@@ -271,12 +271,12 @@ namespace Observable.Repository
         /// <summary>
         /// Gets the <see cref="IRepository{TKey, TValue}"/> name.
         /// </summary>
-        public string Name { get { return configuration.Name; } }
+        public string Name { get { return _configuration.Name; } }
 
         /// <summary>
         /// Gets the <see cref="IRepository{TKey, TValue}"/> confguration.
         /// </summary>
-        public IRepositoryConfiguration Configuration { get { return configuration; } }
+        public IRepositoryConfiguration Configuration { get { return _configuration; } }
 
         /// <summary>
         /// Gets the number of items in the <see cref="IRepository{TKey, TValue}"/>.
@@ -285,9 +285,9 @@ namespace Observable.Repository
         {
             get
             {
-                lock (mutex.input)
+                lock (_mutex._input)
                 {
-                    return items.Count;   
+                    return _items.Count;   
                 }
             }
         }
@@ -299,9 +299,9 @@ namespace Observable.Repository
         /// <returns>Returns true if the <see cref="IRepository{TKey, TValue}"/> contains the key. False else.</returns>
         public bool ContainsKey(TKey key)
         {
-            lock (mutex.input)
+            lock (_mutex._input)
             {
-                return items.ContainsKey(key);   
+                return _items.ContainsKey(key);   
             }
         }
 
@@ -313,9 +313,9 @@ namespace Observable.Repository
         /// <returns>Returns true if a value can be found. False else.</returns>
         public bool TryGetValue(TKey key, out TValue value)
         {
-            lock (mutex.input)
+            lock (_mutex._input)
             {
-                return items.TryGetValue(key, out value);
+                return _items.TryGetValue(key, out value);
             }
         }
 
@@ -328,9 +328,9 @@ namespace Observable.Repository
         {
             get
             {
-                lock (mutex.input)
+                lock (_mutex._input)
                 {
-                    return items[key];   
+                    return _items[key];   
                 }
             }
         }
@@ -339,7 +339,7 @@ namespace Observable.Repository
         {
             if (action == null) return AnonymousDisposable.Empty;
 
-            lock (mutex.input)
+            lock (_mutex._input)
             {
                 return new Suscription(this, action, filter, withSnapshot, dispatch);
             }
@@ -347,10 +347,10 @@ namespace Observable.Repository
         
         private class Suscription : IDisposable
         {
-            private Action<RepositoryNotification<KeyValue<TKey, TValue>>> action;
-            private Func<KeyValue<TKey, TValue>, bool> filter;
-            private Action<Action> dispatch;
-            private IDisposable suscription;
+            private Action<RepositoryNotification<KeyValue<TKey, TValue>>> _action;
+            private Func<KeyValue<TKey, TValue>, bool> _filter;
+            private Action<Action> _dispatch;
+            private IDisposable _suscription;
 
             public Suscription(Repository<TKey, TValue, TLeft> repository, 
                 Action<RepositoryNotification<KeyValue<TKey, TValue>>> action,
@@ -358,9 +358,9 @@ namespace Observable.Repository
                 bool withSnapshot = false,
                 Action<Action> dispatch = null)
             {
-                this.action = action;
-                this.filter = filter;
-                this.dispatch = dispatch;
+                this._action = action;
+                this._filter = filter;
+                this._dispatch = dispatch;
 
                 if (withSnapshot)
                 {
@@ -369,33 +369,33 @@ namespace Observable.Repository
                     else DispatchOnNext(e);
                 }
 
-                suscription = dispatch == null 
-                    ? repository.subject.Subscribe(OnNext)
-                    : repository.subject.Subscribe(DispatchOnNext);
+                _suscription = dispatch == null 
+                    ? repository._subject.Subscribe(OnNext)
+                    : repository._subject.Subscribe(DispatchOnNext);
             }
 
             private void OnNext(RepositoryNotification<KeyValue<TKey, TValue>> e)
             {
-                if(filter != null)
-                    e = new RepositoryNotification<KeyValue<TKey, TValue>>(e.Action, e.OldItems.Where(filter), e.NewItems.Where(filter));
-                action(e);
+                if(_filter != null)
+                    e = new RepositoryNotification<KeyValue<TKey, TValue>>(e.Action, e.OldItems.Where(_filter), e.NewItems.Where(_filter));
+                _action(e);
             }
 
             private void DispatchOnNext(RepositoryNotification<KeyValue<TKey, TValue>> e)
             {
-                dispatch(() => OnNext(e));
+                _dispatch(() => OnNext(e));
             }
 
             #region Implementation of IDisposable
 
             public void Dispose()
             {
-                if (suscription == null) return;
-                suscription.Dispose();
-                suscription = null;
-                action = null;
-                filter = null;
-                dispatch = null;
+                if (_suscription == null) return;
+                _suscription.Dispose();
+                _suscription = null;
+                _action = null;
+                _filter = null;
+                _dispatch = null;
             }
 
             #endregion
@@ -405,7 +405,7 @@ namespace Observable.Repository
         {
             if(action == null || selector == null) return AnonymousDisposable.Empty;
 
-            lock (mutex.input)
+            lock (_mutex._input)
             {
                 return new Suscription<TSelect>(this, action, selector, filter, withSnapshot, dispatch);
             }
@@ -413,11 +413,11 @@ namespace Observable.Repository
 
         private class Suscription<TSelect> : IDisposable
         {
-            private Action<RepositoryNotification<TSelect>> action;
-            private Func<KeyValue<TKey, TValue>, TSelect> selector;
-            private Func<KeyValue<TKey, TValue>, bool> filter;
-            private Action<Action> dispatch;
-            private IDisposable suscription;
+            private Action<RepositoryNotification<TSelect>> _action;
+            private Func<KeyValue<TKey, TValue>, TSelect> _selector;
+            private Func<KeyValue<TKey, TValue>, bool> _filter;
+            private Action<Action> _dispatch;
+            private IDisposable _suscription;
 
             public Suscription(Repository<TKey, TValue, TLeft> repository,
                 Action<RepositoryNotification<TSelect>> action,
@@ -426,10 +426,10 @@ namespace Observable.Repository
                 bool withSnapshot = false,
                 Action<Action> dispatch = null)
             {
-                this.action = action;
-                this.selector = selector;
-                this.filter = filter;
-                this.dispatch = dispatch;
+                this._action = action;
+                this._selector = selector;
+                this._filter = filter;
+                this._dispatch = dispatch;
 
                 if (withSnapshot)
                 {
@@ -438,35 +438,35 @@ namespace Observable.Repository
                     else DispatchOnNext(e);
                 }
 
-                suscription = dispatch == null
-                    ? repository.subject.Subscribe(OnNext)
-                    : repository.subject.Subscribe(DispatchOnNext);
+                _suscription = dispatch == null
+                    ? repository._subject.Subscribe(OnNext)
+                    : repository._subject.Subscribe(DispatchOnNext);
             }
 
             private void OnNext(RepositoryNotification<KeyValue<TKey, TValue>> e)
             {
-                if (filter != null)
-                    e = new RepositoryNotification<KeyValue<TKey, TValue>>(e.Action, e.OldItems.Where(filter), e.NewItems.Where(filter));
+                if (_filter != null)
+                    e = new RepositoryNotification<KeyValue<TKey, TValue>>(e.Action, e.OldItems.Where(_filter), e.NewItems.Where(_filter));
 
-                action(new RepositoryNotification<TSelect>(e.Action, e.OldItems.Select(selector), e.NewItems.Select(selector)));
+                _action(new RepositoryNotification<TSelect>(e.Action, e.OldItems.Select(_selector), e.NewItems.Select(_selector)));
             }
 
             private void DispatchOnNext(RepositoryNotification<KeyValue<TKey, TValue>> e)
             {
-                dispatch(() => OnNext(e));
+                _dispatch(() => OnNext(e));
             }
 
             #region Implementation of IDisposable
 
             public void Dispose()
             {
-                if (suscription == null) return;
-                suscription.Dispose();
-                suscription = null;
-                selector = null;
-                action = null;
-                filter = null;
-                dispatch = null;
+                if (_suscription == null) return;
+                _suscription.Dispose();
+                _suscription = null;
+                _selector = null;
+                _action = null;
+                _filter = null;
+                _dispatch = null;
             }
 
             #endregion
@@ -484,7 +484,7 @@ namespace Observable.Repository
         /// <returns>Returns the <see cref="IListView{TSelect}"/> instance. Dispose it to release the <see cref="IList{TSelect}"/> instance.</returns>
         public IListView<TSelect> Subscribe<TSelect>(IList<TSelect> view, Func<TValue, TSelect> selector, Predicate<TValue> filter = null, bool synchronize = true, Action<Action> viewDispatcher = null)
         {
-            lock (mutex.input)
+            lock (_mutex._input)
             {
                 return new ListView<TKey, TValue, TSelect>(
                    this,
@@ -520,7 +520,7 @@ namespace Observable.Repository
             bool disposeWhenValueIsRemoved = false,
             Action<Action> dispatchObservers = null)
         {
-            return container.Build(name, getKey, onUpdate, Name, filter, disposeWhenValueIsRemoved, dispatchObservers);
+            return _container.Build(name, getKey, onUpdate, Name, filter, disposeWhenValueIsRemoved, dispatchObservers);
         }
 
         #endregion
@@ -535,11 +535,11 @@ namespace Observable.Repository
             KeyValue<TKey, TValue>[] notifyItemsAdded = null;
             KeyValue<TKey, TValue>[] notifyItemsCleared = null;
 
-            lock (mutex.output)
+            lock (_mutex._output)
             {
                 bool hasItemsRemoved, hasItemsUpdated, hasItemsAdded, hasItemsReloaded;
 
-                lock (mutex.input)
+                lock (_mutex._input)
                 {
                     switch (e.Action)
                     {
@@ -553,44 +553,44 @@ namespace Observable.Repository
                         case ActionType.Reload:
                             ReloadItems(e.NewItems);
 
-                            itemsRemoved.Clear();
-                            itemsUpdated.Clear();
-                            itemsReplaced.Clear();
+                            _itemsRemoved.Clear();
+                            _itemsUpdated.Clear();
+                            _itemsReplaced.Clear();
 
                             break;
                     }
 
-                    hasItemsRemoved = itemsRemoved.Count > 0;
+                    hasItemsRemoved = _itemsRemoved.Count > 0;
                     if (hasItemsRemoved)
                     {
-                        notifyItemsRemoved = itemsRemoved.Flush();
-                        lazyItems = null;
+                        notifyItemsRemoved = _itemsRemoved.Flush();
+                        _lazyItems = null;
                     }
 
-                    hasItemsUpdated = itemsUpdated.Count > 0;
+                    hasItemsUpdated = _itemsUpdated.Count > 0;
                     if (hasItemsUpdated)
                     {
-                        notifyItemsReplaced = itemsReplaced.Flush();
-                        notifyItemsUpdated = itemsUpdated.Flush();
-                        lazyItems = null;
+                        notifyItemsReplaced = _itemsReplaced.Flush();
+                        notifyItemsUpdated = _itemsUpdated.Flush();
+                        _lazyItems = null;
                     }
 
-                    hasItemsAdded = itemsAdded.Count > 0;
+                    hasItemsAdded = _itemsAdded.Count > 0;
                     if (hasItemsAdded)
                     {
-                        notifyItemsAdded = itemsAdded.Flush();
-                        lazyItems = null;
+                        notifyItemsAdded = _itemsAdded.Flush();
+                        _lazyItems = null;
                     }
 
-                    hasItemsReloaded = itemsCleared.Count > 0;
+                    hasItemsReloaded = _itemsCleared.Count > 0;
                     if (hasItemsReloaded)
                     {
-                        notifyItemsCleared = itemsCleared.Flush();
-                        lazyItems = null;
+                        notifyItemsCleared = _itemsCleared.Flush();
+                        _lazyItems = null;
                     }
                 }
 
-                if (dispatcher == null)
+                if (_dispatcher == null)
                 {
                     if (hasItemsRemoved)
                         Notify(ActionType.Remove, notifyItemsRemoved, null);
@@ -605,7 +605,7 @@ namespace Observable.Repository
                 }
                 else
                 {
-                    dispatcher(() =>
+                    _dispatcher(() =>
                     {
                         if (hasItemsRemoved)
                             Notify(ActionType.Remove, notifyItemsRemoved, null);
@@ -628,113 +628,113 @@ namespace Observable.Repository
 
             foreach (var item in list)
             {
-                var key = getLeftKey(item);
+                var key = _getLeftKey(item);
 
                 TValue replace;
-                if (!items.TryGetValue(key, out replace)) // Add
+                if (!_items.TryGetValue(key, out replace)) // Add
                 {
-                    if (!leftFilter(item)) continue;
+                    if (!_leftFilter(item)) continue;
 
                     // Build the new instance
-                    for (var i = 0; i < nbCtorArguments; i++)
-                        ctorArguments[i] = storesToBuild[i].GetRight(item);
-                    var value = ctor(item, ctorArguments);
+                    for (var i = 0; i < _nbCtorArguments; i++)
+                        _ctorArguments[i] = _storesToBuild[i].GetRight(item);
+                    var value = _ctor(item, _ctorArguments);
 
-                    items.Add(key, value);
+                    _items.Add(key, value);
                     
-                    for (var i = 0; i < nbStores; i++)
-                        stores[i].LeftAdded(key, item, value);
+                    for (var i = 0; i < _nbStores; i++)
+                        _stores[i].LeftAdded(key, item, value);
 
-                    if (!itemsRemoved.ContainsKey(key))
-                        itemsAdded.Add(key, value);
+                    if (!_itemsRemoved.ContainsKey(key))
+                        _itemsAdded.Add(key, value);
                     else
                     {
-                        itemsReplaced[key] = itemsRemoved[key];
-                        itemsUpdated[key] = value;
-                        itemsRemoved.Remove(key);
+                        _itemsReplaced[key] = _itemsRemoved[key];
+                        _itemsUpdated[key] = value;
+                        _itemsRemoved.Remove(key);
                     }
                 }
                 else // Update
                 {
-                    if (!leftFilter(item))
+                    if (!_leftFilter(item))
                     {
                         // Remove if it doesn't match the filter
                         RemoveValue(key, item, replace);
 
                         // If the value has not been added during this loop add it to notify
-                        if (!itemsAdded.ContainsKey(key))
+                        if (!_itemsAdded.ContainsKey(key))
                         {
-                            if (!itemsUpdated.ContainsKey(key))
-                                itemsRemoved[key] = replace;
-                            else itemsRemoved[key] = itemsReplaced[key];
+                            if (!_itemsUpdated.ContainsKey(key))
+                                _itemsRemoved[key] = replace;
+                            else _itemsRemoved[key] = _itemsReplaced[key];
 
-                            itemsUpdated.Remove(key);
-                            itemsReplaced.Remove(key);
+                            _itemsUpdated.Remove(key);
+                            _itemsReplaced.Remove(key);
                         }
-                        else itemsAdded.Remove(key);
+                        else _itemsAdded.Remove(key);
 
                         continue;
                     }
 
-                    if (updateValue == null)
+                    if (_updateValue == null)
                     {
                         // Build the new instance
-                        for (var i = 0; i < nbCtorArguments; i++)
-                            ctorArguments[i] = storesToBuild[i].GetRight(item);
-                        var value = ctor(item, ctorArguments);
+                        for (var i = 0; i < _nbCtorArguments; i++)
+                            _ctorArguments[i] = _storesToBuild[i].GetRight(item);
+                        var value = _ctor(item, _ctorArguments);
 
-                        items[key] = value;
+                        _items[key] = value;
                         
-                        for (var i = 0; i < nbStores; i++)
-                            stores[i].LeftAdded(key, item, value);
+                        for (var i = 0; i < _nbStores; i++)
+                            _stores[i].LeftAdded(key, item, value);
 
                         // Keep the last updated item during this loop to notify
-                        if (itemsAdded.ContainsKey(key))
-                            itemsAdded[key] = value;
+                        if (_itemsAdded.ContainsKey(key))
+                            _itemsAdded[key] = value;
                         else
                         {
                             // Keep the first replaced item during this loop to notify
-                            if (!itemsReplaced.ContainsKey(key))
-                                itemsReplaced.Add(key, replace);
+                            if (!_itemsReplaced.ContainsKey(key))
+                                _itemsReplaced.Add(key, replace);
 
-                            itemsUpdated[key] = value;
+                            _itemsUpdated[key] = value;
                         }
                     }
                     else
                     {
-                        itemsReplaced[key] = replace;
+                        _itemsReplaced[key] = replace;
 
                         // Update the current instance
-                        updateValue(replace, item);
+                        _updateValue(replace, item);
                         
-                        itemsUpdated[key] = replace;
+                        _itemsUpdated[key] = replace;
                     }
                 }
 
-                if (hasBehavior)
-                    leftItems[key] = item;
+                if (_hasBehavior)
+                    _leftItems[key] = item;
             }
 
             // Apply behaviors if there are configured
-            if (hasRollingBehavior)
+            if (_hasRollingBehavior)
                 ApplyRollingBehavior();
-            if (hasTimeIntervalBehavior)
+            if (_hasTimeIntervalBehavior)
                 ApplyTimeIntervalBehavior();
         }
 
         private void RemoveItems(IEnumerable<TLeft> list)
         {
-            if (items == null) return;
+            if (_items == null) return;
 
             foreach (var item in list)
             {
-                var key = getLeftKey(item);
+                var key = _getLeftKey(item);
 
                 TValue value;
-                if (!items.TryGetValue(key, out value))
+                if (!_items.TryGetValue(key, out value))
                     continue;
 
-                itemsRemoved[key] = value;
+                _itemsRemoved[key] = value;
                 RemoveValue(key, item, value);
             }
         }
@@ -742,26 +742,26 @@ namespace Observable.Repository
         private void RemoveValue(TKey key, TLeft item, TValue value)
         {
             Dispose(value);
-            if (items.Remove(key))
-                lazyItems = null;
+            if (_items.Remove(key))
+                _lazyItems = null;
 
-            for (var i = 0; i < nbStores; i++)
-                stores[i].LeftRemoved(key, item, value);
+            for (var i = 0; i < _nbStores; i++)
+                _stores[i].LeftRemoved(key, item, value);
 
-            if (hasBehavior)
-                leftItems.Remove(key);
+            if (_hasBehavior)
+                _leftItems.Remove(key);
         }
 
         private void ReloadItems(IEnumerable<TLeft> list)
         {
-            items.Clear(CleanValue);
-            lazyItems = null;
+            _items.Clear(CleanValue);
+            _lazyItems = null;
 
-            for (var i = 0; i < nbStores; i++)
-                stores[i].LeftCleared();
+            for (var i = 0; i < _nbStores; i++)
+                _stores[i].LeftCleared();
 
-            if (hasBehavior)
-                leftItems.Clear();
+            if (_hasBehavior)
+                _leftItems.Clear();
 
             AddItems(list);
         }
@@ -769,12 +769,12 @@ namespace Observable.Repository
         private void CleanValue(TKey key, TValue value)
         {
             Dispose(value);
-            itemsCleared.Add(key, value);
+            _itemsCleared.Add(key, value);
         }
 
         private void Dispose(TValue value)
         {
-            if (!isDisposable) return;
+            if (!_isDisposable) return;
 
             var disposable = value as IDisposable;
             if (disposable != null)
@@ -787,15 +787,15 @@ namespace Observable.Repository
 
         private void ApplyRollingBehavior()
         {
-            var count = items.Count;
-            if (count <= rollingCount) return;
+            var count = _items.Count;
+            if (count <= _rollingCount) return;
 
-            var delta = count - rollingCount;
+            var delta = count - _rollingCount;
 
-            var cursor = items.First;
+            var cursor = _items.First;
             while (delta > 0 && cursor != null)
             {
-                var next = cursor.next;
+                var next = cursor._next;
 
                 RemoveFromBehavior(cursor);
 
@@ -806,15 +806,15 @@ namespace Observable.Repository
 
         private void ApplyTimeIntervalBehavior()
         {
-            var last = items.Last;
+            var last = _items.Last;
             if (last == null) return;
 
-            var threshold = getTimestamp(last.value) - timeInterval;
+            var threshold = _getTimestamp(last._value) - _timeInterval;
 
-            var cursor = items.First;
-            while (cursor != null && getTimestamp(cursor.value) <= threshold)
+            var cursor = _items.First;
+            while (cursor != null && _getTimestamp(cursor._value) <= threshold)
             {
-                var next = cursor.next;
+                var next = cursor._next;
 
                 RemoveFromBehavior(cursor);
 
@@ -824,32 +824,32 @@ namespace Observable.Repository
 
         private void RemoveFromBehavior(LinkedNode<TKey, TValue> node)
         {
-            if (!itemsAdded.ContainsKey(node.key))
-                itemsRemoved[node.key] = node.value;
-            else itemsAdded.Remove(node.key);
+            if (!_itemsAdded.ContainsKey(node._key))
+                _itemsRemoved[node._key] = node._value;
+            else _itemsAdded.Remove(node._key);
 
-            itemsUpdated.Remove(node.key);
-            itemsReplaced.Remove(node.key);
+            _itemsUpdated.Remove(node._key);
+            _itemsReplaced.Remove(node._key);
 
             // Todo : Maybe we can iterate on leftItems as items because this 2 list have to be synchronized
-            var left = leftItems[node.key];
+            var left = _leftItems[node._key];
 
-            RemoveValue(node.key, left, node.value);
-            leftItems.Remove(node.key);
+            RemoveValue(node._key, left, node._value);
+            _leftItems.Remove(node._key);
         }
 
         #endregion
 
         private void Notify(ActionType action, IEnumerable<KeyValue<TKey, TValue>> oldItems, IEnumerable<KeyValue<TKey, TValue>> newItems)
         {
-            subject.OnNext(new RepositoryNotification<KeyValue<TKey, TValue>>(action, oldItems, newItems));
+            _subject.OnNext(new RepositoryNotification<KeyValue<TKey, TValue>>(action, oldItems, newItems));
         }
 
         private void Forward(RepositoryNotification<KeyValue<TKey, TValue>> e)
         {
-            if (dispatcher == null)
-                subject.OnNext(e);
-            else dispatcher(() => subject.OnNext(e));
+            if (_dispatcher == null)
+                _subject.OnNext(e);
+            else _dispatcher(() => _subject.OnNext(e));
         }
 
         private static TValue GetItSelf(TLeft left, object[] array)

@@ -9,35 +9,35 @@ namespace Observable.Repository.Tests
     [TestFixture]
     public class RepositoryJoinManyTests
     {
-        private IRepositoryContainer container;
-        private Subject<ModelLeft> addLeft;
-        private Subject<ModelLeft> removeLeft;
-        private Subject<List<ModelLeft>> reloadLeft;
-        private Subject<ModelRight> addRight;
-        private Subject<ModelRight> removeRight;
-        private Subject<List<ModelRight>> reloadRight;
+        private IRepositoryContainer _container;
+        private Subject<ModelLeft> _addLeft;
+        private Subject<ModelLeft> _removeLeft;
+        private Subject<List<ModelLeft>> _reloadLeft;
+        private Subject<ModelRight> _addRight;
+        private Subject<ModelRight> _removeRight;
+        private Subject<List<ModelRight>> _reloadRight;
         private const string FILTERED_NAME = "FILTER";
 
         [SetUp]
         public void SetUp()
         {
-            addLeft = new Subject<ModelLeft>();
-            removeLeft = new Subject<ModelLeft>();
-            reloadLeft = new Subject<List<ModelLeft>>();
-            addRight = new Subject<ModelRight>();
-            removeRight = new Subject<ModelRight>();
-            reloadRight = new Subject<List<ModelRight>>();
+            _addLeft = new Subject<ModelLeft>();
+            _removeLeft = new Subject<ModelLeft>();
+            _reloadLeft = new Subject<List<ModelLeft>>();
+            _addRight = new Subject<ModelRight>();
+            _removeRight = new Subject<ModelRight>();
+            _reloadRight = new Subject<List<ModelRight>>();
 
-            container = new RepositoryContainer();
+            _container = new RepositoryContainer();
 
-            container.AddProducer(ActionType.Add, addLeft);
-            container.AddProducer(ActionType.Remove, removeLeft);
-            container.AddProducer(ActionType.Reload, reloadLeft);
-            container.AddProducer(ActionType.Add, addRight);
-            container.AddProducer(ActionType.Remove, removeRight);
-            container.AddProducer(ActionType.Reload, reloadRight);
+            _container.AddProducer(ActionType.Add, _addLeft);
+            _container.AddProducer(ActionType.Remove, _removeLeft);
+            _container.AddProducer(ActionType.Reload, _reloadLeft);
+            _container.AddProducer(ActionType.Add, _addRight);
+            _container.AddProducer(ActionType.Remove, _removeRight);
+            _container.AddProducer(ActionType.Reload, _reloadRight);
 
-            container.Build<int, AdapterJoinMany, ModelLeft>(p => p.PrimaryKey)
+            _container.Build<int, AdapterJoinMany, ModelLeft>(p => p.PrimaryKey)
                 .JoinMany<ModelRight>(null, p => p.Name != FILTERED_NAME)
                     .DefineList(p => p.ModelRights)
                     .RightPrimaryKey(p => p.PrimaryKey)
@@ -49,7 +49,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestAddRightBeforeLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -79,11 +79,11 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
             Assert.IsNull(action);
             Assert.AreEqual(0, addedItems.Count());
@@ -92,7 +92,7 @@ namespace Observable.Repository.Tests
             Assert.AreEqual(0, removedItems.Count());
             AssertContains(repository);
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 1 && p.ModelRights.Count == 1 && p.ModelRights[0].PrimaryKey == 1));
@@ -106,7 +106,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 2 && p.ModelRights.Count == 3 && p.ModelRights[0].Name == "Right 2" && p.ModelRights[1].Name == "Right 3" && p.ModelRights[2].Name == "Right 4"));
@@ -129,7 +129,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
             Assert.AreEqual(1, addedItems.Count());
             Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 3 && p.ModelRights.Count == 0));
@@ -152,7 +152,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestAddRightAfterLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -182,7 +182,7 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
 
             Assert.AreEqual(ActionType.Add, action);
             Assert.AreEqual(1, addedItems.Count());
@@ -197,7 +197,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
 
             Assert.AreEqual(ActionType.Add, action);
             Assert.AreEqual(1, addedItems.Count());
@@ -215,13 +215,13 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = FILTERED_NAME });
             Assert.AreEqual(null, action);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"), new Tuple<int, int, string>[0]),
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 2"), new Tuple<int, int, string>[0]));
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -234,7 +234,7 @@ namespace Observable.Repository.Tests
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 2"),
                     new Tuple<int, int, string>[0]));
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -247,7 +247,7 @@ namespace Observable.Repository.Tests
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 2"),
                     new[] { new Tuple<int, int, string>(2, 2, "Right 2") }));
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -264,7 +264,7 @@ namespace Observable.Repository.Tests
                         new Tuple<int, int, string>(3, 2, "Right 3")
                     }));
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = FILTERED_NAME });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -285,7 +285,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void RightModelChangeHisForeignKey()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -315,15 +315,15 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
             action = null;
             addedItems = new List<AdapterJoinMany>();
@@ -344,7 +344,7 @@ namespace Observable.Repository.Tests
                     new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(3, "Left 3"), new Tuple<int, int, string>[0]));
 
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 3, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 3, Name = "Right 3" });
 
             Assert.IsNull(action);
             Assert.AreEqual(0, addedItems.Count());
@@ -366,8 +366,8 @@ namespace Observable.Repository.Tests
 
             // Assure that the right indices are available
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Update Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Update Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Update Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Update Right 4" });
 
             Assert.IsNull(action);
             Assert.AreEqual(0, addedItems.Count());
@@ -391,7 +391,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestRemoveRight()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -421,15 +421,15 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
             action = null;
             addedItems = new List<AdapterJoinMany>();
@@ -455,7 +455,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            removeRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _removeRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -475,7 +475,7 @@ namespace Observable.Repository.Tests
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(3, "Left 3"),
                     new Tuple<int, int, string>[0]));
 
-            removeRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 100" });
+            _removeRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 100" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -494,7 +494,7 @@ namespace Observable.Repository.Tests
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(3, "Left 3"),
                     new Tuple<int, int, string>[0]));
 
-            removeRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 100" });
+            _removeRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 100" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -512,7 +512,7 @@ namespace Observable.Repository.Tests
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(3, "Left 3"),
                     new Tuple<int, int, string>[0]));
 
-            removeRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 100" });
+            _removeRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 100" });
 
             Assert.AreEqual(null, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -531,7 +531,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestReloadRight()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -561,15 +561,15 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
             action = null;
             addedItems = new List<AdapterJoinMany>();
@@ -596,7 +596,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            reloadRight.OnNext(new List<ModelRight>
+            _reloadRight.OnNext(new List<ModelRight>
             {
                 new ModelRight { PrimaryKey = 100, ForeignKey = 1, Name = "Right 100" },
                 new ModelRight { PrimaryKey = 103, ForeignKey = 3, Name = "Right 103" },
@@ -628,7 +628,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestRemoveLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -658,15 +658,15 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
             action = null;
             addedItems = new List<AdapterJoinMany>();
@@ -693,7 +693,7 @@ namespace Observable.Repository.Tests
             replacedItems = new List<AdapterJoinMany>();
             removedItems = new List<AdapterJoinMany>();
 
-            removeLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 200" });
+            _removeLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 200" });
 
             Assert.AreEqual(ActionType.Remove, action);
             Assert.AreEqual(0, addedItems.Count());
@@ -711,7 +711,7 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestReloadLeft()
         {
-            var repository = container.GetRepository<int, AdapterJoinMany>();
+            var repository = _container.GetRepository<int, AdapterJoinMany>();
 
             IEnumerable<AdapterJoinMany> addedItems = new List<AdapterJoinMany>();
             IEnumerable<AdapterJoinMany> updatedItems = new List<AdapterJoinMany>();
@@ -741,15 +741,15 @@ namespace Observable.Repository.Tests
                 }
             });
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
             action = null;
             addedItems = new List<AdapterJoinMany>();
@@ -781,7 +781,7 @@ namespace Observable.Repository.Tests
                 new ModelLeft { PrimaryKey = 2, Name = "Left 200" },
                 new ModelLeft { PrimaryKey = 4, Name = "Left 400" }
             };
-            reloadLeft.OnNext(list);
+            _reloadLeft.OnNext(list);
 
             Assert.AreEqual(ActionType.Reload, action);
             Assert.AreEqual(2, addedItems.Count());
@@ -808,19 +808,19 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestGetSnapshotFromRightSource()
         {
-            container.Build<int, ModelRight>(p => p.PrimaryKey)
+            _container.Build<int, ModelRight>(p => p.PrimaryKey)
                 .Register();
 
-            addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
-            addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
+            _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            Assert.AreEqual(5, container.GetRepository<int, ModelRight>().Count);
+            Assert.AreEqual(5, _container.GetRepository<int, ModelRight>().Count);
 
             // Build repository and get snapshot from TRight source
-            container.Build<int, AdapterJoinMany, ModelLeft>("2", p => p.PrimaryKey)
+            _container.Build<int, AdapterJoinMany, ModelLeft>("2", p => p.PrimaryKey)
                 .JoinMany<ModelRight>(null, p => p.Name != FILTERED_NAME)
                     .DefineList(p => p.ModelRights)
                     .RightPrimaryKey(p => p.PrimaryKey)
@@ -828,11 +828,11 @@ namespace Observable.Repository.Tests
                     .LeftLinkKey(p => p.PrimaryKey)
                 .Register();
 
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
-            addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
+            _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
-            AssertContains(container.GetRepository<int, AdapterJoinMany>("2"),
+            AssertContains(_container.GetRepository<int, AdapterJoinMany>("2"),
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 2"),

@@ -16,9 +16,9 @@ namespace Observable.Repository.Configuration
     /// <typeparam name="TLinkKey">Type of link key between 2 sources.</typeparam>
     public abstract class JoinConfiguration<TKey, TValue, TLeft, TRight, TLinkKey> : IJoin<TKey, TValue, TLeft>
     {
-        private readonly IRepositoryContainer container;
-        private readonly KeyConfiguration leftLinkKey;
-        private readonly KeyConfiguration rightLinkKey;
+        private readonly IRepositoryContainer _container;
+        private readonly KeyConfiguration _leftLinkKey;
+        private readonly KeyConfiguration _rightLinkKey;
 
         /// <summary>
         /// Gets the right source filter.
@@ -52,7 +52,7 @@ namespace Observable.Repository.Configuration
             Func<TRight, TLinkKey> rightLinkKey,
             Func<TLeft, TLinkKey> leftLinkKey)
         {
-            this.container = container;
+            this._container = container;
 
             ValueType = typeof (TValue);
             LeftType = typeof (TLeft);
@@ -63,9 +63,9 @@ namespace Observable.Repository.Configuration
             RightSourceName = rightSourceName;
             RightFilter = rightFilter;
             RightLinkKey = rightLinkKey;
-            this.rightLinkKey = new KeyConfiguration<TRight, TLinkKey>(rightLinkKey);
+            this._rightLinkKey = new KeyConfiguration<TRight, TLinkKey>(rightLinkKey);
             LeftLinkKey = leftLinkKey;
-            this.leftLinkKey = new KeyConfiguration<TLeft, TLinkKey>(leftLinkKey);
+            this._leftLinkKey = new KeyConfiguration<TLeft, TLinkKey>(leftLinkKey);
         }
 
         #region Implementation of IJoinConfiguration
@@ -108,12 +108,12 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the left link key configuration
         /// </summary>
-        KeyConfiguration IJoinConfiguration.LeftLinkKey { get { return leftLinkKey; } }
+        KeyConfiguration IJoinConfiguration.LeftLinkKey { get { return _leftLinkKey; } }
 
         /// <summary>
         /// Gets the right link key configuration
         /// </summary>
-        KeyConfiguration IJoinConfiguration.RightLinkKey { get { return rightLinkKey; } }
+        KeyConfiguration IJoinConfiguration.RightLinkKey { get { return _rightLinkKey; } }
 
         #endregion
 
@@ -127,14 +127,14 @@ namespace Observable.Repository.Configuration
         /// <returns>Returns <see cref="IRepository{TKey,TValue}"/></returns>
         public IStore<TKey, TValue, TLeft> CreateStore(Mutex mutex, Action<RepositoryNotification<KeyValue<TKey, TValue>>> forward)
         {
-            var repository = container.GetRepository<TLinkKey, TRight>(RightSourceName);
+            var repository = _container.GetRepository<TLinkKey, TRight>(RightSourceName);
             if (repository != null)
                 return CreateStore(
                     repository.SelectValues(), 
                     repository.Select(p => p.Value),
                     mutex, forward);
 
-            var producer = container.GetProducer<TRight>(RightSourceName);
+            var producer = _container.GetProducer<TRight>(RightSourceName);
             return CreateStore(producer, null, mutex, forward);
         }
 

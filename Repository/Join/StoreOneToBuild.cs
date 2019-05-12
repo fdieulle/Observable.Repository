@@ -18,20 +18,20 @@ namespace Observable.Repository.Join
     {
         #region Fields
 
-        private readonly Subject<RepositoryNotification<TLeft>> subject = new Subject<RepositoryNotification<TLeft>>();
-        private readonly IDisposable subscribesOnRightSource;
+        private readonly Subject<RepositoryNotification<TLeft>> _subject = new Subject<RepositoryNotification<TLeft>>();
+        private readonly IDisposable _subscribesOnRightSource;
 
-        private readonly Func<TLeft, TLinkKey> getLeftLinkKey;
-        private readonly Func<TRight, TLinkKey> getRightLinkKey;
-        private readonly Func<TRight, bool> rightFilter;
+        private readonly Func<TLeft, TLinkKey> _getLeftLinkKey;
+        private readonly Func<TRight, TLinkKey> _getRightLinkKey;
+        private readonly Func<TRight, bool> _rightFilter;
 
-        private readonly Dictionary<TLinkKey, TRight> rightItems = new Dictionary<TLinkKey, TRight>();
-        private readonly Pool<Dictionary<TKey, TLeft>> poolForLefts = new Pool<Dictionary<TKey, TLeft>>(() => new Dictionary<TKey, TLeft>());
-        private readonly Dictionary<TLinkKey, Dictionary<TKey, TLeft>> leftItems = new Dictionary<TLinkKey, Dictionary<TKey, TLeft>>();
-        private readonly Dictionary<TKey, TLinkKey> keys = new Dictionary<TKey, TLinkKey>(); 
-        private readonly Pool<LinkedNode<TKey, TLeft>> poolForUpdates = new Pool<LinkedNode<TKey, TLeft>>(() => new LinkedNode<TKey, TLeft>());
-        private readonly HashLinkedList<TKey, TLeft> leftsUpdated;
-        private readonly Mutex mutex;
+        private readonly Dictionary<TLinkKey, TRight> _rightItems = new Dictionary<TLinkKey, TRight>();
+        private readonly Pool<Dictionary<TKey, TLeft>> _poolForLefts = new Pool<Dictionary<TKey, TLeft>>(() => new Dictionary<TKey, TLeft>());
+        private readonly Dictionary<TLinkKey, Dictionary<TKey, TLeft>> _leftItems = new Dictionary<TLinkKey, Dictionary<TKey, TLeft>>();
+        private readonly Dictionary<TKey, TLinkKey> _keys = new Dictionary<TKey, TLinkKey>(); 
+        private readonly Pool<LinkedNode<TKey, TLeft>> _poolForUpdates = new Pool<LinkedNode<TKey, TLeft>>(() => new LinkedNode<TKey, TLeft>());
+        private readonly HashLinkedList<TKey, TLeft> _leftsUpdated;
+        private readonly Mutex _mutex;
 
         #endregion // Fields
 
@@ -48,18 +48,18 @@ namespace Observable.Repository.Join
             IEnumerable<TRight> snapshot,
             Mutex mutex)
         {
-            this.mutex = mutex ?? new Mutex();
+            this._mutex = mutex ?? new Mutex();
 
-            getLeftLinkKey = configuration.LeftLinkKey;
-            getRightLinkKey = configuration.RightLinkKey;
-            rightFilter = configuration.RightFilter ?? (p => true);
+            _getLeftLinkKey = configuration.LeftLinkKey;
+            _getRightLinkKey = configuration.RightLinkKey;
+            _rightFilter = configuration.RightFilter ?? (p => true);
 
-            leftsUpdated = new HashLinkedList<TKey, TLeft>(poolForUpdates);
+            _leftsUpdated = new HashLinkedList<TKey, TLeft>(_poolForUpdates);
 
             if (snapshot != null)
                 OnRightItemsReceived(new RepositoryNotification<TRight>(ActionType.Add, null, snapshot));
             if (source != null)
-                subscribesOnRightSource = source.Subscribe(OnRightItemsReceived);
+                _subscribesOnRightSource = source.Subscribe(OnRightItemsReceived);
         }
 
         #region Implementation of IObservable<out RepositoryNotification<TLeft>>
@@ -71,7 +71,7 @@ namespace Observable.Repository.Join
         /// <returns>Returns the result of suscription.</returns>
         public IDisposable Subscribe(IObserver<RepositoryNotification<TLeft>> observer)
         {
-            return subject.Subscribe(observer);
+            return _subject.Subscribe(observer);
         }
 
         #endregion
@@ -83,17 +83,17 @@ namespace Observable.Repository.Join
         /// </summary>
         public void Dispose()
         {
-            if (subscribesOnRightSource != null)
-                subscribesOnRightSource.Dispose();
+            if (_subscribesOnRightSource != null)
+                _subscribesOnRightSource.Dispose();
 
-            rightItems.Clear();
-            leftItems.Clear();
-            keys.Clear();
-            leftsUpdated.Clear();
-            poolForUpdates.Clear();
-            poolForLefts.Clear();
+            _rightItems.Clear();
+            _leftItems.Clear();
+            _keys.Clear();
+            _leftsUpdated.Clear();
+            _poolForUpdates.Clear();
+            _poolForLefts.Clear();
 
-            subject.OnCompleted();
+            _subject.OnCompleted();
         }
 
         #endregion
@@ -107,9 +107,9 @@ namespace Observable.Repository.Join
         /// <returns>The right instance.</returns>
         public object GetRight(TLeft left)
         {
-            var key = getLeftLinkKey(left);
+            var key = _getLeftLinkKey(left);
             TRight right;
-            rightItems.TryGetValue(key, out right);
+            _rightItems.TryGetValue(key, out right);
             return right;
         }
 
@@ -121,19 +121,19 @@ namespace Observable.Repository.Join
         /// <param name="value">The item value</param>
         public void LeftAdded(TKey key, TLeft left, TValue value)
         {
-            var linkKey = getLeftLinkKey(left);
+            var linkKey = _getLeftLinkKey(left);
 
             TLinkKey previousLinkKey;
             Dictionary<TKey, TLeft> previousLefts;
-            if (keys.TryGetValue(key, out previousLinkKey)
+            if (_keys.TryGetValue(key, out previousLinkKey)
                 && !Equals(previousLinkKey, linkKey)
-                && leftItems.TryGetValue(previousLinkKey, out previousLefts))
+                && _leftItems.TryGetValue(previousLinkKey, out previousLefts))
                 RemoveLefts(key, previousLinkKey, previousLefts);
-            keys[key] = linkKey;
+            _keys[key] = linkKey;
 
             Dictionary<TKey, TLeft> lefts;
-            if (!leftItems.TryGetValue(linkKey, out lefts))
-                leftItems.Add(linkKey, lefts = poolForLefts.Get());
+            if (!_leftItems.TryGetValue(linkKey, out lefts))
+                _leftItems.Add(linkKey, lefts = _poolForLefts.Get());
 
             lefts[key] = left;
         }
@@ -146,10 +146,10 @@ namespace Observable.Repository.Join
         /// <param name="value">The item value</param>
         public void LeftRemoved(TKey key, TLeft left, TValue value)
         {
-            var linkKey = getLeftLinkKey(left);
+            var linkKey = _getLeftLinkKey(left);
 
             Dictionary<TKey, TLeft> lefts;
-            if (!leftItems.TryGetValue(linkKey, out lefts))
+            if (!_leftItems.TryGetValue(linkKey, out lefts))
                 return;
 
             RemoveLefts(key, linkKey, lefts);
@@ -160,14 +160,14 @@ namespace Observable.Repository.Join
         /// </summary>
         public void LeftCleared()
         {
-            foreach (var pair in leftItems)
+            foreach (var pair in _leftItems)
             {
                 pair.Value.Clear();
-                poolForLefts.Free(pair.Value);
+                _poolForLefts.Free(pair.Value);
             }
 
-            leftItems.Clear();
-            keys.Clear();
+            _leftItems.Clear();
+            _keys.Clear();
         }
 
         private void RemoveLefts(TKey key, TLinkKey linkKey, Dictionary<TKey, TLeft> lefts)
@@ -175,8 +175,8 @@ namespace Observable.Repository.Join
             lefts.Remove(key);
             if (lefts.Count == 0)
             {
-                leftItems.Remove(linkKey);
-                poolForLefts.Free(lefts);
+                _leftItems.Remove(linkKey);
+                _poolForLefts.Free(lefts);
             }
         }
 
@@ -186,9 +186,9 @@ namespace Observable.Repository.Join
 
         private void OnRightItemsReceived(RepositoryNotification<TRight> e)
         {
-            lock (mutex.output)
+            lock (_mutex._output)
             {
-                lock (mutex.input)
+                lock (_mutex._input)
                 {
                     if (e.Action == ActionType.Reload)
                         ClearRights();
@@ -202,58 +202,58 @@ namespace Observable.Repository.Join
                         AddOrUpdateRight(right);
                 }
 
-                if (leftsUpdated.Count > 0)
-                    subject.OnNext(new RepositoryNotification<TLeft>(ActionType.Update, null, leftsUpdated.FlushValues()));
+                if (_leftsUpdated.Count > 0)
+                    _subject.OnNext(new RepositoryNotification<TLeft>(ActionType.Update, null, _leftsUpdated.FlushValues()));
             }
         }
 
         private void AddOrUpdateRight(TRight right)
         {
-            if (rightFilter != null && !rightFilter(right))
+            if (_rightFilter != null && !_rightFilter(right))
             {
                 RemoveRight(right);
                 return;
             }
 
-            var key = getRightLinkKey(right);
-            rightItems[key] = right;
+            var key = _getRightLinkKey(right);
+            _rightItems[key] = right;
 
             Dictionary<TKey, TLeft> lefts;
-            if (!leftItems.TryGetValue(key, out lefts))
+            if (!_leftItems.TryGetValue(key, out lefts))
                 return;
 
             foreach (var left in lefts)
-                leftsUpdated[left.Key] = left.Value;
+                _leftsUpdated[left.Key] = left.Value;
         }
 
         private void RemoveRight(TRight right)
         {
-            var key = getRightLinkKey(right);
+            var key = _getRightLinkKey(right);
 
-            if (!rightItems.Remove(key))
+            if (!_rightItems.Remove(key))
                 return;
 
             Dictionary<TKey, TLeft> lefts;
-            if (!leftItems.TryGetValue(key, out lefts))
+            if (!_leftItems.TryGetValue(key, out lefts))
                 return;
 
             foreach (var left in lefts)
-                leftsUpdated[left.Key] = left.Value;
+                _leftsUpdated[left.Key] = left.Value;
         }
 
         private void ClearRights()
         {
-            foreach (var right in rightItems)
+            foreach (var right in _rightItems)
             {
                 Dictionary<TKey, TLeft> lefts;
-                if (!leftItems.TryGetValue(right.Key, out lefts))
+                if (!_leftItems.TryGetValue(right.Key, out lefts))
                     continue;
 
                 foreach (var left in lefts)
-                    leftsUpdated[left.Key] = left.Value;
+                    _leftsUpdated[left.Key] = left.Value;
             }
 
-            rightItems.Clear();
+            _rightItems.Clear();
         }
 
         #endregion

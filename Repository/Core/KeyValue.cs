@@ -7,17 +7,17 @@
     /// <typeparam name="TValue">Type of value</typeparam>
     public struct KeyValue<TKey, TValue>
     {
-        internal TKey key;
+        internal TKey _key;
         /// <summary>
         /// Gets the key.
         /// </summary>
-        public TKey Key { get { return key; } }
+        public TKey Key { get { return _key; } }
 
-        internal TValue value;
+        internal TValue _value;
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public TValue Value { get { return value; } }
+        public TValue Value { get { return _value; } }
 
         /// <summary>
         /// Ctor
@@ -26,8 +26,8 @@
         /// <param name="value">Value</param>
         public KeyValue(TKey key, TValue value)
         {
-            this.key = key;
-            this.value = value;
+            this._key = key;
+            this._value = value;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@
         /// <returns>Data format</returns>
         public override string ToString()
         {
-            return string.Format("[{0}] {1}", key, value);
+            return string.Format("[{0}] {1}", _key, _value);
         }
     }
 }

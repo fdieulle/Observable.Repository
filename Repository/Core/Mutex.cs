@@ -2,7 +2,7 @@
 {
     public sealed class Mutex
     {
-        public readonly object input = new object();
-        public readonly object output = new object();
+        public readonly object _input = new object();
+        public readonly object _output = new object();
     }
 }

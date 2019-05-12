@@ -12,10 +12,10 @@ namespace Observable.Repository
     /// </summary>
     public class RepositoryContainer : IRepositoryContainer
     {
-        private readonly IDataProducer dataProducer;
-        private readonly Action<Type, string, object> iocRegister;
-        private readonly Dictionary<RepositoryKey, IDisposable> repositories = new Dictionary<RepositoryKey, IDisposable>(RepositoryKey.Comparer);
-        private readonly object mutex = new object();
+        private readonly IDataProducer _dataProducer;
+        private readonly Action<Type, string, object> _iocRegister;
+        private readonly Dictionary<RepositoryKey, IDisposable> _repositories = new Dictionary<RepositoryKey, IDisposable>(RepositoryKey.Comparer);
+        private readonly object _mutex = new object();
 
         /// <summary>
         /// Ctor
@@ -24,8 +24,8 @@ namespace Observable.Repository
         /// <param name="iocRegister">Define an IOC (Inversion Of Control) register methods where all <see cref="IRepository{TKey, TValue}"/> instance will be registered.</param>
         public RepositoryContainer(IDataProducer dataProducer = null, Action<Type, string, object> iocRegister = null)
         {
-            this.dataProducer = dataProducer ?? new DefaultDataProducer(null);
-            this.iocRegister = iocRegister;
+            this._dataProducer = dataProducer ?? new DefaultDataProducer(null);
+            this._iocRegister = iocRegister;
         }
 
         #region Implementation of IRepositoryContainer
@@ -33,7 +33,7 @@ namespace Observable.Repository
         /// <summary>
         /// Gets the data producer.
         /// </summary>
-        public IDataProducer DataProducer { get { return dataProducer; } }
+        public IDataProducer DataProducer { get { return _dataProducer; } }
 
         /// <summary>
         /// Build a new <see cref="IRepository{TKey, TValue}"/> instance.
@@ -82,11 +82,11 @@ namespace Observable.Repository
         /// <returns>Returns the <see cref="IRepository{TKey, TValue}"/> instance found.</returns>
         public IRepository<TKey, TValue> GetRepository<TKey, TValue>(string name = null)
         {
-            lock (mutex)
+            lock (_mutex)
             {
                 var key = new RepositoryKey(name, typeof(TKey), typeof(TValue));
                 IDisposable repository;
-                if (repositories.TryGetValue(key, out repository))
+                if (_repositories.TryGetValue(key, out repository))
                     return (IRepository<TKey, TValue>)repository;
 
                 return null;
@@ -104,13 +104,13 @@ namespace Observable.Repository
         {
             if (repository == null) return this;
 
-            lock (mutex)
+            lock (_mutex)
             {
                 var key = new RepositoryKey(repository.Name, typeof(TKey), typeof(TValue));
-                repositories[key] = repository;
+                _repositories[key] = repository;
 
-                if (iocRegister != null)
-                    iocRegister(typeof(IRepository<TKey, TValue>), repository.Name, repository);
+                if (_iocRegister != null)
+                    _iocRegister(typeof(IRepository<TKey, TValue>), repository.Name, repository);
 
                 return this;
             }
@@ -125,14 +125,14 @@ namespace Observable.Repository
         /// </summary>
         public void Dispose()
         {
-            lock (mutex)
+            lock (_mutex)
             {
-                dataProducer.Dispose();
+                _dataProducer.Dispose();
 
-                foreach (var pair in repositories)
+                foreach (var pair in _repositories)
                     pair.Value.Dispose();
 
-                repositories.Clear();
+                _repositories.Clear();
             }
         }
 
@@ -142,22 +142,22 @@ namespace Observable.Repository
 
         private struct RepositoryKey : IEquatable<RepositoryKey>
         {
-            private readonly string name;
-            private readonly Type keyType;
-            private readonly Type valueType;
-            private readonly int hashCode;
+            private readonly string _name;
+            private readonly Type _keyType;
+            private readonly Type _valueType;
+            private readonly int _hashCode;
 
             public RepositoryKey(string name, Type keyType, Type valueType)
             {
-                this.name = name ?? string.Empty;
-                this.keyType = keyType ?? typeof(object);
-                this.valueType = valueType ?? typeof(object);
+                this._name = name ?? string.Empty;
+                this._keyType = keyType ?? typeof(object);
+                this._valueType = valueType ?? typeof(object);
 
                 unchecked
                 {
-                    hashCode = this.name.GetHashCode();
-                    hashCode = (hashCode * 397) ^ this.valueType.GetHashCode();
-                    hashCode = (hashCode * 397) ^ this.keyType.GetHashCode();
+                    _hashCode = this._name.GetHashCode();
+                    _hashCode = (_hashCode * 397) ^ this._valueType.GetHashCode();
+                    _hashCode = (_hashCode * 397) ^ this._keyType.GetHashCode();
                 }
             }
 
@@ -165,9 +165,9 @@ namespace Observable.Repository
 
             public bool Equals(RepositoryKey other)
             {
-                return string.Equals(name, other.name)
-                    && valueType == other.valueType
-                    && keyType == other.keyType;
+                return string.Equals(_name, other._name)
+                    && _valueType == other._valueType
+                    && _keyType == other._keyType;
             }
 
             public override bool Equals(object obj)
@@ -179,7 +179,7 @@ namespace Observable.Repository
 
             public override int GetHashCode()
             {
-                return hashCode;
+                return _hashCode;
             }
 
             public static bool operator ==(RepositoryKey left, RepositoryKey right)
@@ -196,14 +196,14 @@ namespace Observable.Repository
             {
                 public bool Equals(RepositoryKey x, RepositoryKey y)
                 {
-                    return string.Equals(x.name, y.name)
-                        && x.keyType == y.keyType
-                        && x.valueType == y.valueType;
+                    return string.Equals(x._name, y._name)
+                        && x._keyType == y._keyType
+                        && x._valueType == y._valueType;
                 }
 
                 public int GetHashCode(RepositoryKey obj)
                 {
-                    return obj.hashCode;
+                    return obj._hashCode;
                 }
             }
 

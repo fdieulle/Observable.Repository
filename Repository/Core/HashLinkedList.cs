@@ -12,25 +12,25 @@ namespace Observable.Repository.Core
     /// <typeparam name="TValue">Type of values</typeparam>
     public class HashLinkedList<TKey, TValue> : IEnumerable<LinkedNode<TKey, TValue>>
     {
-        private readonly Pool<LinkedNode<TKey, TValue>> pool;
-        private readonly Dictionary<TKey, LinkedNode<TKey, TValue>> items = new Dictionary<TKey, LinkedNode<TKey, TValue>>();
-        private LinkedNode<TKey, TValue> first;
-        private LinkedNode<TKey, TValue> last;
+        private readonly Pool<LinkedNode<TKey, TValue>> _pool;
+        private readonly Dictionary<TKey, LinkedNode<TKey, TValue>> _items = new Dictionary<TKey, LinkedNode<TKey, TValue>>();
+        private LinkedNode<TKey, TValue> _first;
+        private LinkedNode<TKey, TValue> _last;
 
         /// <summary>
         /// Gets the first node.
         /// </summary>
-        public LinkedNode<TKey, TValue> First { get { return first; } }
+        public LinkedNode<TKey, TValue> First { get { return _first; } }
 
         /// <summary>
         /// Gets the last node.
         /// </summary>
-        public LinkedNode<TKey, TValue> Last { get { return last; } } 
+        public LinkedNode<TKey, TValue> Last { get { return _last; } } 
 
         /// <summary>
         /// Gets the number of items.
         /// </summary>
-        public int Count { get { return items.Count; } }
+        public int Count { get { return _items.Count; } }
 
         /// <summary>
         /// Ctor
@@ -38,7 +38,7 @@ namespace Observable.Repository.Core
         /// <param name="pool">A pool to recycle nodes</param>
         public HashLinkedList(Pool<LinkedNode<TKey, TValue>> pool)
         {
-            this.pool = pool;
+            this._pool = pool;
         }
 
         #region Implementation of IEnumerable
@@ -49,11 +49,11 @@ namespace Observable.Repository.Core
         /// <returns>Returns the enumerator</returns>
         public IEnumerator<LinkedNode<TKey, TValue>> GetEnumerator()
         {
-            var cursor = first;
+            var cursor = _first;
             while (cursor != null)
             {
                 yield return cursor;
-                cursor = cursor.next;
+                cursor = cursor._next;
             }
         }
 
@@ -71,7 +71,7 @@ namespace Observable.Repository.Core
         /// <returns>The value found</returns>
         public TValue this[TKey key]
         {
-            get { return items[key].value; }
+            get { return _items[key]._value; }
             set { Add(key, value); }
         }
 
@@ -82,7 +82,7 @@ namespace Observable.Repository.Core
         /// <returns>Returns true if it contains the key, false else.</returns>
         public bool ContainsKey(TKey key)
         {
-            return items.ContainsKey(key);
+            return _items.ContainsKey(key);
         }
 
         /// <summary>
@@ -93,24 +93,24 @@ namespace Observable.Repository.Core
         public void Add(TKey key, TValue value)
         {
             LinkedNode<TKey, TValue> node;
-            if (!items.TryGetValue(key, out node))
+            if (!_items.TryGetValue(key, out node))
             {
-                items.Add(key, node = pool.Get());
-                node.key = key;
-                node.next = null;    
+                _items.Add(key, node = _pool.Get());
+                node._key = key;
+                node._next = null;    
 
-                if (first == null)
-                    first = node;
+                if (_first == null)
+                    _first = node;
 
-                if (last != null)
-                    last.next = node;
+                if (_last != null)
+                    _last._next = node;
 
-                node.previous = last;
+                node._previous = _last;
 
-                last = node;
+                _last = node;
             }
 
-            node.value = value;
+            node._value = value;
         }
 
         /// <summary>
@@ -121,21 +121,21 @@ namespace Observable.Repository.Core
         public bool Remove(TKey key)
         {
             LinkedNode<TKey, TValue> node;
-            if (!items.TryGetValue(key, out node)) return false;
+            if (!_items.TryGetValue(key, out node)) return false;
 
-            if (node.previous == null)
-                first = node.next;
-            else node.previous.next = node.next;
+            if (node._previous == null)
+                _first = node._next;
+            else node._previous._next = node._next;
 
-            if (node.next == null)
-                last = node.previous;
-            else node.next.previous = node.previous;
+            if (node._next == null)
+                _last = node._previous;
+            else node._next._previous = node._previous;
 
-            node.key = default(TKey);
-            node.value = default(TValue);
-            pool.Free(node);
+            node._key = default(TKey);
+            node._value = default(TValue);
+            _pool.Free(node);
 
-            return items.Remove(key);
+            return _items.Remove(key);
         }
 
         /// <summary>
@@ -147,9 +147,9 @@ namespace Observable.Repository.Core
         public bool TryGetValue(TKey key, out TValue value)
         {
             LinkedNode<TKey, TValue> node;
-            if (items.TryGetValue(key, out node))
+            if (_items.TryGetValue(key, out node))
             {
-                value = node.value;
+                value = node._value;
                 return true;
             }
 
@@ -165,23 +165,23 @@ namespace Observable.Repository.Core
         {
             var hasAction = cleanItem != null;
 
-            items.Clear();
-            var cursor = first;
+            _items.Clear();
+            var cursor = _first;
             while (cursor != null)
             {
-                var next = cursor.next;
+                var next = cursor._next;
                 
-                if (hasAction) cleanItem(cursor.key, cursor.value);
+                if (hasAction) cleanItem(cursor._key, cursor._value);
 
-                cursor.key = default(TKey);
-                cursor.value = default(TValue);
-                pool.Free(cursor);
+                cursor._key = default(TKey);
+                cursor._value = default(TValue);
+                _pool.Free(cursor);
 
                 cursor = next;
             }
 
-            first = null;
-            last = null;
+            _first = null;
+            _last = null;
         }
 
         /// <summary>
@@ -190,29 +190,29 @@ namespace Observable.Repository.Core
         /// <returns>The items aray copy.</returns>
         public KeyValue<TKey, TValue>[] Flush()
         {
-            var array = new KeyValue<TKey, TValue>[items.Count];
+            var array = new KeyValue<TKey, TValue>[_items.Count];
             var index = 0;
 
-            items.Clear();
+            _items.Clear();
 
-            var cursor = first;
+            var cursor = _first;
             while (cursor != null)
             {
-                var next = cursor.next;
+                var next = cursor._next;
 
-                array[index].key = cursor.key;
-                array[index].value = cursor.value;
+                array[index]._key = cursor._key;
+                array[index]._value = cursor._value;
                 index++;
 
-                cursor.key = default(TKey);
-                cursor.value = default(TValue);
-                pool.Free(cursor);
+                cursor._key = default(TKey);
+                cursor._value = default(TValue);
+                _pool.Free(cursor);
 
                 cursor = next;
             }
 
-            first = null;
-            last = null;
+            _first = null;
+            _last = null;
 
             return array;
         }
@@ -223,27 +223,27 @@ namespace Observable.Repository.Core
         /// <returns>Returns the array of values only.</returns>
         public TValue[] FlushValues()
         {
-            var array = new TValue[items.Count];
+            var array = new TValue[_items.Count];
             var index = 0;
 
-            items.Clear();
+            _items.Clear();
 
-            var cursor = first;
+            var cursor = _first;
             while (cursor != null)
             {
-                var next = cursor.next;
+                var next = cursor._next;
 
-                array[index++] = cursor.value;
+                array[index++] = cursor._value;
 
-                cursor.key = default(TKey);
-                cursor.value = default(TValue);
-                pool.Free(cursor);
+                cursor._key = default(TKey);
+                cursor._value = default(TValue);
+                _pool.Free(cursor);
 
                 cursor = next;
             }
 
-            first = null;
-            last = null;
+            _first = null;
+            _last = null;
 
             return array;
         }
@@ -254,17 +254,17 @@ namespace Observable.Repository.Core
         /// <returns>The items copy</returns>
         public KeyValue<TKey, TValue>[] MakeCopy()
         {
-            var array = new KeyValue<TKey, TValue>[items.Count];
+            var array = new KeyValue<TKey, TValue>[_items.Count];
             var index = 0;
 
-            var cursor = first;
+            var cursor = _first;
             while (cursor != null)
             {
-                array[index].key = cursor.key;
-                array[index].value = cursor.value;
+                array[index]._key = cursor._key;
+                array[index]._value = cursor._value;
                 index++;
                 
-                cursor = cursor.next;
+                cursor = cursor._next;
             }
 
             return array;

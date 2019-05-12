@@ -7,12 +7,12 @@ namespace Observable.Repository.Tests.Core
     [TestFixture]
     public class HashLinkedListTests
     {
-        private readonly Pool<LinkedNode<int, string>> pool = new Pool<LinkedNode<int,string>>(() => new LinkedNode<int, string>());
+        private readonly Pool<LinkedNode<int, string>> _pool = new Pool<LinkedNode<int,string>>(() => new LinkedNode<int, string>());
 
         [Test]
         public void AddRemoveAndClearTest()
         {
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, "Test1"},
                 {2, "Test2"},
@@ -76,7 +76,7 @@ namespace Observable.Repository.Tests.Core
                 "Test5"
             };
 
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, values[0]},
                 {2, values[1]},
@@ -140,7 +140,7 @@ namespace Observable.Repository.Tests.Core
         [Test]
         public void FlushTest()
         {
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, "Test1"},
                 {2, "Test2"},
@@ -163,7 +163,7 @@ namespace Observable.Repository.Tests.Core
         [Test]
         public void FlushValuesTest()
         {
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, "Test1"},
                 {2, "Test2"},
@@ -185,7 +185,7 @@ namespace Observable.Repository.Tests.Core
         [Test]
         public void MakeCopyTests()
         {
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, "Test1"},
                 {2, "Test2"},
@@ -214,7 +214,7 @@ namespace Observable.Repository.Tests.Core
         [Test]
         public void TryGetValueTest()
         {
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, "Test1"},
                 {2, "Test2"},
@@ -245,7 +245,7 @@ namespace Observable.Repository.Tests.Core
         [Test]
         public void ContainsKeyTest()
         {
-            var list = new HashLinkedList<int, string>(pool)
+            var list = new HashLinkedList<int, string>(_pool)
             {
                 {1, "Test1"},
                 {2, "Test2"},

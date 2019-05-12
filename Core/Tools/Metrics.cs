@@ -23,26 +23,26 @@ namespace Observable.Tools
     /// </summary>
     public class Metrics
     {
-        private readonly double min;
-        private readonly double mean;
-        private readonly double median;
-        private readonly double max;
-        private readonly double[] measures;
-        private readonly Units units;
-        private readonly string name;
-        private readonly Metrics[] underlyings;
+        private readonly double _min;
+        private readonly double _mean;
+        private readonly double _median;
+        private readonly double _max;
+        private readonly double[] _measures;
+        private readonly Units _units;
+        private readonly string _name;
+        private readonly Metrics[] _underlyings;
 
         /// <summary>
         /// Gets name.
         /// </summary>
-        public string Name { get { return name; } }
+        public string Name { get { return _name; } }
 
         /// <summary>
         /// Gets the min measured value.
         /// </summary>
         public double Min
         {
-            get { return min; }
+            get { return _min; }
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Observable.Tools
         /// </summary>
         public double Mean
         {
-            get { return mean; }
+            get { return _mean; }
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Observable.Tools
         /// </summary>
         public double Median
         {
-            get { return median; }
+            get { return _median; }
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Observable.Tools
         /// </summary>
         public double Max
         {
-            get { return max; }
+            get { return _max; }
         }
 
         /// <summary>
@@ -74,18 +74,18 @@ namespace Observable.Tools
         /// </summary>
         public Units Units
         {
-            get { return units; }
+            get { return _units; }
         }
 
         /// <summary>
         /// Gets nderlyings metrics
         /// </summary>
-        public Metrics[] Underlyings { get { return underlyings; } }
+        public Metrics[] Underlyings { get { return _underlyings; } }
 
         /// <summary>
         /// Gets all measures.
         /// </summary>
-        public double[] Measures { get { return measures; } }
+        public double[] Measures { get { return _measures; } }
 
         /// <summary>
         /// Ctor.
@@ -100,34 +100,34 @@ namespace Observable.Tools
             if (ordered.Length == 0) return;
 
             var length = ordered.Length;
-            min = ordered[0];
-            max = ordered[length - 1];
+            _min = ordered[0];
+            _max = ordered[length - 1];
 
             var sum = 0.0;
             var medianIdx = length / 2;
             for (var i = 0; i < length; i++)
             {
-                min = Math.Min(min, measures[i]);
-                max = Math.Max(max, measures[i]);
+                _min = Math.Min(_min, measures[i]);
+                _max = Math.Max(_max, measures[i]);
                 sum += measures[i];
                 if (i == medianIdx)
-                    median = measures[i];
+                    _median = measures[i];
             }
-            mean = sum / length;
+            _mean = sum / length;
 
             if (units == Units.Auto)
-                units = GetUnits(mean);
+                units = GetUnits(_mean);
             var factor = GetUnitFactor(units);
 
-            min *= factor;
-            mean *= factor;
-            median *= factor;
-            max *= factor;
+            _min *= factor;
+            _mean *= factor;
+            _median *= factor;
+            _max *= factor;
 
-            this.measures = measures;
-            this.units = units;
-            this.name = name;
-            this.underlyings = underlyings;
+            this._measures = measures;
+            this._units = units;
+            this._name = name;
+            this._underlyings = underlyings;
         }
 
         public override string ToString()
@@ -139,11 +139,11 @@ namespace Observable.Tools
 
         private static void ToStringDeep(StringBuilder sb, Metrics metrics, string prefix = null)
         {
-            sb.AppendFormat("{0}{1} Min: {2}, Mean: {3}, Median: {4}, Max: {5}, Units: {6}", prefix, metrics.name, metrics.min, metrics.mean, metrics.median, metrics.max, metrics.units);
-            if (metrics.underlyings == null) return;
+            sb.AppendFormat("{0}{1} Min: {2}, Mean: {3}, Median: {4}, Max: {5}, Units: {6}", prefix, metrics._name, metrics._min, metrics._mean, metrics._median, metrics._max, metrics._units);
+            if (metrics._underlyings == null) return;
 
             var subPrefix = (prefix ?? string.Empty) + "\t";
-            foreach (var underlying in metrics.underlyings)
+            foreach (var underlying in metrics._underlyings)
             {
                 sb.AppendLine();
                 ToStringDeep(sb, underlying, subPrefix);

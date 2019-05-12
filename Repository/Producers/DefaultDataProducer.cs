@@ -4,20 +4,20 @@ namespace Observable.Repository.Producers
 {
     public class DefaultDataProducer : AbstractDataProducer
     {
-        private readonly Action<Action> dispatcher;
+        private readonly Action<Action> _dispatcher;
 
-        public Action<Action> Dispatcher { get { return dispatcher; } }
+        public Action<Action> Dispatcher { get { return _dispatcher; } }
 
         public DefaultDataProducer(Action<Action> dispatcher)
         {
-            this.dispatcher = dispatcher;
+            this._dispatcher = dispatcher;
         }
 
         #region Overrides of AbstractDataProducer
 
         protected override Producer<T> CreateProducer<T>()
         {
-            return new Producer<T>(dispatcher);
+            return new Producer<T>(_dispatcher);
         }
 
         #endregion

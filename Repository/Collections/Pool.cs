@@ -5,32 +5,32 @@ namespace Observable.Repository.Collections
 {
     public class Pool<T>
     {
-        private readonly Func<T> factory;
-        private readonly Stack<T> items = new Stack<T>();
+        private readonly Func<T> _factory;
+        private readonly Stack<T> _items = new Stack<T>();
  
         public Pool(Func<T> factory, int capacity = 0)
         {
-            this.factory = factory;
+            this._factory = factory;
 
             for(var i=0;i <capacity; i++)
-                items.Push(factory());
+                _items.Push(factory());
         }
 
         public T Get()
         {
-            return items.Count == 0 
-                ? factory() 
-                : items.Pop();
+            return _items.Count == 0 
+                ? _factory() 
+                : _items.Pop();
         }
 
         public void Free(T item)
         {
-            items.Push(item);
+            _items.Push(item);
         }
 
         public void Clear()
         {
-            items.Clear();
+            _items.Clear();
         }
     }
 }

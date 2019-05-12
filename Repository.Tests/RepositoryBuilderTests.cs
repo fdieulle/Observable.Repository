@@ -8,12 +8,12 @@ namespace Observable.Repository.Tests
     [TestFixture]
     public class RepositoryBuilderTests
     {
-        private IRepositoryContainer container;
+        private IRepositoryContainer _container;
 
         [SetUp]
         public void Setup()
         {
-            container = new RepositoryContainer();
+            _container = new RepositoryContainer();
         }
 
         [Test]
@@ -26,61 +26,61 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestBuildThenCreate()
         {
-            var repository1 = container.Build<int, T1>(p => p.Id).Create();
+            var repository1 = _container.Build<int, T1>(p => p.Id).Create();
             Test(null, repository1);
 
-            var repository2 = container.Build<int, T1>("R2", p => p.Id).Create();
+            var repository2 = _container.Build<int, T1>("R2", p => p.Id).Create();
             Test("R2", repository2);
 
             var filter = new Func<T1, bool>(p => !string.IsNullOrEmpty(p.Name));
-            var repository3 = container.Build("R3", p => p.Id, leftSourceName: "Source1", filter: filter).Create();
+            var repository3 = _container.Build("R3", p => p.Id, leftSourceName: "Source1", filter: filter).Create();
             Test("R3", repository3, "Source1", filter);
 
-            var repository4 = container.Build<int, Tuple<T1>, T1>("R4", p => p.Id, leftSourceName: "Source2", filter: filter).Create();
+            var repository4 = _container.Build<int, Tuple<T1>, T1>("R4", p => p.Id, leftSourceName: "Source2", filter: filter).Create();
             Test("R4", repository4, "Source2", filter);
         }
 
         [Test]
         public void TestBuildThenRegister()
         {
-            container.Build<int, T1>(p => p.Id).Register();
-            var repository1 = container.GetRepository<int, T1>();
+            _container.Build<int, T1>(p => p.Id).Register();
+            var repository1 = _container.GetRepository<int, T1>();
             Test(null, repository1);
 
-            container.Build<int, T1>("R2", p => p.Id).Register();
-            var repository2 = container.GetRepository<int, T1>("R2");
+            _container.Build<int, T1>("R2", p => p.Id).Register();
+            var repository2 = _container.GetRepository<int, T1>("R2");
             Test("R2", repository2);
 
             var filter = new Func<T1, bool>(p => !string.IsNullOrEmpty(p.Name));
-            container.Build("R3", p => p.Id, leftSourceName: "Source1", filter: filter).Register();
-            var repository3 = container.GetRepository<int, T1>("R3");
+            _container.Build("R3", p => p.Id, leftSourceName: "Source1", filter: filter).Register();
+            var repository3 = _container.GetRepository<int, T1>("R3");
             Test("R3", repository3, "Source1", filter);
 
-            container.Build<int, Tuple<T1>, T1>("R4", p => p.Id, leftSourceName: "Source2", filter: filter).Register();
-            var repository4 = container.GetRepository<int, Tuple<T1>>("R4");
+            _container.Build<int, Tuple<T1>, T1>("R4", p => p.Id, leftSourceName: "Source2", filter: filter).Register();
+            var repository4 = _container.GetRepository<int, Tuple<T1>>("R4");
             Test("R4", repository4, "Source2", filter);
         }
 
         [Test]
         public void TestBuildAndAddBehavior()
         {
-            var repository0 = container.Build<int, T1>(p => p.Id)
+            var repository0 = _container.Build<int, T1>(p => p.Id)
                 .Create();
             Test(repository0, StorageBehavior.None, default(int), default(TimeSpan), null);
 
-            var repository1 = container.Build<int, T1>(p => p.Id)
+            var repository1 = _container.Build<int, T1>(p => p.Id)
                 .AddRollingBehavior(1000)
                 .Create();
             Test(repository1, StorageBehavior.Rolling, 1000, default(TimeSpan), null);
 
             var getTimestamp = new Func<T1, DateTime>(p => p.Timestamp);
 
-            var repository2 = container.Build<int, T1>(p => p.Id)
+            var repository2 = _container.Build<int, T1>(p => p.Id)
                 .AddTimeIntervalBehavior(TimeSpan.FromHours(2), getTimestamp)
                 .Create();
             Test(repository2, StorageBehavior.TimeInterval, default(int), TimeSpan.FromHours(2), getTimestamp);
 
-            var repository3 = container.Build<int, T1>(p => p.Id)
+            var repository3 = _container.Build<int, T1>(p => p.Id)
                 .AddRollingAndTimeIntervalBehavior(100, TimeSpan.FromHours(2), getTimestamp)
                 .Create();
             Test(repository3, StorageBehavior.RollingAndTimeInterval, 100, TimeSpan.FromHours(2), getTimestamp);
@@ -89,26 +89,26 @@ namespace Observable.Repository.Tests
         [Test]
         public void TestBuildAndDefineCtor()
         {
-            var repository1 = container.Build<int, T1>(p => p.Id)
+            var repository1 = _container.Build<int, T1>(p => p.Id)
                 .DefineCtor(p => p)
                 .Create();
             Test<int, T1, T1>(repository1, typeof(T1));
 
-            repository1 = container.Build<int, T1>(p => p.Id)
+            repository1 = _container.Build<int, T1>(p => p.Id)
                 //.DefineCtor(p => p)
                 .Create();
             Test<int, T1, T1>(repository1, typeof(T1));
 
-            var repository2 = container.Build<int, Tuple<T1>, T1>(p => p.Id)
+            var repository2 = _container.Build<int, Tuple<T1>, T1>(p => p.Id)
                 .DefineCtor(p => new Tuple<T1>(p))
                 .Create();
             Test<int, Tuple<T1>, T1>(repository2, typeof(T1));
-            repository2 = container.Build<int, Tuple<T1>, T1>(p => p.Id)
+            repository2 = _container.Build<int, Tuple<T1>, T1>(p => p.Id)
                 //.DefineCtor(p => new Tuple<T1>(p))
                 .Create();
             Test<int, Tuple<T1>, T1>(repository2, typeof(T1));
 
-            var repository3 = container.Build<int, Tuple<T1>, T1>(p => p.Id)
+            var repository3 = _container.Build<int, Tuple<T1>, T1>(p => p.Id)
                 .DefineCtor(p => new Tuple<T1>(p))
                 .AddRollingBehavior(1000)
                 .Create();

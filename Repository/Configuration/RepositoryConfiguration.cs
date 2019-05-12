@@ -13,8 +13,8 @@ namespace Observable.Repository.Configuration
     /// <typeparam name="TLeft">Type of repository main source.</typeparam>
     public class RepositoryConfiguration<TKey, TValue, TLeft> : IRepositoryConfiguration
     {
-        private readonly KeyConfiguration keyConfiguration;
-        private readonly List<IJoin<TKey, TValue, TLeft>> joins = new List<IJoin<TKey, TValue, TLeft>>(); 
+        private readonly KeyConfiguration _keyConfiguration;
+        private readonly List<IJoin<TKey, TValue, TLeft>> _joins = new List<IJoin<TKey, TValue, TLeft>>(); 
 
         /// <summary>
         /// Gets the left key getter delegate.
@@ -44,7 +44,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets all join configurations.
         /// </summary>
-        public IReadOnlyList<IJoin<TKey, TValue, TLeft>> Joins { get { return joins; } }
+        public IReadOnlyList<IJoin<TKey, TValue, TLeft>> Joins { get { return _joins; } }
 
         /// <summary>
         /// Ctor
@@ -71,7 +71,7 @@ namespace Observable.Repository.Configuration
 
             Name = name;
             GetKey = getKey;
-            keyConfiguration = new KeyConfiguration<TLeft, TKey>(getKey);
+            _keyConfiguration = new KeyConfiguration<TLeft, TKey>(getKey);
             OnUpdate = onUpdate;
             LeftSourceName = leftSourceName;
             LeftFilter = leftFilter;
@@ -109,7 +109,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets the key getter configuration.
         /// </summary>
-        public KeyConfiguration Key { get { return keyConfiguration; } }
+        public KeyConfiguration Key { get { return _keyConfiguration; } }
 
         /// <summary>
         /// Gets the filter on main source.
@@ -139,7 +139,7 @@ namespace Observable.Repository.Configuration
         /// <summary>
         /// Gets all joins configurations.
         /// </summary>
-        IReadOnlyList<IJoinConfiguration> IRepositoryConfiguration.Joins { get { return joins; } }
+        IReadOnlyList<IJoinConfiguration> IRepositoryConfiguration.Joins { get { return _joins; } }
 
         /// <summary>
         /// Gets the storage behavior.
@@ -171,7 +171,7 @@ namespace Observable.Repository.Configuration
         /// <param name="join">Join to add.</param>
         public void AddJoin(IJoin<TKey, TValue, TLeft> join)
         {
-            joins.Add(join);
+            _joins.Add(join);
         }
     }
 }

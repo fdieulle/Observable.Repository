@@ -17,25 +17,25 @@ namespace Observable.Repository
     {
         #region Fields
 
-        private readonly IRepository<TKey, T> repository;
-        private readonly IList<TSelect> view;
-        private readonly Predicate<T> filter;
-        private readonly Func<T, TSelect> selector;
-        private readonly Action<Action> dispatcher;
-        private readonly IDisposable subscribesOnRepository;
+        private readonly IRepository<TKey, T> _repository;
+        private readonly IList<TSelect> _view;
+        private readonly Predicate<T> _filter;
+        private readonly Func<T, TSelect> _selector;
+        private readonly Action<Action> _dispatcher;
+        private readonly IDisposable _subscribesOnRepository;
 
-        private readonly Dictionary<TKey, LinkedNode<int, TSelect>> indices = new Dictionary<TKey, LinkedNode<int, TSelect>>();
-        private readonly Pool<LinkedNode<int, TSelect>> pool = new Pool<LinkedNode<int, TSelect>>(() => new LinkedNode<int, TSelect>());
-        private LinkedNode<int, TSelect> first;
-        private LinkedNode<int, TSelect> last;
+        private readonly Dictionary<TKey, LinkedNode<int, TSelect>> _indices = new Dictionary<TKey, LinkedNode<int, TSelect>>();
+        private readonly Pool<LinkedNode<int, TSelect>> _pool = new Pool<LinkedNode<int, TSelect>>(() => new LinkedNode<int, TSelect>());
+        private LinkedNode<int, TSelect> _first;
+        private LinkedNode<int, TSelect> _last;
 
-        private readonly HashLinkedList<TKey, TSelect> newItems;
-        private readonly HashLinkedList<TKey, TSelect> oldItems;
-        private readonly Pool<LinkedNode<TKey, TSelect>> poolToNotify = new Pool<LinkedNode<TKey, TSelect>>(() => new LinkedNode<TKey, TSelect>());
-        private readonly Subject<RepositoryNotification<TSelect>> subject = new Subject<RepositoryNotification<TSelect>>();
-        private int subscribersCount;
-        private readonly Subject<AtomicNotification<TSelect>> atomicSubject = new Subject<AtomicNotification<TSelect>>();
-        private int atomicSubscribersCount;
+        private readonly HashLinkedList<TKey, TSelect> _newItems;
+        private readonly HashLinkedList<TKey, TSelect> _oldItems;
+        private readonly Pool<LinkedNode<TKey, TSelect>> _poolToNotify = new Pool<LinkedNode<TKey, TSelect>>(() => new LinkedNode<TKey, TSelect>());
+        private readonly Subject<RepositoryNotification<TSelect>> _subject = new Subject<RepositoryNotification<TSelect>>();
+        private int _subscribersCount;
+        private readonly Subject<AtomicNotification<TSelect>> _atomicSubject = new Subject<AtomicNotification<TSelect>>();
+        private int _atomicSubscribersCount;
 
         #endregion
 
@@ -56,19 +56,19 @@ namespace Observable.Repository
             bool synchronize,
             Action<Action> dispatcher)
         {
-            this.repository = repository;
-            this.view = view;
-            this.filter = filter;
-            this.selector = selector;
-            this.dispatcher = dispatcher;
+            this._repository = repository;
+            this._view = view;
+            this._filter = filter;
+            this._selector = selector;
+            this._dispatcher = dispatcher;
 
-            newItems = new HashLinkedList<TKey, TSelect>(poolToNotify);
-            oldItems = new HashLinkedList<TKey, TSelect>(poolToNotify);
+            _newItems = new HashLinkedList<TKey, TSelect>(_poolToNotify);
+            _oldItems = new HashLinkedList<TKey, TSelect>(_poolToNotify);
 
             if (synchronize)
                 Synchronize();
             if (repository != null)
-                subscribesOnRepository = repository.Subscribe(OnItemsReceived);
+                _subscribesOnRepository = repository.Subscribe(OnItemsReceived);
         }
 
         #region Implementation of IListView<T>
@@ -78,7 +78,7 @@ namespace Observable.Repository
         /// </summary>
         public void Synchronize()
         {
-            OnItemsReceived(new RepositoryNotification<KeyValue<TKey, T>>(ActionType.Reload, null, repository));
+            OnItemsReceived(new RepositoryNotification<KeyValue<TKey, T>>(ActionType.Reload, null, _repository));
         }
 
         #endregion
@@ -92,12 +92,12 @@ namespace Observable.Repository
         /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
         public IDisposable Subscribe(IObserver<RepositoryNotification<TSelect>> observer)
         {
-            var result = subject.Subscribe(observer);
-            Interlocked.Increment(ref subscribersCount);
+            var result = _subject.Subscribe(observer);
+            Interlocked.Increment(ref _subscribersCount);
 
             return new AnonymousDisposable(() =>
             {
-                Interlocked.Decrement(ref subscribersCount);
+                Interlocked.Decrement(ref _subscribersCount);
                 result.Dispose();
             });
         }
@@ -113,12 +113,12 @@ namespace Observable.Repository
         /// <returns>Returns result of the suscription. Dispose to release the suscription.</returns>
         public IDisposable Subscribe(IObserver<AtomicNotification<TSelect>> observer)
         {
-            var result = atomicSubject.Subscribe(observer);
-            Interlocked.Increment(ref atomicSubscribersCount);
+            var result = _atomicSubject.Subscribe(observer);
+            Interlocked.Increment(ref _atomicSubscribersCount);
 
             return new AnonymousDisposable(() =>
             {
-                Interlocked.Decrement(ref atomicSubscribersCount);
+                Interlocked.Decrement(ref _atomicSubscribersCount);
                 result.Dispose();
             });
         }
@@ -132,27 +132,27 @@ namespace Observable.Repository
         /// </summary>
         public void Dispose()
         {
-            if (subscribesOnRepository != null)
-                subscribesOnRepository.Dispose();
+            if (_subscribesOnRepository != null)
+                _subscribesOnRepository.Dispose();
 
-            if (dispatcher != null)
-                dispatcher(Disposing);
+            if (_dispatcher != null)
+                _dispatcher(Disposing);
             else Disposing();
         }
 
         private void Disposing()
         {
             var removed = Clear();
-            if (subscribersCount > 0)
-                subject.OnNext(new RepositoryNotification<TSelect>(ActionType.Reload, removed, null));
+            if (_subscribersCount > 0)
+                _subject.OnNext(new RepositoryNotification<TSelect>(ActionType.Reload, removed, null));
 
-            newItems.Clear();
-            oldItems.Clear();
-            poolToNotify.Clear();
-            pool.Clear();
+            _newItems.Clear();
+            _oldItems.Clear();
+            _poolToNotify.Clear();
+            _pool.Clear();
 
-            subject.OnCompleted();
-            atomicSubject.OnCompleted();
+            _subject.OnCompleted();
+            _atomicSubject.OnCompleted();
         }
 
         #endregion
@@ -161,8 +161,8 @@ namespace Observable.Repository
 
         private void OnItemsReceived(RepositoryNotification<KeyValue<TKey, T>> e)
         {
-            if (dispatcher != null)
-                dispatcher(() => ItemsReceivedDispatched(e));
+            if (_dispatcher != null)
+                _dispatcher(() => ItemsReceivedDispatched(e));
             else ItemsReceivedDispatched(e);
         }
 
@@ -183,7 +183,7 @@ namespace Observable.Repository
                 case ActionType.Reload:
                     removed = Clear();
 
-                    var resetable = view as IResetableList<TSelect>;
+                    var resetable = _view as IResetableList<TSelect>;
                     if (resetable != null)
                     {
                         added = Reset(e.NewItems);
@@ -193,11 +193,11 @@ namespace Observable.Repository
                     break;
             }
 
-            if (subscribersCount > 0)
-                subject.OnNext(new RepositoryNotification<TSelect>(
+            if (_subscribersCount > 0)
+                _subject.OnNext(new RepositoryNotification<TSelect>(
                     e.Action,
-                    removed ?? oldItems.FlushValues(),
-                    added ?? newItems.FlushValues()));
+                    removed ?? _oldItems.FlushValues(),
+                    added ?? _newItems.FlushValues()));
         }
 
         private void AddItems(IEnumerable<KeyValue<TKey, T>> items)
@@ -205,56 +205,56 @@ namespace Observable.Repository
             foreach (var pair in items)
             {
                 var value = pair.Value;
-                if (filter != null && !filter(value))
+                if (_filter != null && !_filter(value))
                 {
                     Remove(pair);
                     continue;
                 }
 
                 var key = pair.Key;
-                var select = selector(value);
+                var select = _selector(value);
 
                 LinkedNode<int, TSelect> node;
-                if (!indices.TryGetValue(key, out node))
+                if (!_indices.TryGetValue(key, out node))
                 {
-                    indices.Add(key, node = pool.Get());
+                    _indices.Add(key, node = _pool.Get());
 
-                    node.next = null;
+                    node._next = null;
 
-                    if (first == null)
-                        first = node;
+                    if (_first == null)
+                        _first = node;
 
-                    if (last != null)
-                        last.next = node;
+                    if (_last != null)
+                        _last._next = node;
 
-                    node.previous = last;
-                    last = node;
+                    node._previous = _last;
+                    _last = node;
 
-                    node.value = select;
-                    node.key = view.Count;
+                    node._value = select;
+                    node._key = _view.Count;
 
-                    view.Add(select);
+                    _view.Add(select);
 
-                    if (subscribersCount > 0)
-                        newItems.Add(key, select);
-                    if (atomicSubscribersCount > 0)
-                        atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Add, default(TSelect), select));
+                    if (_subscribersCount > 0)
+                        _newItems.Add(key, select);
+                    if (_atomicSubscribersCount > 0)
+                        _atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Add, default(TSelect), select));
                 }
                 else
                 {
-                    var oldValue = node.value;
+                    var oldValue = node._value;
                     
-                    node.value = select;
+                    node._value = select;
                     
-                    view[node.key] = select;
+                    _view[node._key] = select;
 
-                    if (subscribersCount > 0)
+                    if (_subscribersCount > 0)
                     {
-                        oldItems[key] = oldValue;
-                        newItems[key] = select;
+                        _oldItems[key] = oldValue;
+                        _newItems[key] = select;
                     }
-                    if (atomicSubscribersCount > 0)
-                        atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Update, oldValue, select));
+                    if (_atomicSubscribersCount > 0)
+                        _atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Update, oldValue, select));
                 }
             }
         }
@@ -270,68 +270,68 @@ namespace Observable.Repository
             var key = pair.Key;
 
             LinkedNode<int, TSelect> node;
-            if (!indices.TryGetValue(key, out node))
+            if (!_indices.TryGetValue(key, out node))
                 return;
 
-            if (node.previous == null)
-                first = node.next;
-            else node.previous.next = node.next;
+            if (node._previous == null)
+                _first = node._next;
+            else node._previous._next = node._next;
 
-            if (node.next == null)
-                last = node.previous;
-            else node.next.previous = node.previous;
+            if (node._next == null)
+                _last = node._previous;
+            else node._next._previous = node._previous;
 
-            var oldValue = node.value;
-            node.value = default(TSelect);
+            var oldValue = node._value;
+            node._value = default(TSelect);
 
-            indices.Remove(key);
+            _indices.Remove(key);
             
-            view.RemoveAt(node.key);
+            _view.RemoveAt(node._key);
 
             // Decrease indices for all next nodes
-            var cursor = node.next;
+            var cursor = node._next;
             while (cursor != null)
             {
-                cursor.key -= 1;
-                cursor = cursor.next;
+                cursor._key -= 1;
+                cursor = cursor._next;
             }
 
             // Release node
-            pool.Free(node);
+            _pool.Free(node);
 
-            if (subscribersCount > 0)
-                oldItems[key] = oldValue;
-            if (atomicSubscribersCount > 0)
-                atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Remove, oldValue, default(TSelect)));
+            if (_subscribersCount > 0)
+                _oldItems[key] = oldValue;
+            if (_atomicSubscribersCount > 0)
+                _atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Remove, oldValue, default(TSelect)));
         }
 
         private IEnumerable<TSelect> Clear()
         {
-            var notify = subscribersCount > 0;
-            var removed = notify ? new TSelect[view.Count] : null;
+            var notify = _subscribersCount > 0;
+            var removed = notify ? new TSelect[_view.Count] : null;
 
-            indices.Clear();
-            view.Clear();
+            _indices.Clear();
+            _view.Clear();
 
             var idx = 0;
-            var cursor = first;
+            var cursor = _first;
             while (cursor != null)
             {
-                var next = cursor.next;
+                var next = cursor._next;
 
                 if (notify)
-                    removed[idx++] = cursor.value;
+                    removed[idx++] = cursor._value;
 
-                if(atomicSubscribersCount > 0)
-                    atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Remove, cursor.value, default(TSelect)));
+                if(_atomicSubscribersCount > 0)
+                    _atomicSubject.OnNext(new AtomicNotification<TSelect>(ActionType.Remove, cursor._value, default(TSelect)));
 
-                cursor.value = default(TSelect);
-                pool.Free(cursor);
+                cursor._value = default(TSelect);
+                _pool.Free(cursor);
 
                 cursor = next;
             }
-            first = null;
-            last = null;
+            _first = null;
+            _last = null;
 
             return removed;
         }
@@ -341,43 +341,43 @@ namespace Observable.Repository
             foreach (var pair in items)
             {
                 var value = pair.Value;
-                if (filter != null && !filter(value)) continue;
+                if (_filter != null && !_filter(value)) continue;
 
                 var key = pair.Key;
-                var select = selector(value);
+                var select = _selector(value);
                 var oldValue = default(TSelect);
                 var action = ActionType.Add;
 
                 LinkedNode<int, TSelect> node;
-                if (!indices.TryGetValue(key, out node))
+                if (!_indices.TryGetValue(key, out node))
                 {
-                    indices.Add(key, node = pool.Get());
+                    _indices.Add(key, node = _pool.Get());
 
-                    node.key = view.Count;
-                    node.next = null;
+                    node._key = _view.Count;
+                    node._next = null;
 
-                    if (first == null)
-                        first = node;
-                    if (last != null)
-                        last.next = node;
+                    if (_first == null)
+                        _first = node;
+                    if (_last != null)
+                        _last._next = node;
 
-                    node.previous = last;
-                    last = node;
+                    node._previous = _last;
+                    _last = node;
                 }
                 else
                 {
-                    oldValue = node.value;
+                    oldValue = node._value;
                     action = ActionType.Update;
                 }
 
-                node.value = select;
-                newItems[key] = select;
+                node._value = select;
+                _newItems[key] = select;
 
-                if (atomicSubscribersCount > 0)
-                    atomicSubject.OnNext(new AtomicNotification<TSelect>(action, oldValue, select));
+                if (_atomicSubscribersCount > 0)
+                    _atomicSubject.OnNext(new AtomicNotification<TSelect>(action, oldValue, select));
             }
 
-            return newItems.FlushValues();
+            return _newItems.FlushValues();
         }
 
         #endregion

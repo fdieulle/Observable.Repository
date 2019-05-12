@@ -8,18 +8,18 @@ namespace Observable.Tests
     [TestFixture]
     public class SubjectTests
     {
-        private CountdownEvent countdownEvent;
+        private CountdownEvent _countdownEvent;
 
         [SetUp]
         public void SetUp()
         {
-            countdownEvent = new CountdownEvent(4);
+            _countdownEvent = new CountdownEvent(4);
         }
 
         [TearDown]
         public void TearDown()
         {
-            countdownEvent.Dispose();
+            _countdownEvent.Dispose();
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace Observable.Tests
             ThreadPool.QueueUserWorkItem(Publisher, subject);
             ThreadPool.QueueUserWorkItem(Publisher, subject);
 
-            countdownEvent.Wait();
+            _countdownEvent.Wait();
 
             Assert.AreEqual(COUNT * 4, counterRef);
             subscribe.Dispose();
@@ -362,8 +362,8 @@ namespace Observable.Tests
             }
             finally
             {
-                if (countdownEvent != null)
-                    countdownEvent.Signal();
+                if (_countdownEvent != null)
+                    _countdownEvent.Signal();
             }
         }
         private void Receiver(object state)
@@ -374,7 +374,7 @@ namespace Observable.Tests
 
                 subject.Subscribe(p => Assert.AreEqual("Test", p));
 
-                countdownEvent.Wait();
+                _countdownEvent.Wait();
             }
             catch (Exception e)
             {
@@ -387,7 +387,7 @@ namespace Observable.Tests
             {
                 var subject = state as IObservable<string>;
 
-                while (countdownEvent.CurrentCount != countdownEvent.InitialCount)
+                while (_countdownEvent.CurrentCount != _countdownEvent.InitialCount)
                 {
                     var disposable = subject.Subscribe(p => { });
                     Thread.Sleep(1);
