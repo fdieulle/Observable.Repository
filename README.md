@@ -1,4 +1,6 @@
 # Observable.Repository
+[![Build Status](https://api.travis-ci.com/fdieulle/Observable.Repository.svg?branch=master)](https://travis-ci.com/fdieulle/Observable.Repository)
+
 Event driven approach to store, aggregate and manage data
 ## Introduction
 Repository library allows you to store and build complex views by aggregating atomic data.
