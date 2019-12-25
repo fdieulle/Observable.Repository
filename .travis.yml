@@ -6,4 +6,4 @@ install:
 script:
  - msbuild /p:Configuration=Release Repository.sln
  - mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe ./Repository.Tests/bin/Release/net472/Observable.Repository.Tests.dll
- - mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe ./Core.Tests/bin/Release/net472/Core.Tests.dll
+ - mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe ./Core.Tests/bin/Release/net472/Observable.Core.Tests.dll
