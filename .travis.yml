@@ -2,7 +2,7 @@ language: csharp
 solution: Repository.sln
 install:
  - nuget restore Repository.sln
- - nuget install NUnit.Console -Version 3.11.0 -OutputDirectory testrunner
+ - nuget install NUnit.Console -Version 3.10.0 -OutputDirectory testrunner
 script:
  - msbuild /p:Configuration=Release Repository.sln
- - mono ./testrunner/NUnit.ConsoleRunner.3.11.0/tools/nunit3-console.exe ./Repository.Tests/bin/Release/net472/Observable.Repository.Tests.dll
+ - mono ./testrunner/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe ./Repository.Tests/bin/Release/net472/Observable.Repository.Tests.dll
