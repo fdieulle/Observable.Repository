@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using NUnit.Framework;
 using Observable.Tools;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
     public class PerformancesTest
     {
-        [Test]
+        [Fact]
         public void DispatchTest()
         {
             var normal = new NoDispatcherTest();
@@ -152,9 +151,9 @@ namespace Observable.Repository.Tests
             }
         }
 
-        [Ignore("Take too many times")]
-        [TestCase(10000, false)]
-        [TestCase(10, true)]
+        [Theory(Skip = "Take too many times")]
+        [InlineData(10000, false)]
+        [InlineData(10, true)]
         public void DictionaryTest(int times, bool checkMemory)
         {
             const int nbKeys = 100;

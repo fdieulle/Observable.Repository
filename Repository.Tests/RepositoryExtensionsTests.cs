@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Moq;
-using NUnit.Framework;
 using Observable.Repository.Tests.Data;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
     public class RepositoryExtensionsTests
     {
-        [Test]
+        [Fact]
         public void RepositoryContainerBuildTests()
         {
             var mockContainer = new Mock<IRepositoryContainer>();
@@ -68,7 +67,7 @@ namespace Observable.Repository.Tests
                 Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void RepositorySubscribeViewTests()
         {
             var mockRepository = new Mock<IRepository<int, ModelLeft>>();

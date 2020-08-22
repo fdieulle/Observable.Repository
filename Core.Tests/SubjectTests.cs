@@ -1,28 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using NUnit.Framework;
+using Xunit;
 
 namespace Observable.Tests
 {
-    [TestFixture]
-    public class SubjectTests
+    public class SubjectTests : IDisposable
     {
-        private CountdownEvent _countdownEvent;
+        private readonly CountdownEvent _countdownEvent;
 
-        [SetUp]
-        public void SetUp()
+        public SubjectTests()
         {
             _countdownEvent = new CountdownEvent(4);
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
             _countdownEvent.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void NominalTest()
         {
             var subject = new Subject<string>();
@@ -32,39 +29,39 @@ namespace Observable.Tests
                 p =>
                 {
                     counter++;
-                    Assert.AreEqual("Test", p);
+                    Assert.Equal("Test", p);
                 });
 
             subject.OnNext("Test");
             subject.OnNext("Test");
 
-            Assert.AreEqual(2, counter);
+            Assert.Equal(2, counter);
 
             subscribe.Dispose();
 
             subject.OnNext("Must be unsubsribe");
 
-            Assert.AreEqual(2, counter);
+            Assert.Equal(2, counter);
 
             subscribe = subject.Subscribe(
                 p =>
                 {
                     counter++;
-                    Assert.AreEqual("Test", p);
+                    Assert.Equal("Test", p);
                 });
 
             subject.OnNext("Test");
-            Assert.AreEqual(3, counter);
+            Assert.Equal(3, counter);
 
             subject.OnCompleted();
 
             subject.OnNext("Test");
-            Assert.AreEqual(3, counter);
+            Assert.Equal(3, counter);
 
             subscribe.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void TestSubjectWithSelectOperation()
         {
             var subject = new Subject<string>();
@@ -75,29 +72,29 @@ namespace Observable.Tests
                                     p =>
                                     {
                                         publicationCount++;
-                                        Assert.AreEqual("Test", p.Item1);
-                                        Assert.AreEqual(1, p.Item2);
+                                        Assert.Equal("Test", p.Item1);
+                                        Assert.Equal(1, p.Item2);
                                     });
 
             subject.OnNext("Test");
             subject.OnNext("Test");
             subject.OnNext("Test");
 
-            Assert.AreEqual(3, publicationCount);
+            Assert.Equal(3, publicationCount);
 
             subscribe.Dispose();
 
             subject.OnNext("Test");
 
-            Assert.AreEqual(3, publicationCount);
+            Assert.Equal(3, publicationCount);
 
             var selectedSubject = subject.Select(p => new Tuple<string, int>(p, 1));
 
-            Assert.IsInstanceOf<IObservable<Tuple<string, int>>>(selectedSubject);
-            Assert.IsNotInstanceOf<IObserver<Tuple<string, int>>>(selectedSubject);
+            Assert.IsAssignableFrom<IObservable<Tuple<string, int>>>(selectedSubject);
+            Assert.IsNotType<IObserver<Tuple<string, int>>>(selectedSubject);
         }
 
-        [Test]
+        [Fact]
         public void TestSubjectWithSelectToSubjectOperation()
         {
             var subject = new Subject<string>();
@@ -108,29 +105,29 @@ namespace Observable.Tests
                                     p =>
                                     {
                                         publicationCount++;
-                                        Assert.AreEqual("Test", p.Item1);
-                                        Assert.AreEqual(1, p.Item2);
+                                        Assert.Equal("Test", p.Item1);
+                                        Assert.Equal(1, p.Item2);
                                     });
 
             subject.OnNext("Test");
             subject.OnNext("Test");
             subject.OnNext("Test");
 
-            Assert.AreEqual(3, publicationCount);
+            Assert.Equal(3, publicationCount);
 
             subscribe.Dispose();
 
             subject.OnNext("Test");
 
-            Assert.AreEqual(3, publicationCount);
+            Assert.Equal(3, publicationCount);
 
             var selectedSubject = subject.SelectToSubject(p => new Tuple<string, int>(p, 1));
 
-            Assert.IsInstanceOf<IObservable<Tuple<string, int>>>(selectedSubject);
-            Assert.IsInstanceOf<IObserver<Tuple<string, int>>>(selectedSubject);
+            Assert.IsAssignableFrom<IObservable<Tuple<string, int>>>(selectedSubject);
+            Assert.IsAssignableFrom<IObserver<Tuple<string, int>>>(selectedSubject);
         }
 
-        [Test]
+        [Fact]
         public void TestSubjectWithWhereOperation()
         {
             var subject = new Subject<string>();
@@ -141,28 +138,28 @@ namespace Observable.Tests
                                     p =>
                                     {
                                         publicationCount++;
-                                        Assert.AreEqual("Test", p);
+                                        Assert.Equal("Test", p);
                                     });
 
             subject.OnNext("Test");
             subject.OnNext("TEst 2");
             subject.OnNext("Test");
 
-            Assert.AreEqual(2, publicationCount);
+            Assert.Equal(2, publicationCount);
 
             subscribe.Dispose();
 
             subject.OnNext("Test");
 
-            Assert.AreEqual(2, publicationCount);
+            Assert.Equal(2, publicationCount);
 
             var filteredSubject = subject.Where(p => p == "Test");
 
-            Assert.IsInstanceOf<IObservable<string>>(filteredSubject);
-            Assert.IsNotInstanceOf<IObserver<string>>(filteredSubject);
+            Assert.IsAssignableFrom<IObservable<string>>(filteredSubject);
+            Assert.IsNotType<IObserver<string>>(filteredSubject);
         }
 
-        [Test]
+        [Fact]
         public void TestSubjectWithWhereToSubjectOperation()
         {
             var subject = new Subject<string>();
@@ -173,28 +170,28 @@ namespace Observable.Tests
                                     p =>
                                     {
                                         publicationCount++;
-                                        Assert.AreEqual("Test", p);
+                                        Assert.Equal("Test", p);
                                     });
 
             subject.OnNext("Test");
             subject.OnNext("TEst 2");
             subject.OnNext("Test");
 
-            Assert.AreEqual(2, publicationCount);
+            Assert.Equal(2, publicationCount);
 
             subscribe.Dispose();
 
             subject.OnNext("Test");
 
-            Assert.AreEqual(2, publicationCount);
+            Assert.Equal(2, publicationCount);
 
             var filteredSubject = subject.WhereToSubject(p => p == "Test");
 
-            Assert.IsInstanceOf<IObservable<string>>(filteredSubject);
-            Assert.IsInstanceOf<IObserver<string>>(filteredSubject);
+            Assert.IsAssignableFrom<IObservable<string>>(filteredSubject);
+            Assert.IsAssignableFrom<IObserver<string>>(filteredSubject);
         }
 
-        [Test]
+        [Fact]
         public void TestSubjectWithCombineOperation()
         {
             var left = new Subject<string>();
@@ -208,7 +205,7 @@ namespace Observable.Tests
                 p =>
                 {
 // ReSharper disable AccessToModifiedClosure
-                    Assert.AreEqual(value, p);
+                    Assert.Equal(value, p);
 // ReSharper restore AccessToModifiedClosure
                     counter++;
                 });
@@ -224,7 +221,7 @@ namespace Observable.Tests
             value = "test from left 3";
             left.OnNext(value);
 
-            Assert.AreEqual(4, counter);
+            Assert.Equal(4, counter);
 
             dispose.Dispose();
 
@@ -232,10 +229,10 @@ namespace Observable.Tests
             left.OnNext(value);
             right.OnNext(value);
 
-            Assert.AreEqual(4, counter);
+            Assert.Equal(4, counter);
         }
 
-        [Test]
+        [Fact]
         public void TestSubjectWithCombineToSubjectOperation()
         {
             var left = new Subject<string>();
@@ -249,7 +246,7 @@ namespace Observable.Tests
                 p =>
                 {
 // ReSharper disable AccessToModifiedClosure
-                    Assert.AreEqual(value, p);
+                    Assert.Equal(value, p);
                     counter++;
 // ReSharper restore AccessToModifiedClosure
                 });
@@ -265,7 +262,7 @@ namespace Observable.Tests
             value = "test from left 3";
             left.OnNext(value);
 
-            Assert.AreEqual(4, counter);
+            Assert.Equal(4, counter);
 
             dispose.Dispose();
 
@@ -273,17 +270,17 @@ namespace Observable.Tests
             left.OnNext(value);
             right.OnNext(value);
 
-            Assert.AreEqual(4, counter);
+            Assert.Equal(4, counter);
 
-            Assert.IsInstanceOf<IObservable<string>>(combine);
-            Assert.IsInstanceOf<IObserver<string>>(combine);
+            Assert.IsAssignableFrom<IObservable<string>>(combine);
+            Assert.IsAssignableFrom<IObserver<string>>(combine);
 
             counter = 0;
             combine.Subscribe(
                 p =>
                 {
 // ReSharper disable AccessToModifiedClosure
-                    Assert.AreEqual(value, p);
+                    Assert.Equal(value, p);
 // ReSharper restore AccessToModifiedClosure
                     counter++;
                 });
@@ -299,7 +296,7 @@ namespace Observable.Tests
             value = "test from left 3";
             left.OnNext(value);
 
-            Assert.AreEqual(4, counter);
+            Assert.Equal(4, counter);
 
 // ReSharper disable SuspiciousTypeConversion.Global
             ((IObserver<string>)combine).OnCompleted();
@@ -309,12 +306,12 @@ namespace Observable.Tests
             left.OnNext(value);
             right.OnNext(value);
 
-            Assert.AreEqual(4, counter);
+            Assert.Equal(4, counter);
         }
 
 
         const int COUNT = 10000;
-        [Test]
+        [Fact]
         public void TestConcurrentAccess()
         {
             var counterRef = 0;
@@ -326,7 +323,7 @@ namespace Observable.Tests
                 {
                     Interlocked.Increment(ref counterRef);
 
-                    Assert.AreEqual("Test", p);
+                    Assert.Equal("Test", p);
                 });
 
             ThreadPool.QueueUserWorkItem(Receiver, subject);
@@ -341,7 +338,7 @@ namespace Observable.Tests
 
             _countdownEvent.Wait();
 
-            Assert.AreEqual(COUNT * 4, counterRef);
+            Assert.Equal(COUNT * 4, counterRef);
             subscribe.Dispose();
         }
 
@@ -351,14 +348,14 @@ namespace Observable.Tests
             {
                 var subject = state as IObserver<string>;
                 if(subject == null)
-                    Assert.IsTrue(false, "Subject is null");
+                    Assert.True(false, "Subject is null");
 
                 for (var i = 0; i < COUNT; i++)
                     subject.OnNext("Test");
             }
             catch (Exception e)
             {
-                Assert.IsFalse(true, e.ToString());
+                Assert.False(true, e.ToString());
             }
             finally
             {
@@ -372,13 +369,13 @@ namespace Observable.Tests
             {
                 var subject = state as IObservable<string>;
 
-                subject.Subscribe(p => Assert.AreEqual("Test", p));
+                subject.Subscribe(p => Assert.Equal("Test", p));
 
                 _countdownEvent.Wait();
             }
             catch (Exception e)
             {
-                Assert.IsFalse(true, e.ToString());
+                Assert.False(true, e.ToString());
             }
         }
         private void SubscriberUnsubscriber(object state)
@@ -396,12 +393,12 @@ namespace Observable.Tests
             }
             catch (Exception e)
             {
-                Assert.IsFalse(true, e.ToString());
+                Assert.False(true, e.ToString());
             }
         }
 
 
-        [Test]
+        [Fact]
         public void TestPerformances()
         {
             var sw = Stopwatch.StartNew();
@@ -410,7 +407,7 @@ namespace Observable.Tests
             Publisher(subject);
 
             sw.Stop();
-            Assert.IsTrue(true, "" + sw.Elapsed);
+            Assert.True(true, "" + sw.Elapsed);
         }
     }
 }

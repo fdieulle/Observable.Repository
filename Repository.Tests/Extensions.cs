@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using Observable.Repository.Core;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
@@ -66,9 +66,9 @@ namespace Observable.Repository.Tests
 
             public void CheckNotification(ActionType action, TValue[] oldValues, TValue[] newValues)
             {
-                Assert.Greater(_notifications.Count, 0, "No notifications raised !");
+                Assert.True(_notifications.Count > 0);
                 var e = _notifications.Dequeue();
-                Assert.AreEqual(action, e.Action);
+                Assert.Equal(action, e.Action);
                 Check(oldValues ?? new TValue[0], e.OldItems);
                 Check(newValues ?? new TValue[0], e.NewItems);
             }
@@ -76,12 +76,12 @@ namespace Observable.Repository.Tests
             private void Check(TValue[] x, IEnumerable<KeyValue<TKey, TValue>> y)
             {
                 var ay = y.ToArray();
-                Assert.AreEqual(x.Length, ay.Length);
+                Assert.Equal(x.Length, ay.Length);
                 for (var i = 0; i < x.Length; i++)
                 {
-                    Assert.AreEqual(x[i], ay[i].Value);
+                    Assert.Equal(x[i], ay[i].Value);
                     if(_getKey != null)
-                        Assert.AreEqual(_getKey(x[i]), ay[i].Key);
+                        Assert.Equal(_getKey(x[i]), ay[i].Key);
                 }
             }
 
@@ -101,7 +101,7 @@ namespace Observable.Repository.Tests
 
             public void CheckNoMoreNotifications()
             {
-                Assert.AreEqual(0, _notifications.Count);
+                Assert.Empty(_notifications);
             }
 
             public void ClearNotifications()

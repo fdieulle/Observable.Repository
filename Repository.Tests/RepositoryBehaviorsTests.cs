@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using Observable.Repository.Core;
 using Observable.Repository.Tests.Data;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
-    public class RepositoryBehaviorsTests
+    public class RepositoryBehaviorsTests : IDisposable
     {
-        private IRepositoryContainer _container;
-        private Subject<List<ModelLeft>> _addSubject;
-        private Subject<List<ModelLeft>> _removeSubject;
-        private Subject<List<ModelLeft>> _reloadSubject;
+        private readonly IRepositoryContainer _container;
+        private readonly Subject<List<ModelLeft>> _addSubject;
+        private readonly Subject<List<ModelLeft>> _removeSubject;
+        private readonly Subject<List<ModelLeft>> _reloadSubject;
 
-        [SetUp]
-        public void SetUp()
+        public RepositoryBehaviorsTests()
         {
             _container = new RepositoryContainer();
 
@@ -29,13 +27,12 @@ namespace Observable.Repository.Tests
             _container.AddProducer(ActionType.Reload, _reloadSubject);
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
             _container.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void TestRollingBehavior()
         {
             var repository = _container.Build<int, ModelLeft>(p => p.PrimaryKey)
@@ -131,7 +128,7 @@ namespace Observable.Repository.Tests
             AssertContains(repository, CreateDataTest(2, 6));
         }
 
-        [Test]
+        [Fact]
         public void TestTimeIntervalBehavior()
         {
             var repository = _container.Build<int, ModelLeft>(p => p.PrimaryKey)
@@ -229,7 +226,7 @@ namespace Observable.Repository.Tests
 
         private static void AssertContains(IRepository<int, ModelLeft> repository, params Tuple<int, string, DateTime>[] items)
         {
-            Assert.AreEqual(items.Length, repository.Count);
+            Assert.Equal(items.Length, repository.Count);
 
             var i = 0;
             foreach (var pair in repository)
@@ -239,7 +236,7 @@ namespace Observable.Repository.Tests
         private static void AssertContains(IEnumerable<KeyValue<int, ModelLeft>> source, params Tuple<int, string, DateTime>[] items)
         {
             var list = source.ToList();
-            Assert.AreEqual(items.Length, list.Count);
+            Assert.Equal(items.Length, list.Count);
 
             for (var i = 0; i < items.Length; i++)
                 AssertItem(list[i], items[i]);
@@ -247,10 +244,10 @@ namespace Observable.Repository.Tests
 
         private static void AssertItem(KeyValue<int, ModelLeft> pair, Tuple<int, string, DateTime> tuple)
         {
-            Assert.AreEqual(tuple.Item1, pair.Key);
-            Assert.AreEqual(tuple.Item1, pair.Value.PrimaryKey);
-            Assert.AreEqual(tuple.Item2, pair.Value.Name);
-            Assert.AreEqual(tuple.Item3, pair.Value.Timestamp);
+            Assert.Equal(tuple.Item1, pair.Key);
+            Assert.Equal(tuple.Item1, pair.Value.PrimaryKey);
+            Assert.Equal(tuple.Item2, pair.Value.Name);
+            Assert.Equal(tuple.Item3, pair.Value.Timestamp);
         }
 
         private static readonly DateTime startDate = DateTime.Now;

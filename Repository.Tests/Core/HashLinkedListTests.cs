@@ -1,15 +1,14 @@
-﻿using NUnit.Framework;
-using Observable.Repository.Collections;
+﻿using Observable.Repository.Collections;
 using Observable.Repository.Core;
+using Xunit;
 
 namespace Observable.Repository.Tests.Core
 {
-    [TestFixture]
     public class HashLinkedListTests
     {
         private readonly Pool<LinkedNode<int, string>> _pool = new Pool<LinkedNode<int,string>>(() => new LinkedNode<int, string>());
 
-        [Test]
+        [Fact]
         public void AddRemoveAndClearTest()
         {
             var list = new HashLinkedList<int, string>(_pool)
@@ -21,50 +20,50 @@ namespace Observable.Repository.Tests.Core
                 {5, "Test5"}
             };
 
-            Assert.AreEqual(5, list.Count);
+            Assert.Equal(5, list.Count);
 
             var idx = 0;
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair._key);
-                Assert.AreEqual("Test"+idx, pair._value);
+                Assert.Equal(idx, pair._key);
+                Assert.Equal("Test"+idx, pair._value);
             }
 
-            Assert.AreEqual(5, idx);
+            Assert.Equal(5, idx);
 
             list.Remove(1);
-            Assert.AreEqual(4, list.Count);
+            Assert.Equal(4, list.Count);
 
             idx = 0;
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx + 1, pair._key);
-                Assert.AreEqual("Test" + (idx + 1), pair._value);
+                Assert.Equal(idx + 1, pair._key);
+                Assert.Equal("Test" + (idx + 1), pair._value);
             }
-            Assert.AreEqual(4, idx);
+            Assert.Equal(4, idx);
 
             list.Remove(5);
-            Assert.AreEqual(3, list.Count);
+            Assert.Equal(3, list.Count);
 
             idx = 0;
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx + 1, pair._key);
-                Assert.AreEqual("Test" + (idx + 1), pair._value);
+                Assert.Equal(idx + 1, pair._key);
+                Assert.Equal("Test" + (idx + 1), pair._value);
             }
-            Assert.AreEqual(3, idx);
+            Assert.Equal(3, idx);
 
             idx = 0;
             list.Clear((k,v) => idx++);
-            Assert.AreEqual(3, idx);
+            Assert.Equal(3, idx);
 
-            Assert.AreEqual(0, list.Count);
+            Assert.Equal(0, list.Count);
         }
 
-        [Test]
+        [Fact]
         public void AddAndUpdateTest()
         {
             var values = new[]
@@ -85,17 +84,17 @@ namespace Observable.Repository.Tests.Core
                 {5, values[4]}
             };
 
-            Assert.AreEqual(5, list.Count);
+            Assert.Equal(5, list.Count);
 
             var idx = 0;
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair._key);
-                Assert.AreEqual(values[idx - 1], pair._value);
+                Assert.Equal(idx, pair._key);
+                Assert.Equal(values[idx - 1], pair._value);
             }
 
-            Assert.AreEqual(5, idx);
+            Assert.Equal(5, idx);
 
             values[0] = "Update1";
             list[1] = values[0];
@@ -104,11 +103,11 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair._key);
-                Assert.AreEqual(values[idx - 1], pair._value);
+                Assert.Equal(idx, pair._key);
+                Assert.Equal(values[idx - 1], pair._value);
             }
 
-            Assert.AreEqual(5, idx);
+            Assert.Equal(5, idx);
 
             values[4] = "Update5";
             list[5] = values[4];
@@ -117,11 +116,11 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair._key);
-                Assert.AreEqual(values[idx - 1], pair._value);
+                Assert.Equal(idx, pair._key);
+                Assert.Equal(values[idx - 1], pair._value);
             }
 
-            Assert.AreEqual(5, idx);
+            Assert.Equal(5, idx);
 
             values[2] = "Update3";
             list[3] = values[2];
@@ -130,14 +129,14 @@ namespace Observable.Repository.Tests.Core
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair._key);
-                Assert.AreEqual(values[idx - 1], pair._value);
+                Assert.Equal(idx, pair._key);
+                Assert.Equal(values[idx - 1], pair._value);
             }
 
-            Assert.AreEqual(5, idx);
+            Assert.Equal(5, idx);
         }
 
-        [Test]
+        [Fact]
         public void FlushTest()
         {
             var list = new HashLinkedList<int, string>(_pool)
@@ -150,17 +149,17 @@ namespace Observable.Repository.Tests.Core
             };
 
             var items = list.Flush();
-            Assert.AreEqual(5, items.Length);
-            Assert.AreEqual(0, list.Count);
+            Assert.Equal(5, items.Length);
+            Assert.Equal(0, list.Count);
 
             for (var i = 0; i < items.Length; i++)
             {
-                Assert.AreEqual(i + 1, items[i].Key);
-                Assert.AreEqual("Test" + (i + 1), items[i].Value);
+                Assert.Equal(i + 1, items[i].Key);
+                Assert.Equal("Test" + (i + 1), items[i].Value);
             }
         }
 
-        [Test]
+        [Fact]
         public void FlushValuesTest()
         {
             var list = new HashLinkedList<int, string>(_pool)
@@ -173,16 +172,16 @@ namespace Observable.Repository.Tests.Core
             };
 
             var items = list.FlushValues();
-            Assert.AreEqual(5, items.Length);
-            Assert.AreEqual(0, list.Count);
+            Assert.Equal(5, items.Length);
+            Assert.Equal(0, list.Count);
 
             for (var i = 0; i < items.Length; i++)
             {
-                Assert.AreEqual("Test" + (i + 1), items[i]);
+                Assert.Equal("Test" + (i + 1), items[i]);
             }
         }
 
-        [Test]
+        [Fact]
         public void MakeCopyTests()
         {
             var list = new HashLinkedList<int, string>(_pool)
@@ -195,23 +194,23 @@ namespace Observable.Repository.Tests.Core
             };
 
             var copy = list.MakeCopy();
-            Assert.AreEqual(5, copy.Length);
-            Assert.AreEqual(5, list.Count);
+            Assert.Equal(5, copy.Length);
+            Assert.Equal(5, list.Count);
 
             var idx = 0;
             foreach (var pair in list)
             {
                 ++idx;
-                Assert.AreEqual(idx, pair._key);
-                Assert.AreEqual("Test" + idx, pair._value);
-                Assert.AreEqual(idx, copy[idx - 1].Key);
-                Assert.AreEqual("Test"+idx, copy[idx - 1].Value);
+                Assert.Equal(idx, pair._key);
+                Assert.Equal("Test" + idx, pair._value);
+                Assert.Equal(idx, copy[idx - 1].Key);
+                Assert.Equal("Test"+idx, copy[idx - 1].Value);
             }
 
-            Assert.AreEqual(5, idx);
+            Assert.Equal(5, idx);
         }
 
-        [Test]
+        [Fact]
         public void TryGetValueTest()
         {
             var list = new HashLinkedList<int, string>(_pool)
@@ -223,25 +222,25 @@ namespace Observable.Repository.Tests.Core
                 {5, "Test5"}
             };
 
-            Assert.IsFalse(list.TryGetValue(0, out var value));
-            Assert.AreEqual(null, value);
+            Assert.False(list.TryGetValue(0, out var value));
+            Assert.Null(value);
 
-            Assert.IsTrue(list.TryGetValue(1, out value));
-            Assert.AreEqual("Test1", value);
-            Assert.IsTrue(list.TryGetValue(2, out value));
-            Assert.AreEqual("Test2", value);
-            Assert.IsTrue(list.TryGetValue(3, out value));
-            Assert.AreEqual("Test3", value);
-            Assert.IsTrue(list.TryGetValue(4, out value));
-            Assert.AreEqual("Test4", value);
-            Assert.IsTrue(list.TryGetValue(5, out value));
-            Assert.AreEqual("Test5", value);
+            Assert.True(list.TryGetValue(1, out value));
+            Assert.Equal("Test1", value);
+            Assert.True(list.TryGetValue(2, out value));
+            Assert.Equal("Test2", value);
+            Assert.True(list.TryGetValue(3, out value));
+            Assert.Equal("Test3", value);
+            Assert.True(list.TryGetValue(4, out value));
+            Assert.Equal("Test4", value);
+            Assert.True(list.TryGetValue(5, out value));
+            Assert.Equal("Test5", value);
 
-            Assert.IsFalse(list.TryGetValue(6, out value));
-            Assert.AreEqual(null, value);
+            Assert.False(list.TryGetValue(6, out value));
+            Assert.Null(value);
         }
 
-        [Test]
+        [Fact]
         public void ContainsKeyTest()
         {
             var list = new HashLinkedList<int, string>(_pool)
@@ -253,13 +252,13 @@ namespace Observable.Repository.Tests.Core
                 {5, "Test5"}
             };
 
-            Assert.IsFalse(list.ContainsKey(0));
-            Assert.IsTrue(list.ContainsKey(1));
-            Assert.IsTrue(list.ContainsKey(2));
-            Assert.IsTrue(list.ContainsKey(3));
-            Assert.IsTrue(list.ContainsKey(4));
-            Assert.IsTrue(list.ContainsKey(5));
-            Assert.IsFalse(list.ContainsKey(6));
+            Assert.False(list.ContainsKey(0));
+            Assert.True(list.ContainsKey(1));
+            Assert.True(list.ContainsKey(2));
+            Assert.True(list.ContainsKey(3));
+            Assert.True(list.ContainsKey(4));
+            Assert.True(list.ContainsKey(5));
+            Assert.False(list.ContainsKey(6));
         }
     }
 }

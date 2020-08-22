@@ -1,12 +1,11 @@
 ﻿using System;
-using NUnit.Framework;
+using Xunit;
 
 namespace Observable.Tests
 {
-    [TestFixture]
     public class ZipSubjectTests
     {
-        [Test]
+        [Fact]
         public void AddProducer()
         {
             var subject = new ZipSubject<string>();
@@ -37,56 +36,56 @@ namespace Observable.Tests
 
             subject.OnNext("Master");
 
-            Assert.AreEqual(1, notificationCount);
-            Assert.AreEqual("Master", lastNotification);
+            Assert.Equal(1, notificationCount);
+            Assert.Equal("Master", lastNotification);
 
             producer1.OnNext("Producer1");
 
-            Assert.AreEqual(2, notificationCount);
-            Assert.AreEqual("Producer1", lastNotification);
+            Assert.Equal(2, notificationCount);
+            Assert.Equal("Producer1", lastNotification);
 
             producer2.OnNext("Producer2");
 
-            Assert.AreEqual(3, notificationCount);
-            Assert.AreEqual("Producer2", lastNotification);
+            Assert.Equal(3, notificationCount);
+            Assert.Equal("Producer2", lastNotification);
 
             var exceptionMaster = new Exception("Master");
             subject.OnError(exceptionMaster);
 
-            Assert.AreEqual(1, exceptionCount);
-            Assert.AreEqual(exceptionMaster, lastException);
+            Assert.Equal(1, exceptionCount);
+            Assert.Equal(exceptionMaster, lastException);
 
             var exceptionProducer1 = new Exception("Producer1");
             producer1.OnError(exceptionProducer1);
 
-            Assert.AreEqual(2, exceptionCount);
-            Assert.AreEqual(exceptionProducer1, lastException);
+            Assert.Equal(2, exceptionCount);
+            Assert.Equal(exceptionProducer1, lastException);
 
             var exceptionProducer2 = new Exception("Producer2");
             producer2.OnError(exceptionProducer2);
 
-            Assert.AreEqual(3, exceptionCount);
-            Assert.AreEqual(exceptionProducer2, lastException);
+            Assert.Equal(3, exceptionCount);
+            Assert.Equal(exceptionProducer2, lastException);
 
             producer1.OnCompleted();
 
             producer1.OnNext("Producer1");
 
-            Assert.AreEqual(0, completedCount);
-            Assert.AreEqual(3, notificationCount);
-            Assert.AreEqual("Producer2", lastNotification);
+            Assert.Equal(0, completedCount);
+            Assert.Equal(3, notificationCount);
+            Assert.Equal("Producer2", lastNotification);
 
             subject.OnCompleted();
 
             subject.OnNext("Master");
             subject.OnNext("Producer21");
 
-            Assert.AreEqual(1, completedCount);
-            Assert.AreEqual(3, notificationCount);
-            Assert.AreEqual("Producer2", lastNotification);
+            Assert.Equal(1, completedCount);
+            Assert.Equal(3, notificationCount);
+            Assert.Equal("Producer2", lastNotification);
         }
 
-        [Test]
+        [Fact]
         public void RemoveProducer()
         {
             var subject = new ZipSubject<string>();
@@ -109,13 +108,13 @@ namespace Observable.Tests
 
             producer1.OnNext("Producer1");
 
-            Assert.AreEqual(0, notificationCount);
-            Assert.AreEqual(null, lastNotification);
+            Assert.Equal(0, notificationCount);
+            Assert.Equal(null, lastNotification);
 
             producer2.OnNext("Producer2");
 
-            Assert.AreEqual(1, notificationCount);
-            Assert.AreEqual("Producer2", lastNotification);
+            Assert.Equal(1, notificationCount);
+            Assert.Equal("Producer2", lastNotification);
         }
     }
 }

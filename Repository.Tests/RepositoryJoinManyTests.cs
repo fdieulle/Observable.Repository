@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Linq;
-using NUnit.Framework;
 using System.Collections.Generic;
 using Observable.Repository.Tests.Data;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
     public class RepositoryJoinManyTests
     {
-        private IRepositoryContainer _container;
-        private Subject<ModelLeft> _addLeft;
-        private Subject<ModelLeft> _removeLeft;
-        private Subject<List<ModelLeft>> _reloadLeft;
-        private Subject<ModelRight> _addRight;
-        private Subject<ModelRight> _removeRight;
-        private Subject<List<ModelRight>> _reloadRight;
+        private readonly IRepositoryContainer _container;
+        private readonly Subject<ModelLeft> _addLeft;
+        private readonly Subject<ModelLeft> _removeLeft;
+        private readonly Subject<List<ModelLeft>> _reloadLeft;
+        private readonly Subject<ModelRight> _addRight;
+        private readonly Subject<ModelRight> _removeRight;
+        private readonly Subject<List<ModelRight>> _reloadRight;
         private const string FILTERED_NAME = "FILTER";
 
-        [SetUp]
-        public void SetUp()
+        public RepositoryJoinManyTests()
         {
             _addLeft = new Subject<ModelLeft>();
             _removeLeft = new Subject<ModelLeft>();
@@ -46,7 +44,7 @@ namespace Observable.Repository.Tests
                 .Register();
         }
 
-        [Test]
+        [Fact]
         public void TestAddRightBeforeLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -85,20 +83,20 @@ namespace Observable.Repository.Tests
             _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
             _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            Assert.IsNull(action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository);
 
             _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 1 && p.ModelRights.Count == 1 && p.ModelRights[0].PrimaryKey == 1));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 1 && p.ModelRights.Count == 1 && p.ModelRights[0].PrimaryKey == 1);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"), new[] { new Tuple<int, int, string>(1, 1, "Right 1") }));
 
             addedItems = new List<AdapterJoinMany>();
@@ -108,11 +106,11 @@ namespace Observable.Repository.Tests
 
             _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 2 && p.ModelRights.Count == 3 && p.ModelRights[0].Name == "Right 2" && p.ModelRights[1].Name == "Right 3" && p.ModelRights[2].Name == "Right 4"));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 2 && p.ModelRights.Count == 3 && p.ModelRights[0].Name == "Right 2" && p.ModelRights[1].Name == "Right 3" && p.ModelRights[2].Name == "Right 4");
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -131,11 +129,11 @@ namespace Observable.Repository.Tests
 
             _addLeft.OnNext(new ModelLeft { PrimaryKey = 3, Name = "Left 3" });
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 3 && p.ModelRights.Count == 0));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 3 && p.ModelRights.Count == 0);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -149,7 +147,7 @@ namespace Observable.Repository.Tests
                     new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(3, "Left 3"), new Tuple<int, int, string>[0]));
         }
 
-        [Test]
+        [Fact]
         public void TestAddRightAfterLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -184,12 +182,12 @@ namespace Observable.Repository.Tests
 
             _addLeft.OnNext(new ModelLeft { PrimaryKey = 1, Name = "Left 1" });
 
-            Assert.AreEqual(ActionType.Add, action);
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 1 && p.ModelRights.Count == 0));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Equal(ActionType.Add, action);
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 1 && p.ModelRights.Count == 0);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"), new Tuple<int, int, string>[0]));
 
             addedItems = new List<AdapterJoinMany>();
@@ -199,12 +197,12 @@ namespace Observable.Repository.Tests
 
             _addLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 2" });
 
-            Assert.AreEqual(ActionType.Add, action);
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 2 && p.ModelRights.Count == 0));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Equal(ActionType.Add, action);
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 2 && p.ModelRights.Count == 0);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"), new Tuple<int, int, string>[0]),
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 2"), new Tuple<int, int, string>[0]));
@@ -216,18 +214,18 @@ namespace Observable.Repository.Tests
             removedItems = new List<AdapterJoinMany>();
 
             _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = FILTERED_NAME });
-            Assert.AreEqual(null, action);
+            Assert.Null(action);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"), new Tuple<int, int, string>[0]),
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 2"), new Tuple<int, int, string>[0]));
 
             _addRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -236,11 +234,11 @@ namespace Observable.Repository.Tests
 
             _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 2" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -249,11 +247,11 @@ namespace Observable.Repository.Tests
 
             _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 3" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -266,11 +264,11 @@ namespace Observable.Repository.Tests
 
             _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = FILTERED_NAME });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -282,7 +280,7 @@ namespace Observable.Repository.Tests
                     }));
         }
 
-        [Test]
+        [Fact]
         public void RightModelChangeHisForeignKey()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -346,11 +344,11 @@ namespace Observable.Repository.Tests
 
             _addRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 3, Name = "Right 3" });
 
-            Assert.IsNull(action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
 
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
@@ -369,11 +367,11 @@ namespace Observable.Repository.Tests
             _addRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Update Right 2" });
             _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Update Right 4" });
 
-            Assert.IsNull(action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
 
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
@@ -388,7 +386,7 @@ namespace Observable.Repository.Tests
                         new[] { new Tuple<int, int, string>(3, 3, "Right 3") }));
         }
 
-        [Test]
+        [Fact]
         public void TestRemoveRight()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -457,11 +455,11 @@ namespace Observable.Repository.Tests
 
             _removeRight.OnNext(new ModelRight { PrimaryKey = 1, ForeignKey = 1, Name = "Right 1" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new Tuple<int, int, string>[0]),
@@ -477,11 +475,11 @@ namespace Observable.Repository.Tests
 
             _removeRight.OnNext(new ModelRight { PrimaryKey = 3, ForeignKey = 2, Name = "Right 100" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new Tuple<int, int, string>[0]),
@@ -496,11 +494,11 @@ namespace Observable.Repository.Tests
 
             _removeRight.OnNext(new ModelRight { PrimaryKey = 2, ForeignKey = 2, Name = "Right 100" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new Tuple<int, int, string>[0]),
@@ -514,11 +512,11 @@ namespace Observable.Repository.Tests
 
             _removeRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 100" });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new Tuple<int, int, string>[0]),
@@ -528,7 +526,7 @@ namespace Observable.Repository.Tests
                     new Tuple<int, int, string>[0]));
         }
 
-        [Test]
+        [Fact]
         public void TestReloadRight()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -605,11 +603,11 @@ namespace Observable.Repository.Tests
                 new ModelRight { PrimaryKey = 106, ForeignKey = 3, Name = "Right 106" },
             });
 
-            Assert.AreEqual(null, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Null(action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(100, 1, "Right 100") }),
@@ -625,7 +623,7 @@ namespace Observable.Repository.Tests
                     }));
         }
 
-        [Test]
+        [Fact]
         public void TestRemoveLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -695,12 +693,12 @@ namespace Observable.Repository.Tests
 
             _removeLeft.OnNext(new ModelLeft { PrimaryKey = 2, Name = "Left 200" });
 
-            Assert.AreEqual(ActionType.Remove, action);
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(1, removedItems.Count());
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft.PrimaryKey == 2 && p.ModelLeft.Name == "Left 2" && p.ModelRights.Count == 0));
+            Assert.Equal(ActionType.Remove, action);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Single(removedItems);
+            Assert.Contains(removedItems, p => p.ModelLeft.PrimaryKey == 2 && p.ModelLeft.Name == "Left 2" && p.ModelRights.Count == 0);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(1, "Left 1"),
                     new[] { new Tuple<int, int, string>(1, 1, "Right 1") }),
@@ -708,7 +706,7 @@ namespace Observable.Repository.Tests
                     new Tuple<int, int, string>[0]));
         }
 
-        [Test]
+        [Fact]
         public void TestReloadLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoinMany>();
@@ -783,16 +781,16 @@ namespace Observable.Repository.Tests
             };
             _reloadLeft.OnNext(list);
 
-            Assert.AreEqual(ActionType.Reload, action);
-            Assert.AreEqual(2, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 2 && p.ModelLeft.Name == "Left 200" && p.ModelRights.Count == 3));
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft.PrimaryKey == 4 && p.ModelLeft.Name == "Left 400" && p.ModelRights.Count == 0));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(3, removedItems.Count());
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft.PrimaryKey == 1 && p.ModelLeft.Name == "Left 1" && p.ModelRights.Count == 0));
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft.PrimaryKey == 2 && p.ModelLeft.Name == "Left 2" && p.ModelRights.Count == 0));
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft.PrimaryKey == 3 && p.ModelLeft.Name == "Left 3" && p.ModelRights.Count == 0));
+            Assert.Equal(ActionType.Reload, action);
+            Assert.Equal(2, addedItems.Count());
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 2 && p.ModelLeft.Name == "Left 200" && p.ModelRights.Count == 3);
+            Assert.Contains(addedItems, p => p.ModelLeft.PrimaryKey == 4 && p.ModelLeft.Name == "Left 400" && p.ModelRights.Count == 0);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Equal(3, removedItems.Count());
+            Assert.Contains(removedItems, p => p.ModelLeft.PrimaryKey == 1 && p.ModelLeft.Name == "Left 1" && p.ModelRights.Count == 0);
+            Assert.Contains(removedItems, p => p.ModelLeft.PrimaryKey == 2 && p.ModelLeft.Name == "Left 2" && p.ModelRights.Count == 0);
+            Assert.Contains(removedItems, p => p.ModelLeft.PrimaryKey == 3 && p.ModelLeft.Name == "Left 3" && p.ModelRights.Count == 0);
             AssertContains(repository,
                 new Tuple<Tuple<int, string>, Tuple<int, int, string>[]>(new Tuple<int, string>(2, "Left 200"),
                     new[]
@@ -805,7 +803,7 @@ namespace Observable.Repository.Tests
                     new Tuple<int, int, string>[0]));
         }
 
-        [Test]
+        [Fact]
         public void TestGetSnapshotFromRightSource()
         {
             _container.Build<int, ModelRight>(p => p.PrimaryKey)
@@ -817,7 +815,7 @@ namespace Observable.Repository.Tests
             _addRight.OnNext(new ModelRight { PrimaryKey = 4, ForeignKey = 2, Name = "Right 4" });
             _addRight.OnNext(new ModelRight { PrimaryKey = 5, ForeignKey = 3, Name = FILTERED_NAME });
 
-            Assert.AreEqual(5, _container.GetRepository<int, ModelRight>().Count);
+            Assert.Equal(5, _container.GetRepository<int, ModelRight>().Count);
 
             // Build repository and get snapshot from TRight source
             _container.Build<int, AdapterJoinMany, ModelLeft>("2", p => p.PrimaryKey)
@@ -879,21 +877,21 @@ namespace Observable.Repository.Tests
 
         private static void AssertContains(IRepository<int, AdapterJoinMany> repository, params Tuple<Tuple<int, string>, Tuple<int, int, string>[]>[] adapters)
         {
-            Assert.AreEqual(adapters.Length, repository.Count);
+            Assert.Equal(adapters.Length, repository.Count);
             foreach (var adapter in adapters)
             {
                 var item = repository[adapter.Item1.Item1];
-                Assert.AreEqual(adapter.Item1.Item1, item.ModelLeft.PrimaryKey);
-                Assert.AreEqual(adapter.Item1.Item2, item.ModelLeft.Name);
+                Assert.Equal(adapter.Item1.Item1, item.ModelLeft.PrimaryKey);
+                Assert.Equal(adapter.Item1.Item2, item.ModelLeft.Name);
 
-                Assert.AreEqual(adapter.Item2.Length, item.ModelRights.Count);
+                Assert.Equal(adapter.Item2.Length, item.ModelRights.Count);
 
                 var count = adapter.Item2.Length;
                 for (var i = 0; i < count; i++)
                 {
-                    Assert.AreEqual(adapter.Item2[i].Item1, item.ModelRights[i].PrimaryKey);
-                    Assert.AreEqual(adapter.Item2[i].Item2, item.ModelRights[i].ForeignKey);
-                    Assert.AreEqual(adapter.Item2[i].Item3, item.ModelRights[i].Name);
+                    Assert.Equal(adapter.Item2[i].Item1, item.ModelRights[i].PrimaryKey);
+                    Assert.Equal(adapter.Item2[i].Item2, item.ModelRights[i].ForeignKey);
+                    Assert.Equal(adapter.Item2[i].Item3, item.ModelRights[i].Name);
                 }
             }
         }

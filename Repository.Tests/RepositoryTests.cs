@@ -2,24 +2,22 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using NUnit.Framework;
 using Observable.Repository.Tests.Data;
 using Observable.Repository.Tests.Tools;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
-    public class RepositoryTests
+    public class RepositoryTests : IDisposable
     {
-        private IRepositoryContainer _container;
+        private readonly IRepositoryContainer _container;
         private const string FILTER_NAME = "Exclude";
 
-        private Subject<List<ModelLeft>> _addSubject;
-        private Subject<List<ModelLeft>> _removeSubject;
-        private Subject<List<ModelLeft>> _reloadSubject;
+        private readonly Subject<List<ModelLeft>> _addSubject;
+        private readonly Subject<List<ModelLeft>> _removeSubject;
+        private readonly Subject<List<ModelLeft>> _reloadSubject;
 
-        [SetUp]
-        public void SetUp()
+        public RepositoryTests()
         {
             _container = new RepositoryContainer();
 
@@ -36,13 +34,12 @@ namespace Observable.Repository.Tests
                      .Register();
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
             _container.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void TestAddOrUpdate()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -88,13 +85,13 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(3, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[0]));
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[1]));
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[2]));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Equal(3, addedItems.Count());
+            Assert.Contains(addedItems, p => p.ModelLeft == list[0]);
+            Assert.Contains(addedItems, p => p.ModelLeft == list[1]);
+            Assert.Contains(addedItems, p => p.ModelLeft == list[2]);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(1, "Test1"), new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(3, "Test3"));
 
             // 2. Update
@@ -113,16 +110,16 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(3, updatedItems.Count());
-            Assert.IsTrue(updatedItems.Any(p => p.ModelLeft == list[0]));
-            Assert.IsTrue(updatedItems.Any(p => p.ModelLeft == list[1]));
-            Assert.IsTrue(updatedItems.Any(p => p.ModelLeft == list[2]));
-            Assert.AreEqual(3, replacedItems.Count());
-            Assert.IsTrue(replacedItems.Any(p => p.ModelLeft == last[0]));
-            Assert.IsTrue(replacedItems.Any(p => p.ModelLeft == last[1]));
-            Assert.IsTrue(replacedItems.Any(p => p.ModelLeft == last[2]));
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Equal(3, updatedItems.Count());
+            Assert.Contains(updatedItems, p => p.ModelLeft == list[0]);
+            Assert.Contains(updatedItems, p => p.ModelLeft == list[1]);
+            Assert.Contains(updatedItems, p => p.ModelLeft == list[2]);
+            Assert.Equal(3, replacedItems.Count());
+            Assert.Contains(replacedItems, p => p.ModelLeft == last[0]);
+            Assert.Contains(replacedItems, p => p.ModelLeft == last[1]);
+            Assert.Contains(replacedItems, p => p.ModelLeft == last[2]);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(1, "Update Test1"), new KeyValuePair<int, string>(2, "Update Test2"), new KeyValuePair<int, string>(3, "Update Test3"));
 
             // 3. Update should be removed
@@ -141,14 +138,14 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(1, updatedItems.Count());
-            Assert.IsTrue(updatedItems.Any(p => p.ModelLeft == list[1]));
-            Assert.AreEqual(1, replacedItems.Count());
-            Assert.IsTrue(replacedItems.Any(p => p.ModelLeft == last[1]));
-            Assert.AreEqual(2, removedItems.Count());
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft == last[0]));
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft == last[2]));
+            Assert.Empty(addedItems);
+            Assert.Single(updatedItems);
+            Assert.Contains(updatedItems, p => p.ModelLeft == list[1]);
+            Assert.Single(replacedItems);
+            Assert.Contains(replacedItems, p => p.ModelLeft == last[1]);
+            Assert.Equal(2, removedItems.Count());
+            Assert.Contains(removedItems, p => p.ModelLeft == last[0]);
+            Assert.Contains(removedItems, p => p.ModelLeft == last[2]);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"));
 
             // 4. Add but it's filtered
@@ -164,11 +161,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
-            Assert.AreEqual(1, repository.Count);
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
+            Assert.Equal(1, repository.Count);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"));
 
             // 5. Add and update the added
@@ -185,11 +182,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[1]));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft == list[1]);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Update"));
 
             // 6. Add and update the added but it's filtered
@@ -206,10 +203,10 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Update"));
 
             // 7. Update -> Filter
@@ -226,12 +223,12 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(1, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Single(removedItems);
             // See the 5.
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft.PrimaryKey == 4 && p.ModelLeft.Name == "Update"));
+            Assert.Contains(removedItems, p => p.ModelLeft.PrimaryKey == 4 && p.ModelLeft.Name == "Update");
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"));
 
             // 8. Add -> update -> Filter
@@ -249,10 +246,10 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"));
 
             // 9. Add -> Filter -> Add
@@ -270,11 +267,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[2]));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft == list[2]);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"));
 
             // 10. Add -> Filter -> Add -> Update
@@ -293,11 +290,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[3]));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft == list[3]);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"), new KeyValuePair<int, string>(5, "Update"));
 
             // 10. Update -> Filter
@@ -315,11 +312,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(1, removedItems.Count());
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft == last[3]));
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Single(removedItems);
+            Assert.Contains(removedItems, p => p.ModelLeft == last[3]);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"));
 
             // 11. Remove -> Add
@@ -335,11 +332,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(1, addedItems.Count());
-            Assert.IsTrue(addedItems.Any(p => p.ModelLeft == list[0]));
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Single(addedItems);
+            Assert.Contains(addedItems, p => p.ModelLeft == list[0]);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"), new KeyValuePair<int, string>(6, "Add"));
 
             last = list.ToList();
@@ -356,12 +353,12 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(1, updatedItems.Count());
-            Assert.IsTrue(updatedItems.Any(p => p.ModelLeft == list[1]));
-            Assert.AreEqual(1, replacedItems.Count());
-            Assert.IsTrue(replacedItems.Any(p => p.ModelLeft == last[0]));
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Single(updatedItems);
+            Assert.Contains(updatedItems, p => p.ModelLeft == list[1]);
+            Assert.Single(replacedItems);
+            Assert.Contains(replacedItems, p => p.ModelLeft == last[0]);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"), new KeyValuePair<int, string>(6, "Add should be update"));
 
             // 12. Filter -> Add -> Update
@@ -380,12 +377,12 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(1, updatedItems.Count());
-            Assert.IsTrue(updatedItems.Any(p => p.ModelLeft == list[2]));
-            Assert.AreEqual(1, replacedItems.Count());
-            Assert.IsTrue(replacedItems.Any(p => p.ModelLeft == last[1]));
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Single(updatedItems);
+            Assert.Contains(updatedItems, p => p.ModelLeft == list[2]);
+            Assert.Single(replacedItems);
+            Assert.Contains(replacedItems, p => p.ModelLeft == last[1]);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"), new KeyValuePair<int, string>(6, "Update should be update"));
 
             // 13. Filter -> Add -> Update -> Filter
@@ -405,11 +402,11 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(1, removedItems.Count());
-            Assert.IsTrue(removedItems.Any(p => p.ModelLeft == last[2]));
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Single(removedItems);
+            Assert.Contains(removedItems, p => p.ModelLeft == last[2]);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"));
 
             // 14. Filter an unexisted item
@@ -425,16 +422,16 @@ namespace Observable.Repository.Tests
 
             _addSubject.OnNext(list);
 
-            Assert.AreEqual(0, addedItems.Count());
-            Assert.AreEqual(0, updatedItems.Count());
-            Assert.AreEqual(0, replacedItems.Count());
-            Assert.AreEqual(0, removedItems.Count());
+            Assert.Empty(addedItems);
+            Assert.Empty(updatedItems);
+            Assert.Empty(replacedItems);
+            Assert.Empty(removedItems);
             AssertContains(repository, new KeyValuePair<int, string>(2, "Test2"), new KeyValuePair<int, string>(4, "Add again"));
         }
 
         private static void AssertContains(IRepository<int, AdapterJoin> repository, params KeyValuePair<int, string>[] idNames)
         {
-            Assert.AreEqual(idNames.Length, repository.Count);
+            Assert.Equal(idNames.Length, repository.Count);
             foreach (var pair in idNames)
                 AssertContains(repository, pair);
         }
@@ -443,12 +440,11 @@ namespace Observable.Repository.Tests
         {
             var adapter = repository[left.Key];
             
-            Assert.AreEqual(left.Key, adapter.ModelLeft.PrimaryKey);
-            Assert.AreEqual(left.Value, adapter.ModelLeft.Name);
+            Assert.Equal(left.Key, adapter.ModelLeft.PrimaryKey);
+            Assert.Equal(left.Value, adapter.ModelLeft.Name);
         }
 
-        [Test]
-        [Ignore("Performances: Take too many times")]
+        [Fact(Skip = "Performances: Take too many times")]
         public void ReloadPerformancesTest()
         {
             var itemProduceCount = new[] { 1, 10, 100, 1000, 10000, 100000, 1000000};
@@ -483,7 +479,7 @@ namespace Observable.Repository.Tests
 
                     times[j] += elapsed;
 
-                    Assert.AreEqual(count, repository.Count);
+                    Assert.Equal(count, repository.Count);
                 }
 
                 Console.WriteLine("Reload for {0} items, Elapsed: {1} ms", count, elapsed.TotalMilliseconds / iterationCount);
@@ -506,9 +502,8 @@ namespace Observable.Repository.Tests
                     OperationsCount = count,
                 };
         }
-            
-        [Test]
-        [Ignore("Performances: Take too many times")]
+
+        [Fact(Skip = "Performances: Take too many times")]
         public void PerformanceTest()
         {
             const int iterationCount = 10;

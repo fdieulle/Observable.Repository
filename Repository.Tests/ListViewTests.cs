@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using Observable.Repository.Tests.Data;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
     public class ListViewTests
     {
-        private Subject<ModelLeft> _addProducer;
-        private Subject<ModelLeft> _removeProducer;
-        private Subject<List<ModelLeft>> _reloadProducer;
-        private IRepositoryContainer _container;
+        private readonly Subject<ModelLeft> _addProducer;
+        private readonly Subject<ModelLeft> _removeProducer;
+        private readonly Subject<List<ModelLeft>> _reloadProducer;
+        private readonly IRepositoryContainer _container;
 
-        [SetUp]
-        public void SetUp()
+        public ListViewTests()
         {
             _addProducer = new Subject<ModelLeft>();
             _removeProducer = new Subject<ModelLeft>();
@@ -30,7 +28,7 @@ namespace Observable.Repository.Tests
                 .Register();
         }
 
-        [Test]
+        [Fact]
         public void SubscribeAndDispose()
         {
             var repository = _container.GetRepository<int, ModelLeft>();
@@ -40,7 +38,7 @@ namespace Observable.Repository.Tests
             // 1. Subscribe list on an empty repository
             var subscribe = repository.Subscribe(list);
             // The list should be cleared
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
 
             // Add 4 items in the repository
             _addProducer.OnNext(CreateLeft(1));
@@ -54,7 +52,7 @@ namespace Observable.Repository.Tests
             // 2. Dispose the suscription
             subscribe.Dispose();
             // The list should be cleared
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
 
             // 3. Subscribe list on a filled repository
             subscribe = repository.Subscribe(list);
@@ -63,11 +61,11 @@ namespace Observable.Repository.Tests
 
             // Dispose the suscription
             subscribe.Dispose();
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
 
             // 4. Subscribe without get the snapshot
             subscribe = repository.Subscribe(list, synchronize: false);
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
 
             // Update an item in the repository
             _addProducer.OnNext(CreateLeft(2, "Update"));
@@ -76,7 +74,7 @@ namespace Observable.Repository.Tests
 
             // Dispose the suscription
             subscribe.Dispose();
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
 
             // 5. Subscribe by filtering repository items
             subscribe = repository.Subscribe(list, p => p.PrimaryKey != 3);
@@ -85,7 +83,7 @@ namespace Observable.Repository.Tests
 
             // Dispose the suscription
             subscribe.Dispose();
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
 
             // 6. Subscribe by Selected a part of ModelLeft
             var ids = new List<int>();
@@ -94,7 +92,7 @@ namespace Observable.Repository.Tests
 
             // Dispose the suscription
             subscribe2.Dispose();
-            Assert.AreEqual(0, ids.Count);
+            Assert.Empty(ids);
 
             // 7. Subscribe and dispatch list management
             var step = 0;
@@ -106,15 +104,15 @@ namespace Observable.Repository.Tests
             };
             subscribe = repository.Subscribe(list, synchronize: true, viewDispatcher: dispatcher);
 
-            Assert.AreEqual(2, step);
+            Assert.Equal(2, step);
             AreEqual(list, CreateLeft(1), CreateLeft(2, "Update"), CreateLeft(3), CreateLeft(4));
 
             // Dispose the suscription
             subscribe.Dispose();
-            Assert.AreEqual(0, list.Count);
+            Assert.Empty(list);
         }
 
-        [Test]
+        [Fact]
         public void TestMangeItems()
         {
             var repository = _container.GetRepository<int, ModelLeft>();
@@ -158,11 +156,11 @@ namespace Observable.Repository.Tests
 
         private static void AreEqual<T>(IList<T> list, params T[] array)
         {
-            Assert.AreEqual(array.Length, list.Count);
+            Assert.Equal(array.Length, list.Count);
             var count = array.Length;
             for (var i = 0; i < count; i++)
             {
-                Assert.AreEqual(array[i], list[i]);
+                Assert.Equal(array[i], list[i]);
             }
         }
     }

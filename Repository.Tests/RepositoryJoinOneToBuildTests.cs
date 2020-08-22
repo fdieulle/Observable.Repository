@@ -1,23 +1,21 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
 using Observable.Repository.Tests.Data;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
     public class RepositoryJoinOneToBuildTests : RepositoryBaseTests
     {
-        private IRepositoryContainer _container;
-        private Subject<ModelLeft> _addLeft;
-        private Subject<ModelLeft> _removeLeft;
-        private Subject<List<ModelLeft>> _reloadLeft;
-        private Subject<ModelRight> _addRight;
-        private Subject<ModelRight> _removeRight;
-        private Subject<List<ModelRight>> _reloadRight;
+        private readonly IRepositoryContainer _container;
+        private readonly Subject<ModelLeft> _addLeft;
+        private readonly Subject<ModelLeft> _removeLeft;
+        private readonly Subject<List<ModelLeft>> _reloadLeft;
+        private readonly Subject<ModelRight> _addRight;
+        private readonly Subject<ModelRight> _removeRight;
+        private readonly Subject<List<ModelRight>> _reloadRight;
         private const string FILTERED_NAME = "FILTER";
 
-        [SetUp]
-        public void SetUp()
+        public RepositoryJoinOneToBuildTests()
         {
             _addLeft = new Subject<ModelLeft>();
             _removeLeft = new Subject<ModelLeft>();
@@ -43,7 +41,7 @@ namespace Observable.Repository.Tests
                 .Register();
         }
 
-        [Test]
+        [Fact]
         public void TestAddRightBeforeLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -81,7 +79,7 @@ namespace Observable.Repository.Tests
                 A(L(3, "Left 3")));
         }
 
-        [Test]
+        [Fact]
         public void TestAddRightAfterLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -141,7 +139,7 @@ namespace Observable.Repository.Tests
                 A(L(2, "Left 2")));
         }
 
-        [Test]
+        [Fact]
         public void TestUpdateLeftThenUpdateRight()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -172,7 +170,7 @@ namespace Observable.Repository.Tests
             checker.Check(A(L(1, "Left 1 Updated"), R(1, 1, "Right 1 Updated")));
         }
 
-        [Test]
+        [Fact]
         public void TestRemoveRight()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -208,7 +206,7 @@ namespace Observable.Repository.Tests
                 A(L(2, "Left 2")));
         }
 
-        [Test]
+        [Fact]
         public void TestReloadRight()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -247,7 +245,7 @@ namespace Observable.Repository.Tests
                 A(L(3, "Left 3"), R(103, 3, "Right 103")));
         }
 
-        [Test]
+        [Fact]
         public void TestRemoveLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -276,7 +274,7 @@ namespace Observable.Repository.Tests
                 A(L(3, "Left 3")));
         }
 
-        [Test]
+        [Fact]
         public void TestReloadLeft()
         {
             var repository = _container.GetRepository<int, AdapterJoin>();
@@ -310,7 +308,7 @@ namespace Observable.Repository.Tests
                     A(L(4, "Left 400"), R(4, 4, "Right 4"))));
         }
 
-        [Test]
+        [Fact]
         public void TestChangeLinkKeyOnLeft()
         {
             var checker = _container.Build<int, AdapterJoin, ModelLeft>(p => p.PrimaryKey)
@@ -365,7 +363,7 @@ namespace Observable.Repository.Tests
                 A(L(3, "Left 3", 4), R(4, 4, "Right 4 Updated")));
         }
 
-        [Test]
+        [Fact]
         public void TestGetSnapshotFromRightSource()
         {
             _container.Build<int, ModelRight>(p => p.PrimaryKey)
@@ -377,7 +375,7 @@ namespace Observable.Repository.Tests
             _addRight.OnNext(R(4, 2, "Right 4"));
             _addRight.OnNext(R(5, 3, FILTERED_NAME));
 
-            Assert.AreEqual(5, _container.GetRepository<int, ModelRight>().Count);
+            Assert.Equal(5, _container.GetRepository<int, ModelRight>().Count);
 
             // Build repository and get snapshot from TRight source
             _container.Build<int, AdapterJoin, ModelLeft>("2", p => p.PrimaryKey)

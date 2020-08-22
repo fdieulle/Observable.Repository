@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit;
 
 namespace Observable.Repository.Tests.Examples
 {
-    [TestFixture]
     public class ExampleClientOrder
     {
         public class Order
@@ -54,7 +53,7 @@ namespace Observable.Repository.Tests.Examples
             }
         }
 
-        [Test]
+        [Fact]
         public void Test()
         {
             var container = new RepositoryContainer();

@@ -1,29 +1,27 @@
 ﻿using System;
-using NUnit.Framework;
 using Observable.Repository.Configuration;
 using Observable.Repository.Tests.Data;
+using Xunit;
 
 namespace Observable.Repository.Tests
 {
-    [TestFixture]
     public class RepositoryBuilderTests
     {
         private IRepositoryContainer _container;
 
-        [SetUp]
-        public void Setup()
+        public RepositoryBuilderTests()
         {
             _container = new RepositoryContainer();
         }
 
-        [Test]
+        [Fact]
         public void TestExtensionsMethods()
         {
             
 
         }
 
-        [Test]
+        [Fact]
         public void TestBuildThenCreate()
         {
             var repository1 = _container.Build<int, T1>(p => p.Id).Create();
@@ -40,7 +38,7 @@ namespace Observable.Repository.Tests
             Test("R4", repository4, "Source2", filter);
         }
 
-        [Test]
+        [Fact]
         public void TestBuildThenRegister()
         {
             _container.Build<int, T1>(p => p.Id).Register();
@@ -61,7 +59,7 @@ namespace Observable.Repository.Tests
             Test("R4", repository4, "Source2", filter);
         }
 
-        [Test]
+        [Fact]
         public void TestBuildAndAddBehavior()
         {
             var repository0 = _container.Build<int, T1>(p => p.Id)
@@ -86,7 +84,7 @@ namespace Observable.Repository.Tests
             Test(repository3, StorageBehavior.RollingAndTimeInterval, 100, TimeSpan.FromHours(2), getTimestamp);
         }
 
-        [Test]
+        [Fact]
         public void TestBuildAndDefineCtor()
         {
             var repository1 = _container.Build<int, T1>(p => p.Id)
@@ -121,10 +119,10 @@ namespace Observable.Repository.Tests
         {
             Test<TKey, TValue, TLeft>(null, repository);
 
-            Assert.IsNotNull(repository.Configuration.Ctor);
-            Assert.AreEqual(ctorArguments.Length, repository.Configuration.CtorArguments.Count);
+            Assert.NotNull(repository.Configuration.Ctor);
+            Assert.Equal(ctorArguments.Length, repository.Configuration.CtorArguments.Count);
             for (var i = 0; i < ctorArguments.Length; i++ )
-                Assert.AreEqual(ctorArguments[i], repository.Configuration.CtorArguments[i]);
+                Assert.Equal(ctorArguments[i], repository.Configuration.CtorArguments[i]);
         }
 
         private static void Test<TKey, TValue>(IRepository<TKey, TValue> repository, StorageBehavior behavior,
@@ -138,10 +136,10 @@ namespace Observable.Repository.Tests
         {
             Test<TKey, TValue, TLeft>(null, repository);
 
-            Assert.AreEqual(behavior, repository.Configuration.Behavior);
-            Assert.AreEqual(rollingCount, repository.Configuration.RollingCount);
-            Assert.AreEqual(timspan, repository.Configuration.TimeInterval);
-            Assert.AreEqual(getTimestamp, repository.Configuration.GetTimestamp);
+            Assert.Equal(behavior, repository.Configuration.Behavior);
+            Assert.Equal(rollingCount, repository.Configuration.RollingCount);
+            Assert.Equal(timspan, repository.Configuration.TimeInterval);
+            Assert.Equal(getTimestamp, repository.Configuration.GetTimestamp);
         }
 
         private static void Test<TKey, TValue>(string name, IRepository<TKey, TValue> repository)
@@ -151,29 +149,29 @@ namespace Observable.Repository.Tests
 
         private static void Test<TKey, TValue, TLeft>(string name, IRepository<TKey, TValue> repository, string leftSourceName = null, Func<TLeft, bool> leftFilter = null)
         {
-            Assert.IsNotNull(repository);
+            Assert.NotNull(repository);
             name = name ?? string.Empty;
-            Assert.AreEqual(name, repository.Name);
+            Assert.Equal(name, repository.Name);
 
             var configuration = repository.Configuration;
-            Assert.IsNotNull(configuration);
-            Assert.AreEqual(name, configuration.Name);
+            Assert.NotNull(configuration);
+            Assert.Equal(name, configuration.Name);
 
-            Assert.AreEqual(typeof(TKey), configuration.KeyType);
-            Assert.AreEqual(typeof(TValue), configuration.ValueType);
-            Assert.AreEqual(typeof (TLeft), configuration.LeftType);
+            Assert.Equal(typeof(TKey), configuration.KeyType);
+            Assert.Equal(typeof(TValue), configuration.ValueType);
+            Assert.Equal(typeof (TLeft), configuration.LeftType);
             
-            Assert.IsNotNull(configuration.Key);
-            Assert.AreEqual(typeof(TKey), configuration.Key.KeyType);
-            Assert.AreEqual(typeof(TLeft), configuration.Key.FromType);
-            Assert.IsNotNull(configuration.Key.GetKey);
-            Assert.IsInstanceOf<Func<TLeft, TKey>>(configuration.Key.GetKey);
+            Assert.NotNull(configuration.Key);
+            Assert.Equal(typeof(TKey), configuration.Key.KeyType);
+            Assert.Equal(typeof(TLeft), configuration.Key.FromType);
+            Assert.NotNull(configuration.Key.GetKey);
+            Assert.IsAssignableFrom<Func<TLeft, TKey>>(configuration.Key.GetKey);
 
-            Assert.IsNotNull(((RepositoryConfiguration<TKey, TValue, TLeft>)configuration).GetKey);
-            Assert.IsInstanceOf<Func<TLeft, TKey>>(((RepositoryConfiguration<TKey, TValue, TLeft>)configuration).GetKey);
+            Assert.NotNull(((RepositoryConfiguration<TKey, TValue, TLeft>)configuration).GetKey);
+            Assert.IsAssignableFrom<Func<TLeft, TKey>>(((RepositoryConfiguration<TKey, TValue, TLeft>)configuration).GetKey);
 
-            Assert.AreEqual(leftSourceName, configuration.LeftSourceName);
-            Assert.AreEqual(leftFilter, configuration.LeftFilter);
+            Assert.Equal(leftSourceName, configuration.LeftSourceName);
+            Assert.Equal(leftFilter, configuration.LeftFilter);
         }
     }
 }
