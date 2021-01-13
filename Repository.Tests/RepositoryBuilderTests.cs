@@ -7,7 +7,7 @@ namespace Observable.Repository.Tests
 {
     public class RepositoryBuilderTests
     {
-        private IRepositoryContainer _container;
+        private readonly IRepositoryContainer _container;
 
         public RepositoryBuilderTests()
         {
@@ -64,19 +64,19 @@ namespace Observable.Repository.Tests
         {
             var repository0 = _container.Build<int, T1>(p => p.Id)
                 .Create();
-            Test(repository0, StorageBehavior.None, default(int), default(TimeSpan), null);
+            Test(repository0, StorageBehavior.None, default, default, null);
 
             var repository1 = _container.Build<int, T1>(p => p.Id)
                 .AddRollingBehavior(1000)
                 .Create();
-            Test(repository1, StorageBehavior.Rolling, 1000, default(TimeSpan), null);
+            Test(repository1, StorageBehavior.Rolling, 1000, default, null);
 
             var getTimestamp = new Func<T1, DateTime>(p => p.Timestamp);
 
             var repository2 = _container.Build<int, T1>(p => p.Id)
                 .AddTimeIntervalBehavior(TimeSpan.FromHours(2), getTimestamp)
                 .Create();
-            Test(repository2, StorageBehavior.TimeInterval, default(int), TimeSpan.FromHours(2), getTimestamp);
+            Test(repository2, StorageBehavior.TimeInterval, default, TimeSpan.FromHours(2), getTimestamp);
 
             var repository3 = _container.Build<int, T1>(p => p.Id)
                 .AddRollingAndTimeIntervalBehavior(100, TimeSpan.FromHours(2), getTimestamp)
@@ -112,10 +112,10 @@ namespace Observable.Repository.Tests
                 .Create();
 
             Test<int, Tuple<T1>, T1>(repository3, typeof(T1));
-            Test<int, Tuple<T1>, T1>(repository3, StorageBehavior.Rolling, 1000, default(TimeSpan), null);
+            Test<int, Tuple<T1>, T1>(repository3, StorageBehavior.Rolling, 1000, default, null);
         }
 
-        public static void Test<TKey, TValue, TLeft>(IRepository<TKey, TValue> repository, params Type[] ctorArguments)
+        private static void Test<TKey, TValue, TLeft>(IRepository<TKey, TValue> repository, params Type[] ctorArguments)
         {
             Test<TKey, TValue, TLeft>(null, repository);
 
@@ -150,7 +150,7 @@ namespace Observable.Repository.Tests
         private static void Test<TKey, TValue, TLeft>(string name, IRepository<TKey, TValue> repository, string leftSourceName = null, Func<TLeft, bool> leftFilter = null)
         {
             Assert.NotNull(repository);
-            name = name ?? string.Empty;
+            name ??= string.Empty;
             Assert.Equal(name, repository.Name);
 
             var configuration = repository.Configuration;

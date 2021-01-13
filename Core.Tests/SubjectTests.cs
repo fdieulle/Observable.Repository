@@ -91,7 +91,6 @@ namespace Observable.Tests
             var selectedSubject = subject.Select(p => new Tuple<string, int>(p, 1));
 
             Assert.IsAssignableFrom<IObservable<Tuple<string, int>>>(selectedSubject);
-            Assert.IsNotType<IObserver<Tuple<string, int>>>(selectedSubject);
         }
 
         [Fact]
@@ -156,7 +155,6 @@ namespace Observable.Tests
             var filteredSubject = subject.Where(p => p == "Test");
 
             Assert.IsAssignableFrom<IObservable<string>>(filteredSubject);
-            Assert.IsNotType<IObserver<string>>(filteredSubject);
         }
 
         [Fact]
@@ -310,7 +308,7 @@ namespace Observable.Tests
         }
 
 
-        const int COUNT = 10000;
+        private const int COUNT = 10000;
         [Fact]
         public void TestConcurrentAccess()
         {

@@ -109,7 +109,7 @@ namespace Observable.Tests
             producer1.OnNext("Producer1");
 
             Assert.Equal(0, notificationCount);
-            Assert.Equal(null, lastNotification);
+            Assert.Null(lastNotification);
 
             producer2.OnNext("Producer2");
 
