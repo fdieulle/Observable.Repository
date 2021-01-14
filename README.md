@@ -1,5 +1,5 @@
 # Observable.Repository
-[![Build Status](https://api.travis-ci.com/fdieulle/Observable.Repository.svg?branch=master)](https://travis-ci.com/fdieulle/Observable.Repository)
+[![Build Status](https://api.travis-ci.com/fdieulle/Observable.Repository.svg?branch=master)](https://travis-ci.com/fdieulle/Observable.Repository) ![.NET](https://github.com/fdieulle/Observable.Repository/workflows/.NET/badge.svg?branch=master)
 
 Event driven approach to store, aggregate and manage data
 ## Introduction
